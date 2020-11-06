@@ -996,13 +996,56 @@ function getAmountOfPlayerUnitsWithoutBuildings(playerId)
 	local allUnitsWithoutBuilding = getAmountOfPlayerUnits(playerId)
 	allUnitsWithoutBuilding = allUnitsWithoutBuilding - getUnitsInBuildings(playerId)
 	return allUnitsWithoutBuilding
-end 
+end
 
+
+seed = 0
+lastSeed = 0
 function randomBetween(fromNumber, toNumber)
+	if seed == 0 or Game.Time() >= (lastSeed + 5) then
+		seed = getSeed()
+		lastSeed = Game.Time()
+	else
+		seed = seed * Settlers.Amount(1, Settlers.CARRIER)
+	end
+	seed = seed - floorNumber(seed)
 	local divNumber = toNumber - fromNumber
-	local randomNumber = fromNumber + Game.Random(divNumber + 1) 
+	local randomNumber = fromNumber + floorNumber(seed * (divNumber + 1))
 	return randomNumber
 end
+
+function getSeed()
+	local width = Map.Width() - 1;
+	local height = Map.Height() - 1;
+	local x
+	local y
+	local p = Game.NumberOfPlayers()
+	local seed = 0
+
+	while p > 0
+	do
+		x = width
+		while x >= 0
+		do
+			y = height
+			while y >= 0
+			do
+				seed = seed + (Settlers.AmountInArea(p, Settlers.ANY_SETTLER, x, y, 1) * p * x * y) / 1000000
+				y = y - 10
+			end
+			x = x - 10
+		end
+		p = p - 1
+	end
+	return seed
+end
+----
+---function randomBetween(fromNumber, toNumber)
+---	local divNumber = toNumber - fromNumber
+---	local randomNumber = fromNumber + Game.Random(divNumber + 1)
+---	return randomNumber
+---end
+----
 
 
 function shuffleTable(theTable)

@@ -1,5 +1,5 @@
----- Dieses Template kannt du in deine neue map einfach kopieren. Es stellt dir viele "Standard" Funktionen bereits zur Verfügung.
----- Das eigentliche Script geht ab der Zeile 171 los --> "Ab hier beginnt das eigentliche Script".
+---- Dieses Template kannst du in deine neue map einfach kopieren. Es stellt dir viele "Standard" Funktionen bereits zur Verfügung.
+---- Das eigentliche Script geht ab der Zeile 169 los --> "Ab hier beginnt das eigentliche Script".
 ---- Have fun -- sl4ng3r --
 
 -------------------------------------------------------------
@@ -180,20 +180,21 @@ function register_functions()
     MinuteEvents.register_functions()
 end
 
+--- Ein Debug schalter. Habe damit bei der Entwicklung gute Erfahrungen gemacht.
 function isDebug()
     return 1;
 end
 
--- Vars.Save8 und Vars.Save9 werden reserviert, da sie in funktionen genutzt werden. Möchtet ihr die Vars Variablen verwenden und nicht das VarsExt Framework, müsst ihr diese hier
--- reservieren.
+--- Vars.Save8 und Vars.Save9 werden reserviert, da sie in Funktionen genutzt werden. Möchtet ihr die Vars Variablen verwenden und nicht das VarsExt Framework, müsst ihr diese hier
+--- reservieren.
 VarsExt.occupy(8)
 VarsExt.occupy(9)
 
--- So solltet ihr Variablen setzten, die ihr nach dem Laden noch braucht. Das VarsExt hat die Limitierung auf nur 9 Variablen um ein vielfaches erhöht.
+--- So solltet ihr Variablen setzten, die ihr nach dem Laden noch braucht. Das VarsExt hat die Limitierung auf nur 9 Variablen um ein vielfaches erhöht.
 meineTolleVarsVariable = VarsExt.create(2);
 
 
---hier kommen Initialisierungen hin die bei start oder laden ausgefuehrt werden sollen
+--- Hier kommen Initialisierungen hin, die bei start oder laden ausgefuehrt werden sollen
 function initGame()
     if isDebug() == 1 then
         dbgTestFunction()
@@ -207,8 +208,6 @@ function dbgTestFunction()
     dbg.stm("dbug Script geht ")
     meineTolleVarsVariable:save(55)
     dbg.stm("Wert von meineTolleVarsVariable " .. meineTolleVarsVariable:get())
-
-
 end
 
 function doActionsAfterMinutes()
@@ -342,7 +341,6 @@ function randomBetween(fromNumber, toNumber)
     if seed == 0 or Game.Time() >= (lastSeed + 5) then
         seed = getSeed()
         lastSeed = Game.Time()
-        dbg.stm("newSeed")
     else
         seed = seed * Settlers.Amount(1, Settlers.CARRIER)
     end
