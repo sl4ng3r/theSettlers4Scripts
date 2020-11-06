@@ -159,8 +159,6 @@ VarsExt.occupy = function(save)
     end
 end
 
-
-
 -----------------------------------------------
 -----------------------------------------------
 -----------------------------------------------
@@ -208,11 +206,10 @@ function dbgTestFunction()
     -- Hier könnt ihr code zum Testen hinschreiben.
     dbg.stm("dbug Script geht ")
     meineTolleVarsVariable:save(55)
-    dbg.stm("Wert von meineTolleVarsVariable " ..  meineTolleVarsVariable:get())
+    dbg.stm("Wert von meineTolleVarsVariable " .. meineTolleVarsVariable:get())
 
 
 end
-
 
 function doActionsAfterMinutes()
     --wird jede Minute ausgefuehrt
@@ -307,7 +304,6 @@ function newMinute()
     end
 end
 
-
 militaryUnits = { Settlers.SWORDSMAN_01, Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03, Settlers.BOWMAN_01, Settlers.BOWMAN_02, Settlers.BOWMAN_03, Settlers.AXEWARRIOR_01, Settlers.AXEWARRIOR_02, Settlers.AXEWARRIOR_03, Settlers.BLOWGUNWARRIOR_01, Settlers.BLOWGUNWARRIOR_02, Settlers.BLOWGUNWARRIOR_03, Settlers.BACKPACKCATAPULIST_01, Settlers.BACKPACKCATAPULIST_02, Settlers.BACKPACKCATAPULIST_03, Settlers.MEDIC_01, Settlers.MEDIC_02, Settlers.MEDIC_03, Settlers.SQUADLEADER }
 
 function getAmountOfPlayerUnits(playerId)
@@ -343,14 +339,14 @@ end
 seed = 0
 lastSeed = 0
 function randomBetween(fromNumber, toNumber)
-
     if seed == 0 or Game.Time() >= (lastSeed + 5) then
         seed = getSeed()
-        seed = seed - floorNumber(seed)
         lastSeed = Game.Time()
         dbg.stm("newSeed")
+    else
+        seed = seed * Settlers.Amount(1, Settlers.CARRIER)
     end
-
+    seed = seed - floorNumber(seed)
     local divNumber = toNumber - fromNumber
     local randomNumber = fromNumber + floorNumber(seed * (divNumber + 1))
     return randomNumber
