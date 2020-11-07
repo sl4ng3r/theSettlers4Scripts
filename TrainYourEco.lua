@@ -215,8 +215,8 @@ players = {
     p2 = {
         storeX = 570,
         storeY = 935,
-        searchX = 573,
-        searchY = 744,
+        searchX = 571,
+        searchY = 937,
         id = 2
     },
     p3 = {
@@ -305,18 +305,97 @@ end
 
 function calculateGoodsForPlayers()
     pointsPlayer1:save(pointsPlayer1:get() + calculatePointsForStorageArea(players.p1))
+    pointsPlayer2:save(pointsPlayer2:get() + calculatePointsForStorageArea(players.p2))
+    pointsPlayer3:save(pointsPlayer3:get() + calculatePointsForStorageArea(players.p3))
+    pointsPlayer4:save(pointsPlayer4:get() + calculatePointsForStorageArea(players.p4))
+    pointsPlayer5:save(pointsPlayer5:get() + calculatePointsForStorageArea(players.p5))
+    pointsPlayer6:save(pointsPlayer6:get() + calculatePointsForStorageArea(players.p6))
+
+    local calcAmountOfPlayers = 0
+    if pointsPlayer1:get() > 0 then
+        calcAmountOfPlayers = calcAmountOfPlayers + 1
+    end
+    if pointsPlayer2:get() > 0 then
+        calcAmountOfPlayers = calcAmountOfPlayers + 1
+    end
+    if pointsPlayer3:get() > 0 then
+        calcAmountOfPlayers = calcAmountOfPlayers + 1
+    end
+    if pointsPlayer4:get() > 0 then
+        calcAmountOfPlayers = calcAmountOfPlayers + 1
+    end
+    if pointsPlayer5:get() > 0 then
+        calcAmountOfPlayers = calcAmountOfPlayers + 1
+    end
+    if pointsPlayer6:get() > 0 then
+        calcAmountOfPlayers = calcAmountOfPlayers + 1
+    end
+    amountPlayers:save(calcAmountOfPlayers)
+
+    if isDebug() == TRUE then
+        dbg.stm("Partie mit " .. amountPlayers:get() .. " Spielern" )
+    end
+
 end
 
 function printStatistic()
     dbg.stm("Aktueller Punktestand:")
-    local msg = "Spieler 1(" .. getTextForPlayerRace(1) .. "): " .. pointsPlayer1:get() .. " / "
-    msg = msg .. "Spieler 2(" .. getTextForPlayerRace(2) .. "): " .. pointsPlayer2:get() .. " / "
-    msg = msg .. "Spieler 3(" .. getTextForPlayerRace(3) .. "): " .. pointsPlayer3:get() .. " / "
-    msg = msg .. "Spieler 4(" .. getTextForPlayerRace(4) .. "): " .. pointsPlayer4:get() .. " / "
-    msg = msg .. "Spieler 5(" .. getTextForPlayerRace(5) .. "): " .. pointsPlayer5:get() .. " / "
-    msg = msg .. "Spieler 6(" .. getTextForPlayerRace(6) .. "): " .. pointsPlayer6:get()
+    local msg = "Spieler 1(" .. getTextForPlayerRace(1) .. "): " .. pointsPlayer1:get()
+    if amountPlayers:get() > 1 then
+        msg = msg  .. " / " .. "Spieler 2(" .. getTextForPlayerRace(2) .. "): " .. pointsPlayer2:get() .. " / "
+        msg = msg .. "Spieler 3(" .. getTextForPlayerRace(3) .. "): " .. pointsPlayer3:get() .. " / "
+        msg = msg .. "Spieler 4(" .. getTextForPlayerRace(4) .. "): " .. pointsPlayer4:get() .. " / "
+        msg = msg .. "Spieler 5(" .. getTextForPlayerRace(5) .. "): " .. pointsPlayer5:get() .. " / "
+        msg = msg .. "Spieler 6(" .. getTextForPlayerRace(6) .. "): " .. pointsPlayer6:get()
+    end
     dbg.stm(msg)
 
+    if amountPlayers:get() > 1 then
+        printActualLead()
+    end
+
+end
+
+function msgPointsOnePlayer(playerId, points, addInfront, addEnd)
+    -- TODO hier gehts weiter
+    return addInfront .. "Spieler " .. playerId .. "(" .. getTextForPlayerRace(playerId) .. "): " .. points .. addEnd
+end
+
+function printActualLead()
+
+    local leadId = getLeadPlayerId();
+    dbg.stm("Aktueller führend: Spieler " .. leadId .. "(".. getTextForPlayerRace(leadId) .. ")" )
+
+end
+
+function getLeadPlayerId()
+    local leadId = 1;
+    local leadPoints =  pointsPlayer1:get()
+
+    if pointsPlayer2:get() > leadPoints then
+        leadId = 2
+        leadPoints =  pointsPlayer2:get()
+    end
+
+    if pointsPlayer3:get() > leadPoints then
+        leadId = 3
+        leadPoints =  pointsPlayer3:get()
+    end
+    if pointsPlayer4:get() > leadPoints then
+        leadId = 4
+        leadPoints =  pointsPlayer4:get()
+    end
+
+    if pointsPlayer5:get() > leadPoints then
+        leadId = 5
+        leadPoints =  pointsPlayer5:get()
+    end
+
+    if pointsPlayer6:get() > leadPoints then
+        leadId = 6
+    end
+
+    return leadId
 end
 
 function printFinalStatistic()
