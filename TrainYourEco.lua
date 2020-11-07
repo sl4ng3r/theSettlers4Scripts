@@ -166,10 +166,33 @@ end
 -----------------------------------------------
 -----------------------------------------------
 -----------------------------------------------
+---
+---
+
+--- Vars.Save8 und Vars.Save9 werden reserviert, da sie in Funktionen genutzt werden. Möchtet ihr die Vars Variablen verwenden und nicht das VarsExt Framework, müsst ihr diese hier
+--- reservieren.
+VarsExt.occupy(8)
+VarsExt.occupy(9)
+
+--- So solltet ihr Variablen setzten, die ihr nach dem Laden noch braucht. Das VarsExt hat die Limitierung auf nur 9 Variablen um ein vielfaches erhöht.
+pointsPlayer1 = VarsExt.create(4);
+pointsPlayer2 = VarsExt.create(4);
+pointsPlayer3 = VarsExt.create(4);
+pointsPlayer4 = VarsExt.create(4);
+pointsPlayer5 = VarsExt.create(4);
+pointsPlayer6 = VarsExt.create(4);
+
+
 function new_game()
     request_event(doActionsAfterMinutes, Events.FIVE_TICKS)
     request_event(initGame, Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
     MinuteEvents.new_game()
+    pointsPlayer1:save(0)
+    pointsPlayer2:save(0)
+    pointsPlayer3:save(0)
+    pointsPlayer4:save(0)
+    pointsPlayer5:save(0)
+    pointsPlayer6:save(0)
 end
 
 function register_functions()
@@ -180,33 +203,45 @@ end
 
 players = {
     p1 = {
-        x = 309,
-        y = 940,
+        storeX = 311,
+        storeY = 941,
+        searchX = 313,
+        searchY = 944,
         id = 1
     },
     p2 = {
-        x = 567,
-        y = 928,
+        storeX = 570,
+        storeY = 935,
+        searchX = 573,
+        searchY = 744,
         id = 2
     },
     p3 = {
-        x = 814,
-        y = 932,
+        storeX = 816,
+        storeY = 936,
+        searchX = 820,
+        searchY = 943,
         id = 3
     },
     p4 = {
-        x = 321,
-        y = 459,
+        storeX = 321,
+        storeY = 459,
+        searchX = 311,
+        searchY = 941,
         id = 4
     },
     p5 = {
-        x = 573,
-        y = 457,
+        storeX = 573,
+        storeY = 457,
+        searchX = 311,
+        searchY = 941,
         id = 5
     },
     p6 = {
-        x = 816,
-        y = 458,
+        storeX = 816,
+        storeY = 458,
+        searchX = 311,
+        searchY = 941,
         id = 6
     }
 }
@@ -216,13 +251,6 @@ function isDebug()
     return TRUE;
 end
 
---- Vars.Save8 und Vars.Save9 werden reserviert, da sie in Funktionen genutzt werden. Möchtet ihr die Vars Variablen verwenden und nicht das VarsExt Framework, müsst ihr diese hier
---- reservieren.
-VarsExt.occupy(8)
-VarsExt.occupy(9)
-
---- So solltet ihr Variablen setzten, die ihr nach dem Laden noch braucht. Das VarsExt hat die Limitierung auf nur 9 Variablen um ein vielfaches erhöht.
-meineTolleVarsVariable = VarsExt.create(2);
 
 --- Hier kommen Initialisierungen hin, die bei start oder laden ausgefuehrt werden sollen
 function initGame()
@@ -246,14 +274,12 @@ function initGame()
 end
 
 function addStorageAreForPlayer(player)
-    Buildings.AddBuilding(player.x, player.y, player.id, Buildings.STORAGEAREA)
+    Buildings.AddBuilding(player.storeX, player.storeY, player.id, Buildings.STORAGEAREA)
 end
 
 function dbgTestFunction()
     -- Hier könnt ihr code zum Testen hinschreiben.
     dbg.stm("dbug Script geht ")
-    meineTolleVarsVariable:save(55)
-    dbg.stm("Wert von meineTolleVarsVariable " .. meineTolleVarsVariable:get())
 end
 
 function doActionsAfterMinutes()
@@ -264,7 +290,20 @@ function doActionsAfterMinutes()
 end
 
 function calculateGoodsForPlayers()
-    dbg.stm("nach 5 Minuten")
+    pointsPlayer1:save(pointsPlayer1:get() + calculatePointsForStorageArea(players.p1))
+
+    printStatistic()
+end
+
+function printStatistic()
+    dbg.stm("Aktueller Punktestand:")
+    local msg = "Spieler 1(" .. getTextForPlayerRace(1) .. "): " .. pointsPlayer1:get() .. " / "
+    msg = msg +  "Spieler 2(" .. getTextForPlayerRace(2) .. "): " .. pointsPlayer2:get() .. " / "
+    msg = msg +  "Spieler 3(" .. getTextForPlayerRace(3) .. "): " .. pointsPlayer3:get() .. " / "
+    msg = msg +  "Spieler 4(" .. getTextForPlayerRace(4) .. "): " .. pointsPlayer4:get() .. " / "
+    msg = msg +  "Spieler 5(" .. getTextForPlayerRace(5) .. "): " .. pointsPlayer5:get() .. " / "
+    msg = msg +  "Spieler 6(" .. getTextForPlayerRace(6) .. "): " .. pointsPlayer6:get()
+    dbg.stm(msg)
 end
 
 items10Points = { Goods.BOW, Goods.GOLDBAR, Goods.BATTLEAXE, Goods.AXE, Goods.ARMOR, Goods.BACKPACKCATAPULT, Goods.SWORD, Goods.BLOWGUN}
@@ -272,26 +311,39 @@ items7Points = { Goods.IRONBAR, Goods.EXPLOSIVEARROW, Goods.AMMO }
 items4Points = { Goods.WINE, Goods.GOLDORE, Goods.IRONORE, Goods.TEQUILA }
 
 function calculatePointsForStorageArea(player)
+    local searchRadius = 5
     local points = 0
     local goodId = 1
     --IDs der Gebaeude gehen von 1 - 83
     while goodId <= 43 do
-        local amountOfGoods = Goods.Amount(player.id, goodId)
+        local amountOfGoods = Goods.GetAmountInArea(player.id, goodId,player.searchX, player.searchY, searchRadius )
         if amountOfGoods > 0 then
-            if isValueInArray(items10Points, goodId) then
+            if isValueInArray(items10Points, goodId)  == TRUE then
+                if isDebug() == TRUE then
+                    dbg.stm(amountOfGoods .. " mal 10 Punkte")
+                end
                 points = points + amountOfGoods * 10
-            elseif isValueInArray(items7Points, goodId) then
+            elseif isValueInArray(items7Points, goodId)  == TRUE then
+                if isDebug() == TRUE then
+                    dbg.stm(amountOfGoods .. " mal 7 Punkte")
+                end
                 points = points + amountOfGoods * 7
-            elseif isValueInArray(items4Points, goodId) then
+            elseif isValueInArray(items4Points, goodId)  == TRUE then
+                if isDebug() == TRUE then
+                    dbg.stm(amountOfGoods .. " mal 4 Punkte")
+                end
                 points = points + amountOfGoods * 4
             else
+                if isDebug() == TRUE then
+                    dbg.stm(amountOfGoods .. " mal 2 Punkte")
+                end
                 points = points + amountOfGoods * 2
             end
-            Goods.Delete(player.x, player.y, 5, goodId)
+            Goods.Delete(player.searchX, player.searchY ,searchRadius , goodId)
         end
         goodId = goodId + 1
     end
-
+    return points
 end
 
 function isValueInArray(theArray, value)
@@ -378,7 +430,22 @@ function getPlayerIDWithMostUnitsForPosition(playersTable, enemyPosition)
 end
 
 
+function getTextForPlayerRace(playerId)
+    local raceId = Game.PlayerRace(playerId)
 
+    if raceId == 0 then
+        return "Römer"
+    elseif raceId == 1 then
+        return "Wikinger"
+    elseif raceId == 2 then
+        return "Mayas"
+    elseif raceId == 3 then
+        return "Dunkles Volk"
+    elseif raceId == 4 then
+        return "Trojaner"
+    end
+
+end
 
 
 -- gibt jede Minute einmal 1 zurueck

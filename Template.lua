@@ -305,6 +305,23 @@ function isValueInArray(theArray, value)
     return FALSE
 end
 
+function getTextForPlayerRace(playerId)
+    local raceId = Game.PlayerRace(playerId)
+
+    if raceId == 0 then
+        return "Römer"
+    elseif raceId == 1 then
+        return "Wikinger"
+    elseif raceId == 2 then
+        return "Mayas"
+    elseif raceId == 3 then
+        return "Dunkles Volk"
+    elseif raceId == 4 then
+        return "Trojaner"
+    end
+
+end
+
 -- gibt jede Minute einmal 1 zurueck
 function newMinute()
     if Vars.Save8 ~= Game.Time() then
