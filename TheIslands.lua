@@ -26,9 +26,31 @@ function doActionsAfterMinutes()
 
 	end
 
+	testLager()
 
+
+	---testDifferentIslandUnits()
+
+
+end
+
+function testLager()
+	if minuteReached(2) == 1 then
+		dbg.stm("2 Minuten rum")
+		Buildings.AddBuilding(140, 300, 1, Buildings.STORAGEAREA)
+
+	end
+
+	if minuteReached(5) == 1 then
+		dbg.stm("5 Minuten rum")
+		Goods.Delete(140,300,20,Goods.BOARD)
+	end
+
+end
+
+function testDifferentIslandUnits()
 	if minuteReached(1) == 1 then
-		
+
 		dbg.stm("Minute rum")
 		--AI.AttackNow(3,2,20)
 		Settlers.AddSettlers(68, 135, 3, Settlers.SQUADLEADER, 10)
@@ -37,7 +59,7 @@ function doActionsAfterMinutes()
 		Settlers.AddSettlers(66, 135, 3, Settlers.MEDIC_03, 10)
 		Settlers.AddSettlers(66, 135, 3, Settlers.PRIEST, 10)
 		AI.NewSquad(3, AI.CMD_SUICIDE_MISSION )
-		
+
 		Settlers.AddSettlers(150, 132, 3, Settlers.SQUADLEADER, 10)
 		Settlers.AddSettlers(150, 132, 3, Settlers.SWORDSMAN_03, 10)
 		Settlers.AddSettlers(150, 132, 3, Settlers.BOWMAN_03, 10)
@@ -46,7 +68,7 @@ function doActionsAfterMinutes()
 		AI.NewSquad(3, AI.CMD_SUICIDE_MISSION )
 
 		--Settlers.AddSettlers(167, 129, 4, Settlers.SWORDSMAN_03, 100)
-		
+
 		--Settlers.AddSettlers(310, 65, 4, Settlers.BOWMAN_03, 10)
 		--Settlers.AddSettlers(310, 65, 4, Settlers.SQUADLEADER, 10)
 		--Settlers.AddSettlers(310, 65, 4, Settlers.SWORDSMAN_03, 10)
@@ -55,19 +77,17 @@ function doActionsAfterMinutes()
 		--Settlers.AddSettlers(310, 65, 4, Settlers.PRIEST, 10)
 
 
-		
+
 	end
-	
-		if minuteReached(2) == 1 then
+
+	if minuteReached(2) == 1 then
 		dbg.stm("3 Minuten rum")
 		--AI.AttackNow(3,2,20)
-		
-		
+
+
 		--AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
 	end
-
 end
-
 
 ----------------------
 -- generalUtility  ---

@@ -178,9 +178,42 @@ function register_functions()
     MinuteEvents.register_functions()
 end
 
+players = {
+    p1 = {
+        x = 309,
+        y = 940,
+        id = 1
+    },
+    p2 = {
+        x = 567,
+        y = 928,
+        id = 2
+    },
+    p3 = {
+        x = 814,
+        y = 932,
+        id = 3
+    },
+    p4 = {
+        x = 321,
+        y = 459,
+        id = 4
+    },
+    p5 = {
+        x = 573,
+        y = 457,
+        id = 5
+    },
+    p6 = {
+        x = 816,
+        y = 458,
+        id = 6
+    }
+}
+
 --- Ein Debug schalter. Habe damit bei der Entwicklung gute Erfahrungen gemacht.
 function isDebug()
-    return 1;
+    return TRUE;
 end
 
 --- Vars.Save8 und Vars.Save9 werden reserviert, da sie in Funktionen genutzt werden. Möchtet ihr die Vars Variablen verwenden und nicht das VarsExt Framework, müsst ihr diese hier
@@ -191,16 +224,29 @@ VarsExt.occupy(9)
 --- So solltet ihr Variablen setzten, die ihr nach dem Laden noch braucht. Das VarsExt hat die Limitierung auf nur 9 Variablen um ein vielfaches erhöht.
 meineTolleVarsVariable = VarsExt.create(2);
 
-
 --- Hier kommen Initialisierungen hin, die bei start oder laden ausgefuehrt werden sollen
 function initGame()
-    if isDebug() == 1 then
-        ---Deckt die Karte auf
+    if isDebug() == TRUE then
         Tutorial.RWM(1)
         dbgTestFunction()
-        requestMinuteEvent(funktionNach5Minuten, 5)
     end
 
+    addStorageAreForPlayer(players.p1)
+    addStorageAreForPlayer(players.p2)
+    addStorageAreForPlayer(players.p3)
+    addStorageAreForPlayer(players.p4)
+    addStorageAreForPlayer(players.p5)
+    addStorageAreForPlayer(players.p6)
+
+    local calculates = 5
+    while calculates <= 85 do
+        requestMinuteEvent(calculateGoodsForPlayers, calculates)
+        calculates = calculates + 5
+    end
+end
+
+function addStorageAreForPlayer(player)
+    Buildings.AddBuilding(player.x, player.y, player.id, Buildings.STORAGEAREA)
 end
 
 function dbgTestFunction()
@@ -215,11 +261,48 @@ function doActionsAfterMinutes()
     if newMinute() == 1 then
         dbg.stm("wieder eine Minute rum")
     end
+end
+
+function calculateGoodsForPlayers()
+    dbg.stm("nach 5 Minuten")
+end
+
+items10Points = { Goods.BOW, Goods.GOLDBAR, Goods.BATTLEAXE, Goods.AXE, Goods.ARMOR, Goods.BACKPACKCATAPULT, Goods.SWORD, Goods.BLOWGUN}
+items7Points = { Goods.IRONBAR, Goods.EXPLOSIVEARROW, Goods.AMMO }
+items4Points = { Goods.WINE, Goods.GOLDORE, Goods.IRONORE, Goods.TEQUILA }
+
+function calculatePointsForStorageArea(player)
+    local points = 0
+    local goodId = 1
+    --IDs der Gebaeude gehen von 1 - 83
+    while goodId <= 43 do
+        local amountOfGoods = Goods.Amount(player.id, goodId)
+        if amountOfGoods > 0 then
+            if isValueInArray(items10Points, goodId) then
+                points = points + amountOfGoods * 10
+            elseif isValueInArray(items7Points, goodId) then
+                points = points + amountOfGoods * 7
+            elseif isValueInArray(items4Points, goodId) then
+                points = points + amountOfGoods * 4
+            else
+                points = points + amountOfGoods * 2
+            end
+            Goods.Delete(player.x, player.y, 5, goodId)
+        end
+        goodId = goodId + 1
+    end
 
 end
 
-function funktionNach5Minuten()
-    dbg.stm("nach 5 Minuten")
+function isValueInArray(theArray, value)
+    local counter = 1
+    while counter <= getn(theArray) do
+        if theArray[counter] == value then
+            return TRUE
+        end
+        counter = counter + 1
+    end
+    return FALSE
 end
 
 -------------------------------------------------------------
@@ -228,12 +311,14 @@ end
 -------Diese könnt ihr für eure Scripts nutzen---------------
 -------------------------------------------------------------
 
-TRUE = 1
-FALSE = 0
-
 --- gibt aus einem array von Spielern ("playersTable" mit den IDs der Spielern) die Spieler ID zurück, der am  "enemyPosition" meisten Einheiten hat
 ---BSP: enemyPosition == 1 --> gibt den Spieler mit den meisten Units zurück
 ---BSP: enemyPosition == 2 --> gibt den Spieler mit den zweitmeisten Units zurück..
+---
+
+TRUE = 1
+FALSE = 0
+
 function getPlayerIDWithMostUnitsForPosition(playersTable, enemyPosition)
 
     local playercache = { 0, 0, 0, 0, 0, 0, 0, 0 }
@@ -294,16 +379,7 @@ end
 
 
 
-function isValueInArray(theArray, value)
-    local counter = 1
-    while counter <= getn(theArray) do
-        if theArray[counter] == value then
-            return TRUE
-        end
-        counter = counter + 1
-    end
-    return FALSE
-end
+
 
 -- gibt jede Minute einmal 1 zurueck
 function newMinute()
