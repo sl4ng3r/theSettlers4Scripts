@@ -266,11 +266,22 @@ function initGame()
     addStorageAreForPlayer(players.p5)
     addStorageAreForPlayer(players.p6)
 
-    local calculates = 5
-    while calculates <= 85 do
+    local calculates = 3
+    while calculates <= 60 do
         requestMinuteEvent(calculateGoodsForPlayers, calculates)
-        calculates = calculates + 5
+        calculates = calculates + 3
     end
+
+    local statisticTime = 5
+    while statisticTime <= 55 do
+        requestMinuteEvent(printStatistic, statisticTime)
+        statisticTime = statisticTime + 5
+    end
+    requestMinuteEvent(printFinalStatistic, getEndTime())
+end
+
+function getEndTime()
+    return 60
 end
 
 function addStorageAreForPlayer(player)
@@ -285,25 +296,27 @@ end
 function doActionsAfterMinutes()
     --wird jede Minute ausgefuehrt
     if newMinute() == 1 then
-        dbg.stm("wieder eine Minute rum")
+        --dbg.stm("wieder eine Minute rum")
     end
 end
 
 function calculateGoodsForPlayers()
     pointsPlayer1:save(pointsPlayer1:get() + calculatePointsForStorageArea(players.p1))
-
-    printStatistic()
 end
 
 function printStatistic()
     dbg.stm("Aktueller Punktestand:")
     local msg = "Spieler 1(" .. getTextForPlayerRace(1) .. "): " .. pointsPlayer1:get() .. " / "
-    msg = msg +  "Spieler 2(" .. getTextForPlayerRace(2) .. "): " .. pointsPlayer2:get() .. " / "
-    msg = msg +  "Spieler 3(" .. getTextForPlayerRace(3) .. "): " .. pointsPlayer3:get() .. " / "
-    msg = msg +  "Spieler 4(" .. getTextForPlayerRace(4) .. "): " .. pointsPlayer4:get() .. " / "
-    msg = msg +  "Spieler 5(" .. getTextForPlayerRace(5) .. "): " .. pointsPlayer5:get() .. " / "
-    msg = msg +  "Spieler 6(" .. getTextForPlayerRace(6) .. "): " .. pointsPlayer6:get()
+    msg = msg .. "Spieler 2(" .. getTextForPlayerRace(2) .. "): " .. pointsPlayer2:get() .. " / "
+    msg = msg .. "Spieler 3(" .. getTextForPlayerRace(3) .. "): " .. pointsPlayer3:get() .. " / "
+    msg = msg .. "Spieler 4(" .. getTextForPlayerRace(4) .. "): " .. pointsPlayer4:get() .. " / "
+    msg = msg .. "Spieler 5(" .. getTextForPlayerRace(5) .. "): " .. pointsPlayer5:get() .. " / "
+    msg = msg .. "Spieler 6(" .. getTextForPlayerRace(6) .. "): " .. pointsPlayer6:get()
     dbg.stm(msg)
+end
+
+function printFinalStatistic()
+    dbg.stm("zu ende...")
 end
 
 items10Points = { Goods.BOW, Goods.GOLDBAR, Goods.BATTLEAXE, Goods.AXE, Goods.ARMOR, Goods.BACKPACKCATAPULT, Goods.SWORD, Goods.BLOWGUN}
@@ -346,16 +359,7 @@ function calculatePointsForStorageArea(player)
     return points
 end
 
-function isValueInArray(theArray, value)
-    local counter = 1
-    while counter <= getn(theArray) do
-        if theArray[counter] == value then
-            return TRUE
-        end
-        counter = counter + 1
-    end
-    return FALSE
-end
+
 
 -------------------------------------------------------------
 -------------------------------------------------------------
@@ -447,6 +451,16 @@ function getTextForPlayerRace(playerId)
 
 end
 
+function isValueInArray(theArray, value)
+    local counter = 1
+    while counter <= getn(theArray) do
+        if theArray[counter] == value then
+            return TRUE
+        end
+        counter = counter + 1
+    end
+    return FALSE
+end
 
 -- gibt jede Minute einmal 1 zurueck
 function newMinute()
