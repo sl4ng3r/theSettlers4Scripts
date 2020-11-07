@@ -182,6 +182,8 @@ pointsPlayer4 = VarsExt.create(4);
 pointsPlayer5 = VarsExt.create(4);
 pointsPlayer6 = VarsExt.create(4);
 
+amountPlayers = VarsExt.create(1);
+
 
 function new_game()
     request_event(doActionsAfterMinutes, Events.FIVE_TICKS)
@@ -193,6 +195,7 @@ function new_game()
     pointsPlayer4:save(0)
     pointsPlayer5:save(0)
     pointsPlayer6:save(0)
+    amountPlayers:save(0)
 end
 
 function register_functions()
@@ -266,13 +269,13 @@ function initGame()
     addStorageAreForPlayer(players.p5)
     addStorageAreForPlayer(players.p6)
 
-    local calculates = 3
+    local calculates = 6
     while calculates <= 60 do
         requestMinuteEvent(calculateGoodsForPlayers, calculates)
         calculates = calculates + 3
     end
 
-    local statisticTime = 5
+    local statisticTime = 10
     while statisticTime <= 55 do
         requestMinuteEvent(printStatistic, statisticTime)
         statisticTime = statisticTime + 5
@@ -313,6 +316,7 @@ function printStatistic()
     msg = msg .. "Spieler 5(" .. getTextForPlayerRace(5) .. "): " .. pointsPlayer5:get() .. " / "
     msg = msg .. "Spieler 6(" .. getTextForPlayerRace(6) .. "): " .. pointsPlayer6:get()
     dbg.stm(msg)
+
 end
 
 function printFinalStatistic()
