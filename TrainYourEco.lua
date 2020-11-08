@@ -175,12 +175,12 @@ VarsExt.occupy(8)
 VarsExt.occupy(9)
 
 --- So solltet ihr Variablen setzten, die ihr nach dem Laden noch braucht. Das VarsExt hat die Limitierung auf nur 9 Variablen um ein vielfaches erhöht.
-pointsPlayer1 = VarsExt.create(4);
-pointsPlayer2 = VarsExt.create(4);
-pointsPlayer3 = VarsExt.create(4);
-pointsPlayer4 = VarsExt.create(4);
-pointsPlayer5 = VarsExt.create(4);
-pointsPlayer6 = VarsExt.create(4);
+pointsPlayer1 = VarsExt.create(5);
+pointsPlayer2 = VarsExt.create(5);
+pointsPlayer3 = VarsExt.create(5);
+pointsPlayer4 = VarsExt.create(5);
+pointsPlayer5 = VarsExt.create(5);
+pointsPlayer6 = VarsExt.create(5);
 
 amountPlayers = VarsExt.create(1);
 
@@ -210,8 +210,8 @@ players = {
         storeY = 941,
         searchX = 313,
         searchY = 944,
-        sacX = 233,
-        saxY = 343,
+        sacX = 237,
+        sacY = 803,
         id = 1
     },
     p2 = {
@@ -219,8 +219,8 @@ players = {
         storeY = 935,
         searchX = 571,
         searchY = 937,
-        sacX = 233,
-        saxY = 343,
+        sacX = 501,
+        sacY = 802,
         id = 2
     },
     p3 = {
@@ -228,8 +228,8 @@ players = {
         storeY = 936,
         searchX = 820,
         searchY = 943,
-        sacX = 233,
-        saxY = 343,
+        sacX = 748,
+        sacY = 802,
         id = 3
     },
     p4 = {
@@ -237,8 +237,8 @@ players = {
         storeY = 459,
         searchX = 311,
         searchY = 941,
-        sacX = 233,
-        saxY = 343,
+        sacX = 253,
+        sacY = 327,
         id = 4
     },
     p5 = {
@@ -246,8 +246,8 @@ players = {
         storeY = 457,
         searchX = 311,
         searchY = 941,
-        sacX = 233,
-        saxY = 343,
+        sacX = 507,
+        sacY = 332,
         id = 5
     },
     p6 = {
@@ -255,8 +255,8 @@ players = {
         storeY = 458,
         searchX = 311,
         searchY = 941,
-        sacX = 233,
-        saxY = 343,
+        sacX = 751,
+        sacY = 335,
         id = 6
     }
 }
@@ -316,12 +316,12 @@ function doActionsAfterMinutes()
 end
 
 function calculateGoodsForPlayers()
-    pointsPlayer1:save(pointsPlayer1:get() + calculatePointsForStorageArea(players.p1) + calcPointsForSavPlace(players.p1))
-    pointsPlayer2:save(pointsPlayer2:get() + calculatePointsForStorageArea(players.p2)+ calcPointsForSavPlace(players.p2))
-    pointsPlayer3:save(pointsPlayer3:get() + calculatePointsForStorageArea(players.p3)+ calcPointsForSavPlace(players.p3))
-    pointsPlayer4:save(pointsPlayer4:get() + calculatePointsForStorageArea(players.p4)+ calcPointsForSavPlace(players.p4))
-    pointsPlayer5:save(pointsPlayer5:get() + calculatePointsForStorageArea(players.p5)+ calcPointsForSavPlace(players.p5))
-    pointsPlayer6:save(pointsPlayer6:get() + calculatePointsForStorageArea(players.p6)+ calcPointsForSavPlace(players.p6))
+    pointsPlayer1:save(pointsPlayer1:get() + calculatePointsForStorageArea(players.p1) + calcPointsForSacPlace(players.p1))
+    pointsPlayer2:save(pointsPlayer2:get() + calculatePointsForStorageArea(players.p2)+ calcPointsForSacPlace(players.p2))
+    pointsPlayer3:save(pointsPlayer3:get() + calculatePointsForStorageArea(players.p3)+ calcPointsForSacPlace(players.p3))
+    pointsPlayer4:save(pointsPlayer4:get() + calculatePointsForStorageArea(players.p4)+ calcPointsForSacPlace(players.p4))
+    pointsPlayer5:save(pointsPlayer5:get() + calculatePointsForStorageArea(players.p5)+ calcPointsForSacPlace(players.p5))
+    pointsPlayer6:save(pointsPlayer6:get() + calculatePointsForStorageArea(players.p6)+ calcPointsForSacPlace(players.p6))
 
     --Anzahl Spieler ermitteln
     updateAmountPlayers()
@@ -442,9 +442,9 @@ function finishGame()
     calculateGoodsForPlayers()
     updateLead()
     if amountPlayers:get() > 1 then
-        dbg.stm("Das Spiel ist zu Ende. Spieler ".. leadPlayer.id .. " hat gewonnen. Er hat " .. leadPlayer.points .. " Punkte erreicht!")
+        dbg.stm("---Das Spiel ist zu Ende. Spieler ".. leadPlayer.id .. " hat gewonnen. Er hat " .. leadPlayer.points .. " Punkte erreicht!---")
     else
-        dbg.stm("Das Spiel ist zu Ende. Du hast " .. leadPlayer.points .. " Punkte erreicht!")
+        dbg.stm("---Das Spiel ist zu Ende. Du hast " .. leadPlayer.points .. " Punkte erreicht!---")
     end
 end
 
@@ -489,16 +489,15 @@ function calculatePointsForStorageArea(player)
 end
 
 
-units34Points = { Settlers.SWORDSMAN_03, Settlers.BOWMAN_03,Settlers.AXEWARRIOR_03,Settlers.BLOWGUNWARRIOR_03,Settlers.BACKPACKCATAPULIST_03,Settlers.MEDIC_01,   }
-units23Points = { Settlers.SWORDSMAN_02, Settlers.BOWMAN_02,Settlers.AXEWARRIOR_02,Settlers.BLOWGUNWARRIOR_02,Settlers.BACKPACKCATAPULIST_02, Settlers.MEDIC_01, }
-units12Points = { Settlers.SWORDSMAN_01,Settlers.BOWMAN_01,Settlers.AXEWARRIOR_01,Settlers.BLOWGUNWARRIOR_01,Settlers.BACKPACKCATAPULIST_01, Settlers.MEDIC_01,  }
+units34Points = { Settlers.SWORDSMAN_03, Settlers.BOWMAN_03,Settlers.AXEWARRIOR_03,Settlers.BLOWGUNWARRIOR_03,Settlers.BACKPACKCATAPULIST_03,Settlers.MEDIC_03 }
+units23Points = { Settlers.SWORDSMAN_02, Settlers.BOWMAN_02,Settlers.AXEWARRIOR_02,Settlers.BLOWGUNWARRIOR_02,Settlers.BACKPACKCATAPULIST_02, Settlers.MEDIC_02 }
+units12Points = { Settlers.SWORDSMAN_01,Settlers.BOWMAN_01,Settlers.AXEWARRIOR_01,Settlers.BLOWGUNWARRIOR_01,Settlers.BACKPACKCATAPULIST_01, Settlers.MEDIC_01  }
 
 
-function calcPointsForSavPlace(player)
+function calcPointsForSacPlace(player)
 
     local points = 0
-    local counter = 1
-    local unitAmount = 0
+
 
     points = points + getPointsForUnits(player, units34Points, 34)
     points = points + getPointsForUnits(player, units23Points, 23)
@@ -512,17 +511,22 @@ function calcPointsForSavPlace(player)
 end
 
 function getPointsForUnits(player, unitArray, unitPoints)
+
     local points = 0
     local counter = 1
     local unitAmount = 0
-    while counter <= getn(units34Points) do
+    while counter <= getn(unitArray) do
         unitAmount = Settlers.AmountInArea(player.id, unitArray[counter], player.sacX, player.sacY, 15)
         if unitAmount > 0 then
-            points = points + unitAmount
+            points = points + unitAmount * unitPoints
+            if isDebug() == TRUE then
+                dbg.stm("Player ".. player.id .. " saced " .. unitAmount .. " Units with " .. unitPoints .. " points. Added " ..  (unitAmount * unitPoints ))
+            end
             Settlers.KillSelectableSettlers(player.id, unitArray[counter], player.sacX, player.sacY, 15, 0)
         end
          counter = counter + 1
     end
+    return points
 end
 
 
