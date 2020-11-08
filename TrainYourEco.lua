@@ -270,7 +270,7 @@ function initGame()
     addStorageAreForPlayer(players.p6)
 
     local calculates = 6
-    while calculates <= 60 do
+    while calculates <= (getEndTime() -1) do
         requestMinuteEvent(calculateGoodsForPlayers, calculates)
         calculates = calculates + 3
     end
@@ -280,7 +280,7 @@ function initGame()
         requestMinuteEvent(printStatistic, statisticTime)
         statisticTime = statisticTime + 5
     end
-    requestMinuteEvent(printFinalStatistic, getEndTime())
+    requestMinuteEvent(finishGame, getEndTime())
 end
 
 function getEndTime()
@@ -332,22 +332,36 @@ function calculateGoodsForPlayers()
     end
     amountPlayers:save(calcAmountOfPlayers)
 
+    --fuehrenden Spieler updaten
+    updateLead()
+
     if isDebug() == TRUE then
         dbg.stm("Partie mit " .. amountPlayers:get() .. " Spielern" )
     end
 
 end
 
+
+
 function printStatistic()
     dbg.stm("Aktueller Punktestand:")
-    local msg = "Spieler 1(" .. getTextForPlayerRace(1) .. "): " .. pointsPlayer1:get()
-    if amountPlayers:get() > 1 then
-        msg = msg  .. " / " .. "Spieler 2(" .. getTextForPlayerRace(2) .. "): " .. pointsPlayer2:get() .. " / "
-        msg = msg .. "Spieler 3(" .. getTextForPlayerRace(3) .. "): " .. pointsPlayer3:get() .. " / "
-        msg = msg .. "Spieler 4(" .. getTextForPlayerRace(4) .. "): " .. pointsPlayer4:get() .. " / "
-        msg = msg .. "Spieler 5(" .. getTextForPlayerRace(5) .. "): " .. pointsPlayer5:get() .. " / "
-        msg = msg .. "Spieler 6(" .. getTextForPlayerRace(6) .. "): " .. pointsPlayer6:get()
-    end
+    local msg = msgPointsOnePlayer(1,pointsPlayer1:get(), "", " / ")
+    msg = msg .. msgPointsOnePlayer(2,pointsPlayer2:get(), "", " / ")
+    msg = msg .. msgPointsOnePlayer(3,pointsPlayer3:get(), "", " / ")
+    msg = msg .. msgPointsOnePlayer(4,pointsPlayer4:get(), "", " / ")
+    msg = msg .. msgPointsOnePlayer(5,pointsPlayer5:get(), "", " / ")
+    msg = msg .. msgPointsOnePlayer(6,pointsPlayer6:get(), "", " / ")
+    msg = strsub(msg, 1 ,-3)
+
+    --local msg = "Spieler 1(" .. getTextForPlayerRace(1) .. "): " .. pointsPlayer1:get()
+    --if amountPlayers:get() > 1 then
+    --    msg = msg  .. " / " .. "Spieler 2(" .. getTextForPlayerRace(2) .. "): " .. pointsPlayer2:get() .. " / "
+    --    msg = msg .. "Spieler 3(" .. getTextForPlayerRace(3) .. "): " .. pointsPlayer3:get() .. " / "
+    --    msg = msg .. "Spieler 4(" .. getTextForPlayerRace(4) .. "): " .. pointsPlayer4:get() .. " / "
+    --    msg = msg .. "Spieler 5(" .. getTextForPlayerRace(5) .. "): " .. pointsPlayer5:get() .. " / "
+    --    msg = msg .. "Spieler 6(" .. getTextForPlayerRace(6) .. "): " .. pointsPlayer6:get()
+    --end
+
     dbg.stm(msg)
 
     if amountPlayers:get() > 1 then
@@ -357,18 +371,27 @@ function printStatistic()
 end
 
 function msgPointsOnePlayer(playerId, points, addInfront, addEnd)
-    -- TODO hier gehts weiter
-    return addInfront .. "Spieler " .. playerId .. "(" .. getTextForPlayerRace(playerId) .. "): " .. points .. addEnd
+    if points > 0 then
+        return addInfront .. "Spieler " .. playerId .. "(" .. getTextForPlayerRace(playerId) .. "): " .. points .. addEnd
+    else
+        return ""
+    end
 end
+
+leadPlayer = {
+    id = 0,
+    points = 0
+}
 
 function printActualLead()
 
-    local leadId = getLeadPlayerId();
-    dbg.stm("Aktueller führend: Spieler " .. leadId .. "(".. getTextForPlayerRace(leadId) .. ")" )
+    local leadInfos = getLeadPlayerInfos();
+    dbg.stm("Aktueller führend: Spieler " .. leadPlayer.id .. "(".. getTextForPlayerRace(leadId) .. ")" )
 
 end
 
-function getLeadPlayerId()
+function updateLead()
+
     local leadId = 1;
     local leadPoints =  pointsPlayer1:get()
 
@@ -395,11 +418,19 @@ function getLeadPlayerId()
         leadId = 6
     end
 
-    return leadId
+    leadPlayer.id = leadId
+    leadPlayer.points = leadPoints
+
 end
 
-function printFinalStatistic()
-    dbg.stm("zu ende...")
+function finishGame()
+    calculateGoodsForPlayers()
+    updateLead()
+    if amountPlayers:get() > 1 then
+        dbg.stm("Das Spiel ist zu Ende. Spieler ".. leadPlayer.id .. " hat gewonnen. Er hat " .. leadPlayer.points .. " Punkte erreicht!")
+    else
+        dbg.stm("Das Spiel ist zu Ende. Du hast " .. leadPlayer.points .. " Punkte erreicht!")
+    end
 end
 
 items10Points = { Goods.BOW, Goods.GOLDBAR, Goods.BATTLEAXE, Goods.AXE, Goods.ARMOR, Goods.BACKPACKCATAPULT, Goods.SWORD, Goods.BLOWGUN}
