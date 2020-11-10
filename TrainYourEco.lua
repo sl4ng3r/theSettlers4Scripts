@@ -263,7 +263,7 @@ players = {
 
 --- Ein Debug schalter. Habe damit bei der Entwicklung gute Erfahrungen gemacht.
 function isDebug()
-    return TRUE;
+    return FALSE;
 end
 
 
@@ -272,6 +272,13 @@ function initGame()
     if isDebug() == TRUE then
         Tutorial.RWM(1)
         dbgTestFunction()
+    else
+        dbg.aioff(1)
+        dbg.aioff(2)
+        dbg.aioff(3)
+        dbg.aioff(4)
+        dbg.aioff(5)
+        dbg.aioff(6)
     end
 
     addStorageAreForPlayer(players.p1)
@@ -288,7 +295,7 @@ function initGame()
     end
 
     local statisticTime = 10
-    while statisticTime <= 55 do
+    while statisticTime <= 65 do
         requestMinuteEvent(printStatistic, statisticTime)
         statisticTime = statisticTime + 5
     end
@@ -296,7 +303,7 @@ function initGame()
 end
 
 function getEndTime()
-    return 60
+    return 70
 end
 
 function addStorageAreForPlayer(player)
@@ -316,12 +323,13 @@ function doActionsAfterMinutes()
 end
 
 function calculateGoodsForPlayers()
-    pointsPlayer1:save(pointsPlayer1:get() + calculatePointsForStorageArea(players.p1) + calcPointsForSacPlace(players.p1))
-    pointsPlayer2:save(pointsPlayer2:get() + calculatePointsForStorageArea(players.p2)+ calcPointsForSacPlace(players.p2))
-    pointsPlayer3:save(pointsPlayer3:get() + calculatePointsForStorageArea(players.p3)+ calcPointsForSacPlace(players.p3))
-    pointsPlayer4:save(pointsPlayer4:get() + calculatePointsForStorageArea(players.p4)+ calcPointsForSacPlace(players.p4))
-    pointsPlayer5:save(pointsPlayer5:get() + calculatePointsForStorageArea(players.p5)+ calcPointsForSacPlace(players.p5))
-    pointsPlayer6:save(pointsPlayer6:get() + calculatePointsForStorageArea(players.p6)+ calcPointsForSacPlace(players.p6))
+    setNewPointsAmount(pointsPlayer1, players.p1)
+    setNewPointsAmount(pointsPlayer2, players.p2)
+    setNewPointsAmount(pointsPlayer3, players.p3)
+    setNewPointsAmount(pointsPlayer4, players.p4)
+    setNewPointsAmount(pointsPlayer5, players.p5)
+    setNewPointsAmount(pointsPlayer6, players.p6)
+
 
     --Anzahl Spieler ermitteln
     updateAmountPlayers()
@@ -332,6 +340,15 @@ function calculateGoodsForPlayers()
         dbg.stm("Partie mit " .. amountPlayers:get() .. " Spielern" )
     end
 
+end
+
+function setNewPointsAmount(pointsVar, player)
+    local pointsForCalculation = 0
+    pointsForCalculation = calculatePointsForStorageArea(player) + calcPointsForSacPlace(player)
+    pointsVar:save(pointsVar:get() + pointsForCalculation)
+    if Game.LocalPlayer() == player.id and pointsForCalculation > 0 then
+        dbg.stm("Du hast durch dein Opfer " .. pointsForCalculation .. " Punkte erhalten.")
+    end
 end
 
 function updateAmountPlayers()
@@ -359,25 +376,28 @@ function updateAmountPlayers()
 end
 
 function printStatistic()
-    dbg.stm("Aktueller Punktestand:")
-    local msg = msgPointsOnePlayer(1,pointsPlayer1:get(), "", " / ")
-    msg = msg .. msgPointsOnePlayer(2,pointsPlayer2:get(), "", " / ")
-    msg = msg .. msgPointsOnePlayer(3,pointsPlayer3:get(), "", " / ")
-    msg = msg .. msgPointsOnePlayer(4,pointsPlayer4:get(), "", " / ")
-    msg = msg .. msgPointsOnePlayer(5,pointsPlayer5:get(), "", " / ")
-    msg = msg .. msgPointsOnePlayer(6,pointsPlayer6:get(), "", " / ")
-    msg = strsub(msg, 1 ,-3)
+    if amountPlayers:get() > 0 then
+        dbg.stm("Aktueller Punktestand:")
+        local msg = msgPointsOnePlayer(1,pointsPlayer1:get(), "", " / ")
+        msg = msg .. msgPointsOnePlayer(2,pointsPlayer2:get(), "", " / ")
+        msg = msg .. msgPointsOnePlayer(3,pointsPlayer3:get(), "", " / ")
+        msg = msg .. msgPointsOnePlayer(4,pointsPlayer4:get(), "", " / ")
+        msg = msg .. msgPointsOnePlayer(5,pointsPlayer5:get(), "", " / ")
+        msg = msg .. msgPointsOnePlayer(6,pointsPlayer6:get(), "", " / ")
+        msg = strsub(msg, 1 ,-3)
 
-    --local msg = "Spieler 1(" .. getTextForPlayerRace(1) .. "): " .. pointsPlayer1:get()
-    --if amountPlayers:get() > 1 then
-    --    msg = msg  .. " / " .. "Spieler 2(" .. getTextForPlayerRace(2) .. "): " .. pointsPlayer2:get() .. " / "
-    --    msg = msg .. "Spieler 3(" .. getTextForPlayerRace(3) .. "): " .. pointsPlayer3:get() .. " / "
-    --    msg = msg .. "Spieler 4(" .. getTextForPlayerRace(4) .. "): " .. pointsPlayer4:get() .. " / "
-    --    msg = msg .. "Spieler 5(" .. getTextForPlayerRace(5) .. "): " .. pointsPlayer5:get() .. " / "
-    --    msg = msg .. "Spieler 6(" .. getTextForPlayerRace(6) .. "): " .. pointsPlayer6:get()
-    --end
+        --local msg = "Spieler 1(" .. getTextForPlayerRace(1) .. "): " .. pointsPlayer1:get()
+        --if amountPlayers:get() > 1 then
+        --    msg = msg  .. " / " .. "Spieler 2(" .. getTextForPlayerRace(2) .. "): " .. pointsPlayer2:get() .. " / "
+        --    msg = msg .. "Spieler 3(" .. getTextForPlayerRace(3) .. "): " .. pointsPlayer3:get() .. " / "
+        --    msg = msg .. "Spieler 4(" .. getTextForPlayerRace(4) .. "): " .. pointsPlayer4:get() .. " / "
+        --    msg = msg .. "Spieler 5(" .. getTextForPlayerRace(5) .. "): " .. pointsPlayer5:get() .. " / "
+        --    msg = msg .. "Spieler 6(" .. getTextForPlayerRace(6) .. "): " .. pointsPlayer6:get()
+        --end
 
-    dbg.stm(msg)
+        dbg.stm(msg)
+
+    end
 
     if amountPlayers:get() > 1 then
         printActualLead()
@@ -442,15 +462,15 @@ function finishGame()
     calculateGoodsForPlayers()
     updateLead()
     if amountPlayers:get() > 1 then
-        dbg.stm("### Das Spiel ist zu Ende. Spieler ".. leadPlayer.id .. " hat gewonnen. Er hat " .. leadPlayer.points .. " Punkte erreicht! ###")
+        dbg.stm("### Das Spiel ist zu Ende. Spieler ".. leadPlayer.id .. " hat gewonnen. Er hat als ".. getTextForPlayerRace(leadPlayer.id) .. " " .. leadPlayer.points .. " Punkte erreicht! ###")
     else
-        dbg.stm("### Das Spiel ist zu Ende. Du hast " .. leadPlayer.points .. " Punkte erreicht! ###")
+        dbg.stm("### Das Spiel ist zu Ende. Du hast als ".. getTextForPlayerRace(leadPlayer.id) .. " " .. leadPlayer.points .. " Punkte erreicht! ###")
     end
 end
 
 items10Points = { Goods.BOW, Goods.SWORD,  Goods.BATTLEAXE, Goods.BACKPACKCATAPULT,   Goods.ARMOR ,  Goods.BLOWGUN}
 items7Points = { Goods.IRONBAR, Goods.EXPLOSIVEARROW, Goods.AMMO,  Goods.GOLDBAR}
-items3Points = { Goods.WINE, Goods.TEQUILA, Goods.SUNFLOWEROIL, Goods.MEAD, Goods.GOLDORE, Goods.IRONORE,Goods.COAL }
+items3Points = { Goods.WINE, Goods.TEQUILA, Goods.SUNFLOWEROIL, Goods.MEAD, Goods.GOLDORE, Goods.IRONORE ,Goods.COAL }
 
 function calculatePointsForStorageArea(player)
     local searchRadius = 5
@@ -470,9 +490,9 @@ function calculatePointsForStorageArea(player)
                     dbg.stm(amountOfGoods .. " mal 7 Punkte")
                 end
                 points = points + amountOfGoods * 7
-            elseif isValueInArray(items4Points, goodId)  == TRUE then
+            elseif isValueInArray(items3Points, goodId)  == TRUE then
                 if isDebug() == TRUE then
-                    dbg.stm(amountOfGoods .. " mal 4 Punkte")
+                    dbg.stm(amountOfGoods .. " mal 3 Punkte")
                 end
                 points = points + amountOfGoods * 3
             else
@@ -489,8 +509,8 @@ function calculatePointsForStorageArea(player)
 end
 
 
-units34Points = { Settlers.SWORDSMAN_03, Settlers.BOWMAN_03,Settlers.AXEWARRIOR_03,Settlers.BLOWGUNWARRIOR_03,Settlers.BACKPACKCATAPULIST_03,Settlers.MEDIC_03 }
-units23Points = { Settlers.SWORDSMAN_02, Settlers.BOWMAN_02,Settlers.AXEWARRIOR_02,Settlers.BLOWGUNWARRIOR_02,Settlers.BACKPACKCATAPULIST_02, Settlers.MEDIC_02 }
+units30Points = { Settlers.SWORDSMAN_03, Settlers.BOWMAN_03, Settlers.AXEWARRIOR_03, Settlers.BLOWGUNWARRIOR_03, Settlers.BACKPACKCATAPULIST_03, Settlers.MEDIC_03 }
+units20Points = { Settlers.SWORDSMAN_02, Settlers.BOWMAN_02, Settlers.AXEWARRIOR_02, Settlers.BLOWGUNWARRIOR_02, Settlers.BACKPACKCATAPULIST_02, Settlers.MEDIC_02 }
 units12Points = { Settlers.SWORDSMAN_01,Settlers.BOWMAN_01,Settlers.AXEWARRIOR_01,Settlers.BLOWGUNWARRIOR_01,Settlers.BACKPACKCATAPULIST_01, Settlers.MEDIC_01  }
 
 
@@ -499,10 +519,10 @@ function calcPointsForSacPlace(player)
     local points = 0
 
 
-    points = points + getPointsForUnits(player, units34Points, 34)
-    points = points + getPointsForUnits(player, units23Points, 23)
+    points = points + getPointsForUnits(player, units30Points, 30)
+    points = points + getPointsForUnits(player, units20Points, 20)
     points = points + getPointsForUnits(player, units12Points, 12)
-    points = points + getPointsForUnits(player, { Settlers.SQUADLEADER }, 44)
+    points = points + getPointsForUnits(player, { Settlers.SQUADLEADER }, 35)
 
     return points
 
@@ -611,7 +631,7 @@ function getTextForPlayerRace(playerId)
     elseif raceId == 1 then
         return "Wikinger"
     elseif raceId == 2 then
-        return "Mayas"
+        return "Maya"
     elseif raceId == 3 then
         return "Dunkles Volk"
     elseif raceId == 4 then
