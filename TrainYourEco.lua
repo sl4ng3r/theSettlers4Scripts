@@ -442,15 +442,15 @@ function finishGame()
     calculateGoodsForPlayers()
     updateLead()
     if amountPlayers:get() > 1 then
-        dbg.stm("---Das Spiel ist zu Ende. Spieler ".. leadPlayer.id .. " hat gewonnen. Er hat " .. leadPlayer.points .. " Punkte erreicht!---")
+        dbg.stm("### Das Spiel ist zu Ende. Spieler ".. leadPlayer.id .. " hat gewonnen. Er hat " .. leadPlayer.points .. " Punkte erreicht! ###")
     else
-        dbg.stm("---Das Spiel ist zu Ende. Du hast " .. leadPlayer.points .. " Punkte erreicht!---")
+        dbg.stm("### Das Spiel ist zu Ende. Du hast " .. leadPlayer.points .. " Punkte erreicht! ###")
     end
 end
 
-items10Points = { Goods.BOW, Goods.GOLDBAR, Goods.BATTLEAXE, Goods.AXE, Goods.ARMOR, Goods.BACKPACKCATAPULT, Goods.SWORD, Goods.BLOWGUN}
-items7Points = { Goods.IRONBAR, Goods.EXPLOSIVEARROW, Goods.AMMO }
-items4Points = { Goods.WINE, Goods.GOLDORE, Goods.IRONORE, Goods.TEQUILA }
+items10Points = { Goods.BOW, Goods.SWORD,  Goods.BATTLEAXE, Goods.BACKPACKCATAPULT,   Goods.ARMOR ,  Goods.BLOWGUN}
+items7Points = { Goods.IRONBAR, Goods.EXPLOSIVEARROW, Goods.AMMO,  Goods.GOLDBAR}
+items3Points = { Goods.WINE, Goods.TEQUILA, Goods.SUNFLOWEROIL, Goods.MEAD, Goods.GOLDORE, Goods.IRONORE,Goods.COAL }
 
 function calculatePointsForStorageArea(player)
     local searchRadius = 5
@@ -474,7 +474,7 @@ function calculatePointsForStorageArea(player)
                 if isDebug() == TRUE then
                     dbg.stm(amountOfGoods .. " mal 4 Punkte")
                 end
-                points = points + amountOfGoods * 4
+                points = points + amountOfGoods * 3
             else
                 if isDebug() == TRUE then
                     dbg.stm(amountOfGoods .. " mal 2 Punkte")
