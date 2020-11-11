@@ -180,7 +180,7 @@ end
 
 --- Ein Debug schalter. Habe damit bei der Entwicklung gute Erfahrungen gemacht.
 function isDebug()
-    return 1;
+    return TRUE;
 end
 
 --- Vars.Save8 und Vars.Save9 werden reserviert, da sie in Funktionen genutzt werden. Möchtet ihr die Vars Variablen verwenden und nicht das VarsExt Framework, müsst ihr diese hier
@@ -194,7 +194,7 @@ meineTolleVarsVariable = VarsExt.create(2);
 
 --- Hier kommen Initialisierungen hin, die bei start oder laden ausgefuehrt werden sollen
 function initGame()
-    if isDebug() == 1 then
+    if isDebug() == TRUE then
         ---Deckt die Karte auf
         Tutorial.RWM(1)
         dbgTestFunction()
@@ -313,7 +313,7 @@ function getTextForPlayerRace(playerId)
     elseif raceId == 1 then
         return "Wikinger"
     elseif raceId == 2 then
-        return "Mayas"
+        return "Maya"
     elseif raceId == 3 then
         return "Dunkles Volk"
     elseif raceId == 4 then
