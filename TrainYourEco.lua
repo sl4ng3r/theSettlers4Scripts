@@ -189,6 +189,7 @@ function new_game()
     request_event(doActionsAfterMinutes, Events.FIVE_TICKS)
     request_event(initGame, Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
     MinuteEvents.new_game()
+    request_event(checkFinish, Events.VICTORY_CONDITION_CHECK)
     pointsPlayer1:save(0)
     pointsPlayer2:save(0)
     pointsPlayer3:save(0)
@@ -201,6 +202,7 @@ end
 function register_functions()
     reg_func(doActionsAfterMinutes)
     reg_func(initGame)
+    reg_func(checkFinish)
     MinuteEvents.register_functions()
 end
 
@@ -295,7 +297,7 @@ function initGame()
     end
 
     local statisticTime = 10
-    while statisticTime <= 65 do
+    while statisticTime <= (getEndTime() -5) do
         requestMinuteEvent(printStatistic, statisticTime)
         statisticTime = statisticTime + 5
     end
@@ -303,7 +305,20 @@ function initGame()
 end
 
 function getEndTime()
-    return 70
+    return 15
+end
+
+function checkFinish()
+    Game.DefaultPlayersLostCheck()
+    if Game.Time() >= getEndTime() then
+        Game.PlayerLost(1)
+        Game.PlayerLost(2)
+        Game.PlayerLost(3)
+        Game.PlayerLost(4)
+        Game.PlayerLost(5)
+        Game.PlayerLost(6)
+    end
+    Game.DefaultGameEndCheck()
 end
 
 function addStorageAreForPlayer(player)
@@ -466,6 +481,7 @@ function finishGame()
     else
         dbg.stm("### Das Spiel ist zu Ende. Du hast als ".. getTextForPlayerRace(leadPlayer.id) .. " " .. leadPlayer.points .. " Punkte erreicht! ###")
     end
+
 end
 
 items10Points = { Goods.BOW, Goods.SWORD,  Goods.BATTLEAXE, Goods.BACKPACKCATAPULT,   Goods.ARMOR ,  Goods.BLOWGUN}
