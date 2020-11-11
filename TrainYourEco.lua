@@ -335,9 +335,7 @@ function doActionsAfterMinutes()
 end
 
 function calculateGoodsForPlayers()
-    if isDebug() == TRUE then
-        dbg.stm("calcStart " .. Game.Time())
-    end
+
     setNewPointsAmount(pointsPlayer1, players.p1)
     setNewPointsAmount(pointsPlayer2, players.p2)
     setNewPointsAmount(pointsPlayer3, players.p3)
@@ -352,7 +350,7 @@ function calculateGoodsForPlayers()
     updateLead()
 
     if isDebug() == TRUE then
-        dbg.stm("Partie mit " .. amountPlayers:get() .. " Spielern" )
+        --dbg.stm("Partie mit " .. amountPlayers:get() .. " Spielern" )
     end
 
 end
@@ -362,7 +360,7 @@ function setNewPointsAmount(pointsVar, player)
     pointsForCalculation = calculatePointsForStorageArea(player) + calcPointsForSacPlace(player)
     pointsVar:save(pointsVar:get() + pointsForCalculation)
     if Game.LocalPlayer() == player.id and pointsForCalculation > 0 then
-        dbg.stm("Du hast durch dein Opfer " .. pointsForCalculation .. " Punkte erhalten.")
+        dbg.stm("Du hast durch dein Opfer " .. pointsForCalculation .. " Punkte erhalten!")
     end
 end
 
@@ -393,9 +391,6 @@ end
 function printStatistic()
     if amountPlayers:get() > 0 then
         dbg.stm("Aktueller Punktestand:")
-        if isDebug() == TRUE then
-            dbg.stm("Statistic Time:" .. Game.Time() )
-        end
         local msg = msgPointsOnePlayer(1,pointsPlayer1:get(), "", " / ")
         msg = msg .. msgPointsOnePlayer(2,pointsPlayer2:get(), "", " / ")
         msg = msg .. msgPointsOnePlayer(3,pointsPlayer3:get(), "", " / ")
@@ -468,6 +463,7 @@ function updateLead()
 
     if pointsPlayer6:get() > leadPoints then
         leadId = 6
+		leadPoints =  pointsPlayer6:get()
     end
 
     leadPlayer.id = leadId
