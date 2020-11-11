@@ -438,7 +438,7 @@ leadPlayer = {
 
 function printActualLead()
 
-    dbg.stm("Aktueller führend: Spieler " .. leadPlayer.id .. "(".. getTextForPlayerRace(leadPlayer.id) .. ") mit " .. leadPlayer.id .. " Punkten" )
+    dbg.stm("Aktueller führend: Spieler " .. leadPlayer.id .. "(".. getTextForPlayerRace(leadPlayer.id) .. ") mit " .. leadPlayer.points .. " Punkten" )
 
 end
 
