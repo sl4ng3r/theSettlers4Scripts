@@ -266,7 +266,7 @@ players = {
 
 --- Ein Debug schalter. Habe damit bei der Entwicklung gute Erfahrungen gemacht.
 function isDebug()
-    return FALSE;
+    return TRUE;
 end
 
 
@@ -292,9 +292,9 @@ function initGame()
     addStorageAreForPlayer(players.p6)
 
     local calculates = 6
-    while calculates <= (getEndTime() -1) do
+    while calculates <= (getEndTime() -2) do
         requestMinuteEvent(calculateGoodsForPlayers, calculates)
-        calculates = calculates + 3
+        calculates = calculates + 2
     end
 
     local statisticTime = 10
@@ -335,6 +335,9 @@ function doActionsAfterMinutes()
 end
 
 function calculateGoodsForPlayers()
+    if isDebug() == TRUE then
+        dbg.stm("calcStart " .. Game.Time())
+    end
     setNewPointsAmount(pointsPlayer1, players.p1)
     setNewPointsAmount(pointsPlayer2, players.p2)
     setNewPointsAmount(pointsPlayer3, players.p3)
@@ -390,6 +393,9 @@ end
 function printStatistic()
     if amountPlayers:get() > 0 then
         dbg.stm("Aktueller Punktestand:")
+        if isDebug() == TRUE then
+            dbg.stm("Statistic Time:" .. Game.Time() )
+        end
         local msg = msgPointsOnePlayer(1,pointsPlayer1:get(), "", " / ")
         msg = msg .. msgPointsOnePlayer(2,pointsPlayer2:get(), "", " / ")
         msg = msg .. msgPointsOnePlayer(3,pointsPlayer3:get(), "", " / ")
@@ -411,7 +417,7 @@ function printStatistic()
 
     end
 
-    if amountPlayers:get() > 1 then
+    if amountPlayers:get() > 1 and Game.Time() <= (getEndTime() -5) then
         printActualLead()
     end
 
@@ -432,8 +438,7 @@ leadPlayer = {
 
 function printActualLead()
 
-    local leadInfos = getLeadPlayerInfos();
-    dbg.stm("Aktueller führend: Spieler " .. leadPlayer.id .. "(".. getTextForPlayerRace(leadId) .. ")" )
+    dbg.stm("Aktueller führend: Spieler " .. leadPlayer.id .. "(".. getTextForPlayerRace(leadPlayer.id) .. ") mit " .. leadPlayer.id .. " Punkten" )
 
 end
 
@@ -474,10 +479,11 @@ function finishGame()
     calculateGoodsForPlayers()
     updateLead()
     printStatistic()
+    dbg.stm("### Das Spiel ist zu Ende ###")
     if amountPlayers:get() > 1 then
-        dbg.stm("### Das Spiel ist zu Ende. Spieler ".. leadPlayer.id .. " hat gewonnen. Er hat als ".. getTextForPlayerRace(leadPlayer.id) .. " " .. leadPlayer.points .. " Punkte erreicht! ###")
+        dbg.stm("### Spieler ".. leadPlayer.id .. " hat gewonnen. Er hat als ".. getTextForPlayerRace(leadPlayer.id) .. " " .. leadPlayer.points .. " Punkte erreicht! ###")
     else
-        dbg.stm("### Das Spiel ist zu Ende. Du hast als ".. getTextForPlayerRace(leadPlayer.id) .. " " .. leadPlayer.points .. " Punkte erreicht! ###")
+        dbg.stm("### Du hast als ".. getTextForPlayerRace(leadPlayer.id) .. " " .. leadPlayer.points .. " Punkte erreicht! ###")
     end
 
 end
