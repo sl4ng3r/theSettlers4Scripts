@@ -53,11 +53,11 @@ gameDone = 0
 
 
 function isDebug()
-	return 0
+	return 1
 end
 
 function spawnDegubUnits()
-	return 0
+	return 1
 end
 
 function getStartTime()
@@ -77,7 +77,7 @@ function testfunction()
 
 
 		--player3
-		Settlers.AddSettlers(562, 420, 3, Settlers.BOWMAN_03, 1000)
+		Settlers.AddSettlers(471, 386, 3, Settlers.BOWMAN_03, 1000)
 
 
 		Game.SetFightingStrength(1, 120)
@@ -92,6 +92,7 @@ function testfunction()
 
 		dbg.stm("aktuelles Mana7:" .. Magic.CurrentManaAmount(7) .. " fightStr:" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8) )
 		Buildings.AddBuilding(386, 397, 1, Buildings.STORAGEAREA)
+		Buildings.AddBuilding(475, 410, 3, Buildings.STORAGEAREA)
 	end
 end
 
@@ -146,7 +147,7 @@ players= {
 		y=482,
 		ai=0,
 		id=1,
-		amountOfStartBuildings=18
+		amountOfStartBuildings=17
 	},
 	p2={
 		x=479,
@@ -374,16 +375,18 @@ function checkDifficulty()
 	if Vars.Save4 == 0 then
 		dbg.stm("Ihr habt euch für eine leichtere Partie entschieden!")
 		Buildings.AddBuilding(61, 845, 1, Buildings.EYECATCHER03)
+		players.p1.amountOfStartBuildings = players.p1.amountOfStartBuildings + 1
 	elseif Vars.Save4 == 1 then
 		dbg.stm("Ihr habt euch für eine schwere Partie entschieden!")
 		Buildings.AddBuilding(61, 845, 1, Buildings.EYECATCHER03)
 		Buildings.AddBuilding(61, 851, 1, Buildings.EYECATCHER03)
-
+		players.p1.amountOfStartBuildings = players.p1.amountOfStartBuildings + 2
 	else
 		dbg.stm("Ihr spielt eine extrem harte Partie! Dann mal viel Glück!")
 		Buildings.AddBuilding(61, 845, 1, Buildings.EYECATCHER03)
 		Buildings.AddBuilding(61, 851, 1, Buildings.EYECATCHER03)
 		Buildings.AddBuilding(67, 852, 1, Buildings.EYECATCHER03)
+		players.p1.amountOfStartBuildings = players.p1.amountOfStartBuildings + 3
 	end
 
 end
@@ -732,7 +735,7 @@ end
 
 function getAdditionalRandomUnitsHard()
     if Vars.Save4 == difficultyChooser.extreme.difficulty or  Vars.Save4 == difficultyChooser.hard.difficulty then
-        return floorNumber((0.002 * Vars.Save2 * Vars.Save2 *Vars.Save2 + 0.7 * Vars.Save2 + 1)) * Vars.Save1
+        return floorNumber((0.0025 * Vars.Save2 * Vars.Save2 *Vars.Save2 + 0.7 * Vars.Save2 + 1)) * Vars.Save1
         --return floorNumber((Vars.Save2 / 1.5 + 1)) * Vars.Save1
     else
         return 0
@@ -741,7 +744,7 @@ end
 
 function getAdditionalRandomUnitsExtreme()
     if Vars.Save4 == difficultyChooser.extreme.difficulty then
-        return floorNumber(0.034 * Vars.Save2 * Vars.Save2 + 1) * Vars.Save1
+        return floorNumber(0.027 * Vars.Save2 * Vars.Save2 + 1) * Vars.Save1
     else
         return 0
     end
@@ -763,14 +766,14 @@ end
 
 function getAmountLvl3()
 	if Vars.Save4 == difficultyChooser.extreme.difficulty then
-		return floorNumber(0.015 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.65) * Vars.Save1 - getAmountRemoveForPlayers()
+		return max(0,floorNumber(0.013 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.65) * Vars.Save1 - getAmountRemoveForPlayers())
 	else
-		return floorNumber(0.013 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.8) * Vars.Save1 - getAmountRemoveForPlayers()
+		return max(0,floorNumber(0.013 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.8) * Vars.Save1 - getAmountRemoveForPlayers())
 	end
 end
 
 function getAmountRemoveForPlayers()
-	return floorNumber((Vars.Save1 - 1) * 0.062 * Vars.Save2 * Vars.Save2 + 0.45 + (Vars.Save1 - 1) )
+	return floorNumber(0.04 * Vars.Save2 * Vars.Save2 * 0.3 * (Vars.Save1 - 1) * (Vars.Save1 - 1) + (Vars.Save1 - 1) +(Vars.Save1 + 0.7)/2)
 end
 tickCounter = 1
 function cheatProtection()
