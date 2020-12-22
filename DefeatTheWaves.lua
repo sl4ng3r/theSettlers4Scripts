@@ -53,11 +53,11 @@ gameDone = 0
 
 
 function isDebug()
-	return 1
+	return 0
 end
 
 function spawnDegubUnits()
-	return 1
+	return 0
 end
 
 function getStartTime()
@@ -74,7 +74,7 @@ function testfunction()
 	if spawnDegubUnits() == 1 then
 		--player1
 		Settlers.AddSettlers(395, 480, 1, Settlers.BOWMAN_03, 1000)
-
+        Settlers.AddSettlers(420, 470, 1, Settlers.PRIEST, 20)
 
 		--player3
 		Settlers.AddSettlers(471, 386, 3, Settlers.BOWMAN_03, 1000)
@@ -342,6 +342,8 @@ function initGame()
 
 	--requestMinuteEvent(checkAIs,5)
 	requestMinuteEvent(gameWon,getWinTime())
+
+    checkSpawnPointDefeted()
 end
 
 function getTimeToCheckAIs()
@@ -551,7 +553,7 @@ function finalWave()
 
 	doRandomSpawnOnEachSpawnpoint()
 	doRandomSpawnOnEachSpawnpoint()
-	doRandomSpawnOnEachSpawnpoint()
+
 
 
 	AI.NewSquad(6, AI.CMD_SUICIDE_MISSION )
@@ -600,7 +602,7 @@ function startWave()
   AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
 
   if isDebug() == 1 then
-      dbg.stm("ChaosRound:" .. chaosRound .. " AttMin:" .. Game.Time() .. " wave:" .. Vars.Save2 .. " amLvl1:" .. getAmountLvl1() .. " amLvl2:" .. getAmountLvl2() .. " amLvl3:" .. getAmountLvl3() ..  " rndAm:" .. getAmountRandomUnits() .. " addRndmHard:" .. getAdditionalRandomUnitsHard().. " addRndmExt:" .. getAdditionalRandomUnitsExtreme() .." aktuelles Mana7:" .. Magic.CurrentManaAmount(7) .. " fightStr:" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8) )
+      dbg.stm("ChaosRound:" .. chaosRound .. " AttMin:" .. Game.Time() .. " wave:" .. Vars.Save2 .. " ---amLvl1:" .. getAmountLvl1() .. " amLvl2:" .. getAmountLvl2() .. " amLvl3:" .. getAmountLvl3() ..  " rndAm:" .. getAmountRandomUnits() .. " addRndmHard:" .. getAdditionalRandomUnitsHard().. " addRndmExt:" .. getAdditionalRandomUnitsExtreme() .. "--- aktueller Abzug:" .. getAmountRemoveForPlayers() .. " aktuelles Mana7:" .. Magic.CurrentManaAmount(7) .. " fightStr:" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8) )
   end
 
 
@@ -614,9 +616,9 @@ function spawnAmbush()
 		local unitIndex = randomBetween(1,getn(randomUnits))
 
 		dbg.stm("Ein Hinterhalt!!! Es wurden Truppen in euren Lagern gesichtet!")
-		Settlers.AddSettlers(390, 405, 7, randomUnits[unitIndex],getAmountRandomUnits() + Vars.Save2)
+		Settlers.AddSettlers(388, 397, 7, randomUnits[unitIndex],getAmountRandomUnits() + Vars.Save2)
 		unitIndex = randomBetween(1,getn(randomUnits))
-		Settlers.AddSettlers(390, 405, 7, randomUnits[unitIndex], getAdditionalRandomUnitsHard())
+		Settlers.AddSettlers(388, 397, 7, randomUnits[unitIndex], getAdditionalRandomUnitsHard())
 	end
 end
 
@@ -735,7 +737,7 @@ end
 
 function getAdditionalRandomUnitsHard()
     if Vars.Save4 == difficultyChooser.extreme.difficulty or  Vars.Save4 == difficultyChooser.hard.difficulty then
-        return floorNumber((0.0025 * Vars.Save2 * Vars.Save2 *Vars.Save2 + 0.7 * Vars.Save2 + 1)) * Vars.Save1
+        return floorNumber((0.002 * Vars.Save2 * Vars.Save2 *Vars.Save2 + 0.5 * Vars.Save2 + 1)) * Vars.Save1
         --return floorNumber((Vars.Save2 / 1.5 + 1)) * Vars.Save1
     else
         return 0
@@ -744,7 +746,7 @@ end
 
 function getAdditionalRandomUnitsExtreme()
     if Vars.Save4 == difficultyChooser.extreme.difficulty then
-        return floorNumber(0.027 * Vars.Save2 * Vars.Save2 + 1) * Vars.Save1
+        return floorNumber(0.027 * Vars.Save2 * Vars.Save2 + 1.8) * Vars.Save1
     else
         return 0
     end
@@ -756,24 +758,24 @@ end
 
 function getAmountLvl2()
 	if Vars.Save4 == difficultyChooser.extreme.difficulty then
-		return floorNumber(0.6 * Vars.Save2 + 0.00045 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 +3) * Vars.Save1 - getAmountRemoveForPlayers()
+		return floorNumber(0.6 * Vars.Save2 + 0.00052 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 +2) * Vars.Save1 - getAmountRemoveForPlayers()
 	elseif Vars.Save4 == difficultyChooser.hard.difficulty then
-		return floorNumber(0.6 * Vars.Save2 + 0.00055 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 +2) * Vars.Save1 - getAmountRemoveForPlayers()
+		return floorNumber(0.6 * Vars.Save2 + 0.00065 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 +2) * Vars.Save1 - getAmountRemoveForPlayers()
 	else
-		return  (Vars.Save2 +floorNumber( 0.048 *  Vars.Save2 * Vars.Save2) + 1) * Vars.Save1 - getAmountRemoveForPlayers()
+		return  (Vars.Save2 +floorNumber( 0.04 *  Vars.Save2 * Vars.Save2) + 1) * Vars.Save1 - getAmountRemoveForPlayers()
 	end
 end
 
 function getAmountLvl3()
 	if Vars.Save4 == difficultyChooser.extreme.difficulty then
-		return max(0,floorNumber(0.013 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.65) * Vars.Save1 - getAmountRemoveForPlayers())
+		return max(0,floorNumber(0.014 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save2) * Vars.Save1 - getAmountRemoveForPlayers())
 	else
-		return max(0,floorNumber(0.013 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.8) * Vars.Save1 - getAmountRemoveForPlayers())
+		return max(0,floorNumber(0.0155 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.8) * Vars.Save1 - getAmountRemoveForPlayers())
 	end
 end
 
 function getAmountRemoveForPlayers()
-	return floorNumber(0.04 * Vars.Save2 * Vars.Save2 * 0.3 * (Vars.Save1 - 1) * (Vars.Save1 - 1) + (Vars.Save1 - 1) +(Vars.Save1 + 0.7)/2)
+	return floorNumber(0.065 * Vars.Save2 * Vars.Save2 * 0.23 * (Vars.Save1 - 1) * (Vars.Save1 - 1) + (Vars.Save1 - 1) + 0.33 * Vars.Save2 * minNumber(1, Vars.Save1 - 1) )
 end
 tickCounter = 1
 function cheatProtection()
@@ -948,14 +950,12 @@ function checkSpawnPointDefeted()
 end
 
 function isSpawnPointDefeted(spawnPoint)
-
-	if Settlers.AmountInArea(spawnPoint.player, spawnPoint.settlerType1, spawnPoint.settlersX, spawnPoint.settlersY, 50) == 0  and Settlers.AmountInArea(spawnPoint.player, spawnPoint.settlerType2, spawnPoint.settlersX, spawnPoint.settlersY, 50) == 0 and Settlers.AmountInArea(spawnPoint.player, spawnPoint.settlerType3, spawnPoint.settlersX, spawnPoint.settlersY, 50) == 0 then
-		if spawnPoint.defeated == 0 then
-			dbg.stm(spawnPoint.defeatMessage)
-		end
-		spawnPoint.defeated = 1
-	end
-
+    if spawnPoint.defeated == 0 then
+        if Settlers.AmountInArea(spawnPoint.player, spawnPoint.settlerType1, spawnPoint.settlersX, spawnPoint.settlersY, 50) == 0  and Settlers.AmountInArea(spawnPoint.player, spawnPoint.settlerType2, spawnPoint.settlersX, spawnPoint.settlersY, 50) == 0 and Settlers.AmountInArea(spawnPoint.player, spawnPoint.settlerType3, spawnPoint.settlersX, spawnPoint.settlersY, 50) == 0 then
+            dbg.stm(spawnPoint.defeatMessage)
+            spawnPoint.defeated = 1
+        end
+    end
 end
 
 
@@ -1099,10 +1099,10 @@ function floorNumber(floatNumber)
 end
 
 function minNumber(number1, number2)
-	if number1 > number2 then
-		return number2
-	else
+	if number1 < number2 then
 		return number1
+	else
+		return number2
 	end
 end
 
