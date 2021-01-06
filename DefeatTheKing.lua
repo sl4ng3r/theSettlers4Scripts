@@ -43,7 +43,7 @@ function register_functions()
 end
 
 function isDebug()
-	return 1
+	return 0
 end
 
 difficultyChooser = {
@@ -72,19 +72,29 @@ function checkDifficulty()
 
     if Vars.Save4 == 0 then
         dbg.stm("Ihr habt euch für eine leichtere Partie entschieden!")
-        Buildings.AddBuilding(61, 845, 1, Buildings.EYECATCHER03)
-
+        Buildings.AddBuilding(384, 850, 2, Buildings.EYECATCHER03)
     elseif Vars.Save4 == 1 then
         dbg.stm("Ihr habt euch für eine schwere Partie entschieden!")
-        Buildings.AddBuilding(61, 845, 1, Buildings.EYECATCHER03)
-        Buildings.AddBuilding(61, 851, 1, Buildings.EYECATCHER03)
+        Buildings.AddBuilding(384, 850, 2, Buildings.EYECATCHER03)
+        Buildings.AddBuilding(384, 854, 2, Buildings.EYECATCHER03)
         prepareDifficultMatch()
     else
         dbg.stm("Ihr spielt eine extrem harte Partie! Dann mal viel Glück!")
-        Buildings.AddBuilding(61, 845, 1, Buildings.EYECATCHER03)
-        Buildings.AddBuilding(61, 851, 1, Buildings.EYECATCHER03)
-        Buildings.AddBuilding(67, 852, 1, Buildings.EYECATCHER03)
+        Buildings.AddBuilding(384, 850, 2, Buildings.EYECATCHER03)
+        Buildings.AddBuilding(384, 854, 2, Buildings.EYECATCHER03)
+        Buildings.AddBuilding(389, 856, 2, Buildings.EYECATCHER03)
         prepareDifficultMatch()
+    end
+
+end
+
+function removeBigTowerAtPossitionForPlayer(x, y, player)
+    Buildings.CrushBuilding(Buildings.GetFirstBuilding(player,Buildings.GUARDTOWERBIG))
+    Settlers.KillSelectableSettlers(player,Settlers.SWORDSMAN_01, x,y, 10 , 0)
+    local counter = 1
+    while counter <= 43 do
+        Goods.Delete(x,y,5,counter)
+        counter = counter +  1
     end
 
 end
@@ -99,7 +109,7 @@ function checkChooser(chooser)
 end
 
 function msgDifficulty()
-	dbg.stm("Spieler 1, wähle bitte auf der Karte unten links die gewünschte Schwierigkeit für diese Runde, indem du deinen Hauptmann in den entsprechenden Kreis schickst. (Die Karte sollte mit auf schwer gestellten Gegnern gespielt werden)")
+	dbg.stm("Spieler 1, wähle bitte auf der Karte unten die gewünschte Schwierigkeit für diese Runde, indem du deinen Hauptmann in den entsprechenden Kreis schickst. (Die Karte sollte mit auf schwer gestellten Gegnern gespielt werden)")
 end
 
 
@@ -148,7 +158,7 @@ end
 
 
 function checkIfPlayer3IsHuman()
-    if getAmoutOfBuildings(2) > 63 then
+    if getAmoutOfBuildings(2) > 78 then
         dbg.stm("Der dritter Mitspieler wurde erkannt!")
         Vars.Save5 = 1
     else
@@ -158,6 +168,15 @@ function checkIfPlayer3IsHuman()
 end
 
 function initGame()
+
+    if isDebug() == 1 then
+        Tutorial.RWM(1)
+    end
+
+    if Game.Time() <= 1 then
+        removeBigTowerAtPossitionForPlayer(387,854,1)
+    end
+
     if Game.Time() >= getEndgameTime() then
         endGame = 1
     else
@@ -170,7 +189,7 @@ function initGame()
 	requestMinuteEvent(msgDifficulty,1)
 
 	--Die Schwierigkeit wird nach 4 minuten abgeprüft.
-	requestMinuteEvent(checkDifficulty,4)
+	requestMinuteEvent(checkDifficulty,5)
 
 end
 
@@ -185,7 +204,7 @@ function spawnmilitary()
 
 
     --Settlers.AddSettlers(485, 717, 2, Settlers.SWORDSMAN_03, 200)
-    Settlers.AddSettlers(465, 685, 2, Settlers.BOWMAN_03, 800)
+    Settlers.AddSettlers(467, 706, 2, Settlers.BOWMAN_03, 800)
 
     Settlers.AddSettlers(666, 663, 3, Settlers.BOWMAN_03, 800)
     Game.SetFightingStrength(1, 150)
@@ -202,7 +221,6 @@ function testfunction()
         dbg.aioff(3)
 
         Magic.IncreaseMana(1, 500)
-        Tutorial.RWM(1)
         dbg.stm("Anzahl Gebäude" .. getAmoutOfBuildings(2))
     end
 
@@ -285,9 +303,9 @@ function doEveryMinuteSpawn()
     if Game.Time() >= 17 then
         if Game.Time() > getEndgameTime() + 10 then
             if Game.Time() > 130 then
-                spawnEnemySupportPackage(4, 2, 1, 2, 1)
+                spawnEnemySupportPackage(5, 2, 1, 2, 1)
             else
-                spawnEnemySupportPackage(3, 1, 0, 2, 1)
+                spawnEnemySupportPackage(4, 1, 0, 2, 1)
             end
         else
             spawnEnemySupportPackage(2, 1, 0, 1, 0)
@@ -296,20 +314,27 @@ function doEveryMinuteSpawn()
 
     --Extra Spawn für Schwer
     if Game.Time() >= 35 and Vars.Save4 >= difficultyChooser.hard.difficulty then
-        spawnEnemySupportPackage(3, 1, 1, 8, 1)
+        spawnEnemySupportPackage(4, 2, 1, 6, 1)
     end
 
     --Extra Spawn für extrem
     if Game.Time() >= 30 and Vars.Save4 == difficultyChooser.extreme.difficulty then
-        spawnEnemySupportPackage(3, 1, 0, 2, 1)
+        spawnEnemySupportPackage(4, 2, 0, 2, 1)
     end
 
     --Extra Spawn falls dritter Spieler
-    if Vars.Save5 == 1 and Game.Time() >= 35 then
+    if Vars.Save5 == 1 and Game.Time() >= 40 then
         if isAIDebug() == 1 then
             dbg.stm("Da human extra spawn")
         end
-        spawnEnemySupportPackage(2, 1, 1, 1, 0)
+
+        if Vars.Save4 >= difficultyChooser.hard.difficulty then
+            spawnEnemySupportPackage(5, 2, 1, 2, 1)
+        else
+            spawnEnemySupportPackage(3, 2, 0, 1, 0)
+        end
+
+
     end
 
     --Extra spawn für Endgame beim König
@@ -319,15 +344,12 @@ function doEveryMinuteSpawn()
             Settlers.AddSettlers(726, 301, 7, Settlers.CARRIER, 2)
             Goods.AddPileEx(726, 301, Goods.SWORD, 1)
             Goods.AddPileEx(726, 301, Goods.BOW, 1)
-            Goods.AddPileEx(726, 301, Goods.GOLDBAR, 1)
         end
 
         Settlers.AddSettlers(782, 117, 8, Settlers.CARRIER, 4)
         Goods.AddPileEx(782, 117, Goods.BATTLEAXE, 1)
         Goods.AddPileEx(782, 117, Goods.SWORD, 1)
         Goods.AddPileEx(782, 117, Goods.BOW, 1)
-        Goods.AddPileEx(782, 117, Goods.GOLDBAR, 2)
-
     end
     --extra spawn beim könig und player 7
     if Game.Time() > 135 then
@@ -335,14 +357,14 @@ function doEveryMinuteSpawn()
             Settlers.AddSettlers(726, 301, 7, Settlers.CARRIER, 2)
             Goods.AddPileEx(726, 301, Goods.SWORD, 1)
             Goods.AddPileEx(726, 301, Goods.BOW, 1)
-            Goods.AddPileEx(726, 301, Goods.GOLDBAR, 2)
+            Goods.AddPileEx(726, 301, Goods.GOLDBAR, 1)
         end
 
         Settlers.AddSettlers(782, 117, 8, Settlers.CARRIER, 5)
         Goods.AddPileEx(782, 117, Goods.BATTLEAXE, 1)
         Goods.AddPileEx(782, 117, Goods.BOW, 1)
         Goods.AddPileEx(782, 117, Goods.SWORD, 2)
-        Goods.AddPileEx(782, 117, Goods.GOLDBAR, 4)
+        Goods.AddPileEx(782, 117, Goods.GOLDBAR, 1)
     end
 
 end
@@ -369,16 +391,16 @@ function doActionsAfterMinutes()
     ------------ab hier die Minutes-----
     ------------------------------------
 
-    if minuteReached(2) == 1 then
+    if minuteReached(3) == 1 then
         Map.SetScreenPos(803, 61)
         dbg.stm("König Erdur: Du wagst es mich herauszufordern? Du hast keine Ahnung mit wem du es zu tun hast, hahahaha... ")
     end
 
-    if minuteReached(6) == 1 then
+    if minuteReached(8) == 1 then
         dbg.stm("Ihr erhaltet eine geheime Nachricht!!! Finde die drei legendären Inseln. Geht dir Stein aus, suche in der Mitte. Die Ecken sind dein Freund.")
     end
 
-    if minuteReached(7) == 1 then
+    if minuteReached(9) == 1 then
         --Wir nochmal neu gesetzt, da die Randomzahl nun zufaellig ist.
         setNewAttackAmount()
     end
@@ -393,17 +415,17 @@ function doActionsAfterMinutes()
         setNewAttackAmount()
 
         if Vars.Save4 == difficultyChooser.hard.difficulty then
-            Game.SetFightingStrength(4, 100)
-            Game.SetFightingStrength(5, 100)
-            Game.SetFightingStrength(6, 100)
-            Game.SetFightingStrength(7, 100)
-            Game.SetFightingStrength(8, 125)
+            Game.SetFightingStrength(4, 111)
+            Game.SetFightingStrength(5, 111)
+            Game.SetFightingStrength(6, 111)
+            Game.SetFightingStrength(7, 111)
+            Game.SetFightingStrength(8, 131)
         elseif Vars.Save4 == difficultyChooser.extreme.difficulty then
-            Game.SetFightingStrength(4, 110)
-            Game.SetFightingStrength(5, 110)
-            Game.SetFightingStrength(6, 110)
-            Game.SetFightingStrength(7, 110)
-            Game.SetFightingStrength(8, 130)
+            Game.SetFightingStrength(4, 116)
+            Game.SetFightingStrength(5, 116)
+            Game.SetFightingStrength(6, 116)
+            Game.SetFightingStrength(7, 121)
+            Game.SetFightingStrength(8, 136)
         end
 
     end
@@ -414,39 +436,42 @@ function doActionsAfterMinutes()
         setNewAttackAmount()
         setNewPauseUntilAttack()
         if Vars.Save4 == difficultyChooser.hard.difficulty then
-            Game.SetFightingStrength(4, 110)
-            Game.SetFightingStrength(5, 110)
-            Game.SetFightingStrength(6, 110)
-            Game.SetFightingStrength(7, 110)
-            Game.SetFightingStrength(8, 130)
+            Game.SetFightingStrength(4, 116)
+            Game.SetFightingStrength(5, 116)
+            Game.SetFightingStrength(6, 116)
+            Game.SetFightingStrength(7, 121)
+            Game.SetFightingStrength(8, 136)
         elseif Vars.Save4 == difficultyChooser.extreme.difficulty then
-            Game.SetFightingStrength(4, 120)
-            Game.SetFightingStrength(5, 120)
-            Game.SetFightingStrength(6, 120)
-            Game.SetFightingStrength(7, 125)
-            Game.SetFightingStrength(8, 140)
+            Game.SetFightingStrength(4, 126)
+            Game.SetFightingStrength(5, 126)
+            Game.SetFightingStrength(6, 126)
+            Game.SetFightingStrength(7, 131)
+            Game.SetFightingStrength(8, 141)
         end
 
         dbg.stm("König Erdur: Du hast lange genug meinen Truppen stand gehalten! Ich werde meine Truppen sammeln, ein jeder wird kämpfen und dir die wahre Stärke meines Königreichs zeigen. Dein lächerlicher Widerstand wird bald ein Ende haben, hahahaha..")
     end
 
     if minuteReached(100) == 1 then
-        spawnEnemySupportPackage(6, 2, 2, 3, 2)
+        spawnEnemySupportPackage(6, 2, 1, 3, 2)
     end
 
     if minuteReached(120) == 1 then
+        if isDebug() == 1 then
+            dbg.stm("real endgame reached")
+        end
         if Vars.Save4 == difficultyChooser.hard.difficulty then
-            Game.SetFightingStrength(4, 125)
-            Game.SetFightingStrength(5, 125)
-            Game.SetFightingStrength(6, 125)
-            Game.SetFightingStrength(7, 125)
-            Game.SetFightingStrength(8, 140)
+            Game.SetFightingStrength(4, 121)
+            Game.SetFightingStrength(5, 121)
+            Game.SetFightingStrength(6, 121)
+            Game.SetFightingStrength(7, 126)
+            Game.SetFightingStrength(8, 141)
         elseif Vars.Save4 == difficultyChooser.extreme.difficulty then
-            Game.SetFightingStrength(4, 135)
-            Game.SetFightingStrength(5, 135)
-            Game.SetFightingStrength(6, 135)
-            Game.SetFightingStrength(7, 140)
-            Game.SetFightingStrength(8, 150)
+            Game.SetFightingStrength(4, 141)
+            Game.SetFightingStrength(5, 141)
+            Game.SetFightingStrength(6, 141)
+            Game.SetFightingStrength(7, 146)
+            Game.SetFightingStrength(8, 151)
         end
     end
 
@@ -458,20 +483,20 @@ end
 
 function setNewAttackAmount()
     if Game.Time() < 50 then
-        if Vars.Save4 == difficultyChooser.hard.difficulty then
-            attackAmount = randomBetween(450, 490)
+        if Vars.Save4 >= difficultyChooser.hard.difficulty then
+            attackAmount = randomBetween(450, 500)
         else
             attackAmount = randomBetween(320, 360)
         end
     else
         if Game.Time() < getEndgameTime() then
-            if Vars.Save4 == difficultyChooser.hard.difficulty then
-                attackAmount = randomBetween(500, 700)
+            if Vars.Save4 >= difficultyChooser.hard.difficulty then
+                attackAmount = randomBetween(550, 800)
             else
                 attackAmount = randomBetween(400, 650)
             end
         else
-            if Vars.Save4 == difficultyChooser.hard.difficulty then
+            if Vars.Save4 >= difficultyChooser.hard.difficulty then
                 attackAmount = floorNumber(randomBetween(1100, 1600) * (getn(opponents) / 5))
             else
                 attackAmount = floorNumber(randomBetween(900, 1400) * (getn(opponents) / 5))
@@ -483,19 +508,27 @@ function setNewAttackAmount()
 end
 
 function setNewPauseUntilAttack()
-    if endGame == 1 then
-        pauseUntilAttack = randomBetween(16, 19)
+    if Vars.Save4 == difficultyChooser.extreme.difficulty then
+        if endGame == 1 then
+            pauseUntilAttack = randomBetween(14, 17)
+        else
+            pauseUntilAttack = randomBetween(12, 16)
+        end
     else
-        pauseUntilAttack = randomBetween(14, 18)
+        if endGame == 1 then
+            pauseUntilAttack = randomBetween(15, 18)
+        else
+            pauseUntilAttack = randomBetween(13, 17)
+        end
     end
 end
 
 function getEndgameTime()
 
-    if Vars.Save4 == difficultyChooser.hard.difficulty then
-        return 70
+    if Vars.Save4 >= difficultyChooser.hard.difficulty then
+        return 82
     else
-        return 80
+        return 85
     end
 end
 
@@ -507,7 +540,7 @@ end
 ----------------------
 
 function isAIDebug()
-    return 1
+    return 0
 end
 
 function customCheckIfAttack()
@@ -519,7 +552,7 @@ function getMainPlayerToAttack()
 end
 
 function getAmoutOfAttackingEnemies()
-    if endGame == 1 or Vars.Save4 == difficultyChooser.hard.difficulty then
+    if endGame == 1 or Vars.Save4 >= difficultyChooser.hard.difficulty then
         return getn(opponents)
     else
         --mindestens 4 greifen immer an
@@ -689,25 +722,31 @@ end
 
 function checkAttack()
 
-    if Vars.Save1 + getMinTimeBetweenAttacks() <= Game.Time() then
-        local amoutOfEnemyUnits = getAmountOfEnemysUnits()
+    if Game.Time() >= (getEndgameTime() -10)  and Game.Time() <= (getEndgameTime() + 6) then
+        if isDebug() == 1 then
+            dbg.stm("no attack, waiting for endgame Attack")
+        end
+    else
+        if Vars.Save1 + getMinTimeBetweenAttacks() <= Game.Time() then
+            local amoutOfEnemyUnits = getAmountOfEnemysUnits()
 
-        if customCheckIfAttack() ~= 0 then
-            startAttack(getMainPlayerToAttack(), "customAttack")
-            Vars.Save1 = Game.Time()
-        else
-            if amoutOfEnemyUnits >= getMinAttackAmount() then
-                startAttack(getMainPlayerToAttack(), "minAttackAmount")
+            if customCheckIfAttack() ~= 0 then
+                startAttack(getMainPlayerToAttack(), "customAttack")
                 Vars.Save1 = Game.Time()
             else
-                if Vars.Save1 + getMaxTimeBetweenAttacks() <= Game.Time() and Game.Time() >= 40 then
-                    startAttack(getMainPlayerToAttack(), "maxTime")
+                if amoutOfEnemyUnits >= getMinAttackAmount() then
+                    startAttack(getMainPlayerToAttack(), "minAttackAmount")
                     Vars.Save1 = Game.Time()
                 else
-                    local castleBuildingHuman = getIdOfCastleBuildingHuman()
-                    if castleBuildingHuman ~= 0 then
-                        startAttack(castleBuildingHuman, "castleBuildimg")
+                    if Vars.Save1 + getMaxTimeBetweenAttacks() <= Game.Time() and Game.Time() >= 40 then
+                        startAttack(getMainPlayerToAttack(), "maxTime")
                         Vars.Save1 = Game.Time()
+                    else
+                        local castleBuildingHuman = getIdOfCastleBuildingHuman()
+                        if castleBuildingHuman ~= 0 then
+                            startAttack(castleBuildingHuman, "castleBuildimg")
+                            Vars.Save1 = Game.Time()
+                        end
                     end
                 end
             end
