@@ -16,11 +16,9 @@ function new_game()
     request_event(aiOperations, Events.FIVE_TICKS)
     request_event(initGame, Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
     request_event(removeBoats, Events.FIVE_TICKS)
-	testfunction()
+    testfunction()
 
     preparePlayerTwo()
-
-
 
     if isAIDebug() == 0 then
         Game.DisableLastNPlayersInStatistic(5)
@@ -39,12 +37,59 @@ function register_functions()
     reg_func(doActionsAfterMinutes)
     reg_func(initGame)
     reg_func(removeBoats)
-	MinuteEvents.register_functions()
+    MinuteEvents.register_functions()
 end
 
 function isDebug()
-	return 0
+    return 0
 end
+
+function isAIDebug()
+    return 0
+end
+
+ops = {
+    o1 = {
+        spawnX = 150,
+        spawnY = 107,
+        ai = 0,
+        id = 4,
+        checkTowerX=145,
+        checkTowerY=109
+    },
+    o2 = {
+        spawnX = 262,
+        spawnY = 346,
+        ai = 0,
+        id = 5,
+        checkTowerX=256,
+        checkTowerY=339
+    },
+    o3 = {
+        spawnX = 458,
+        spawnY = 300,
+        ai = 0,
+        id = 6,
+        checkTowerX=454,
+        checkTowerY=289
+    },
+    o4 = {
+        spawnX = 704,
+        spawnY = 276,
+        ai = 0,
+        id = 7,
+        checkTowerX=709,
+        checkTowerY=290
+    },
+    o5 = {
+        spawnX = 756,
+        spawnY = 135,
+        ai = 0,
+        id = 8,
+        checkTowerX=821,
+        checkTowerY=143
+    }
+}
 
 difficultyChooser = {
     normal = {
@@ -72,31 +117,34 @@ function checkDifficulty()
 
     if Vars.Save4 == 0 then
         dbg.stm("Ihr habt euch für eine leichtere Partie entschieden!")
-        Buildings.AddBuilding(384, 850, 2, Buildings.EYECATCHER03)
+        Buildings.AddBuilding(391, 858, 2, Buildings.EYECATCHER03)
     elseif Vars.Save4 == 1 then
         dbg.stm("Ihr habt euch für eine schwere Partie entschieden!")
-        Buildings.AddBuilding(384, 850, 2, Buildings.EYECATCHER03)
-        Buildings.AddBuilding(384, 854, 2, Buildings.EYECATCHER03)
+        Buildings.AddBuilding(391, 858, 2, Buildings.EYECATCHER03)
+        Buildings.AddBuilding(385, 855, 2, Buildings.EYECATCHER03)
         prepareDifficultMatch()
     else
         dbg.stm("Ihr spielt eine extrem harte Partie! Dann mal viel Glück!")
-        Buildings.AddBuilding(384, 850, 2, Buildings.EYECATCHER03)
-        Buildings.AddBuilding(384, 854, 2, Buildings.EYECATCHER03)
-        Buildings.AddBuilding(389, 856, 2, Buildings.EYECATCHER03)
+        Buildings.AddBuilding(391, 858, 2, Buildings.EYECATCHER03)
+        Buildings.AddBuilding(385, 855, 2, Buildings.EYECATCHER03)
+        Buildings.AddBuilding(384, 849, 2, Buildings.EYECATCHER03)
         prepareDifficultMatch()
     end
 
 end
 
 function removeBigTowerAtPossitionForPlayer(x, y, player)
-    Buildings.CrushBuilding(Buildings.GetFirstBuilding(player,Buildings.GUARDTOWERBIG))
-    Settlers.KillSelectableSettlers(player,Settlers.SWORDSMAN_01, x,y, 10 , 0)
+    Buildings.CrushBuilding(Buildings.GetFirstBuilding(player, Buildings.GUARDTOWERBIG))
+    removeGoodsAndSettlers(x, y, player)
+end
+
+function removeGoodsAndSettlers(x, y, player)
+    Settlers.KillSelectableSettlers(player, Settlers.SWORDSMAN_01, x, y, 10, 0)
     local counter = 1
     while counter <= 43 do
-        Goods.Delete(x,y,5,counter)
-        counter = counter +  1
+        Goods.Delete(x, y, 5, counter)
+        counter = counter + 1
     end
-
 end
 
 function checkChooser(chooser)
@@ -109,56 +157,51 @@ function checkChooser(chooser)
 end
 
 function msgDifficulty()
-	dbg.stm("Spieler 1, wähle bitte auf der Karte unten die gewünschte Schwierigkeit für diese Runde, indem du deinen Hauptmann in den entsprechenden Kreis schickst. (Die Karte sollte mit auf schwer gestellten Gegnern gespielt werden)")
+    dbg.stm("Spieler 1, wähle bitte auf der Karte unten die gewünschte Schwierigkeit für diese Runde, indem du deinen Hauptmann in den entsprechenden Kreis schickst. (Die Karte sollte mit auf schwer gestellten Gegnern gespielt werden)")
 end
 
+function addStuff(opponent)
+    Goods.AddPileEx(opponent.spawnX, opponent.spawnY, Goods.STONE, 8)
+    Goods.AddPileEx(opponent.spawnX, opponent.spawnY, Goods.BOARD, 8)
+    Goods.AddPileEx(opponent.spawnX, opponent.spawnY, Goods.STONE, 8)
+    Goods.AddPileEx(opponent.spawnX, opponent.spawnY, Goods.BOARD, 8)
+    Settlers.AddSettlers(opponent.spawnX, opponent.spawnY, opponent.id, Settlers.CARRIER, 2)
 
+end
 
 function prepareDifficultMatch()
 
+    if Vars.Save4 == difficultyChooser.hard.difficulty then
+        Game.SetFightingStrength(4, 96)
+        Game.SetFightingStrength(5, 96)
+        Game.SetFightingStrength(6, 96)
+        Game.SetFightingStrength(7, 106)
+        Game.SetFightingStrength(8, 111)
+    elseif Vars.Save4 == difficultyChooser.extreme.difficulty then
+        Game.SetFightingStrength(4, 101)
+        Game.SetFightingStrength(5, 101)
+        Game.SetFightingStrength(6, 101)
+        Game.SetFightingStrength(7, 111)
+        Game.SetFightingStrength(8, 116)
+    end
 
-    Game.SetFightingStrength(4, 81)
-    Game.SetFightingStrength(5, 81)
-    Game.SetFightingStrength(6, 81)
-    Game.SetFightingStrength(7, 81)
-    Game.SetFightingStrength(8, 111)
 
+    addStuff(ops.o1)
+    addStuff(ops.o2)
+    addStuff(ops.o3)
+    addStuff(ops.o4)
+    addStuff(ops.o5)
 
+    Buildings.AddBuilding(155, 107, 4, Buildings.BARRACKS)
+    Buildings.AddBuilding(263, 360, 5, Buildings.BARRACKS)
+    Buildings.AddBuilding(473, 308, 6, Buildings.BARRACKS)
+    Buildings.AddBuilding(721, 320, 7, Buildings.BARRACKS)
+    Buildings.AddBuilding(714, 62, 8, Buildings.BARRACKS)
 
-    Buildings.AddBuilding(96, 147, 4, Buildings.BARRACKS)
-    Goods.AddPileEx(96, 147, Goods.STONE, 8)
-    Goods.AddPileEx(96, 147, Goods.BOARD, 8)
-    Goods.AddPileEx(96, 147, Goods.STONE, 8)
-    Goods.AddPileEx(96, 147, Goods.BOARD, 8)
-
-    Buildings.AddBuilding(277, 355, 5, Buildings.BARRACKS)
-    Goods.AddPileEx(277, 355, Goods.STONE, 8)
-    Goods.AddPileEx(277, 355, Goods.BOARD, 8)
-    Goods.AddPileEx(277, 355, Goods.STONE, 8)
-    Goods.AddPileEx(277, 355, Goods.BOARD, 8)
-
-    Buildings.AddBuilding(473, 307, 6, Buildings.BARRACKS)
-    Goods.AddPileEx(473, 307, Goods.STONE, 8)
-    Goods.AddPileEx(473, 307, Goods.BOARD, 8)
-    Goods.AddPileEx(473, 307, Goods.STONE, 8)
-    Goods.AddPileEx(473, 307, Goods.BOARD, 8)
-
-    Buildings.AddBuilding(722, 296, 7, Buildings.BARRACKS)
-    Goods.AddPileEx(722, 296, Goods.STONE, 8)
-    Goods.AddPileEx(722, 296, Goods.BOARD, 8)
-    Goods.AddPileEx(722, 296, Goods.STONE, 8)
-    Goods.AddPileEx(722, 296, Goods.BOARD, 8)
-
-    Buildings.AddBuilding(753, 78, 8, Buildings.BARRACKS)
-    Goods.AddPileEx(753, 78, Goods.STONE, 8)
-    Goods.AddPileEx(753, 78, Goods.BOARD, 8)
-    Goods.AddPileEx(753, 78, Goods.STONE, 8)
-    Goods.AddPileEx(753, 78, Goods.BOARD, 8)
 end
 
-
 function checkIfPlayer3IsHuman()
-    if getAmoutOfBuildings(2) > 78 then
+    if getAmoutOfBuildings(2) > (64 + Vars.Save4) then
         dbg.stm("Der dritter Mitspieler wurde erkannt!")
         Vars.Save5 = 1
     else
@@ -174,7 +217,7 @@ function initGame()
     end
 
     if Game.Time() <= 1 then
-        removeBigTowerAtPossitionForPlayer(387,854,1)
+        removeBigTowerAtPossitionForPlayer(387, 854, 1)
     end
 
     if Game.Time() >= getEndgameTime() then
@@ -185,11 +228,11 @@ function initGame()
     setNewAttackAmount()
     setNewPauseUntilAttack()
 
-	--Message zum waehlen der Schwirigkeit
-	requestMinuteEvent(msgDifficulty,1)
+    --Message zum waehlen der Schwirigkeit
+    requestMinuteEvent(msgDifficulty, 1)
 
-	--Die Schwierigkeit wird nach 4 minuten abgeprüft.
-	requestMinuteEvent(checkDifficulty,5)
+    --Die Schwierigkeit wird nach 4 minuten abgeprüft.
+    requestMinuteEvent(checkDifficulty, 5)
 
 end
 
@@ -199,7 +242,7 @@ function spawnmilitary()
     --Settlers.AddSettlers(799, 75, 8, Settlers.CARRIER, 3)
 
     -- Verstaerkung fuer Endgabe Test
-    --Settlers.AddSettlers(183, 681, 1, Settlers.SWORDSMAN_03, 200)
+    Settlers.AddSettlers(183, 681, 1, Settlers.SWORDSMAN_03, 200)
     Settlers.AddSettlers(191, 679, 1, Settlers.BOWMAN_03, 800)
 
 
@@ -216,7 +259,7 @@ function spawnmilitary()
 end
 
 function testfunction()
-	if isDebug() == 1 then
+    if isDebug() == 1 then
         spawnmilitary()
         dbg.aioff(3)
 
@@ -227,40 +270,26 @@ function testfunction()
 
 end
 
+function spawnSupportForOpp(opponent, settlersAmount, swords, bows, goldBars, axes)
+    if Game.HasPlayerLost(opponent.id) == 0 and Buildings.ExistsBuildingInArea(opponent.id,Buildings.GUARDTOWERSMALL,opponent.checkTowerX,opponent.checkTowerY,2, Buildings.READY) > 0 then
+        Settlers.AddSettlers(opponent.spawnX, opponent.spawnY, opponent.id, Settlers.CARRIER, settlersAmount)
+        Goods.AddPileEx(opponent.spawnX, opponent.spawnY, Goods.SWORD, swords)
+        Goods.AddPileEx(opponent.spawnX, opponent.spawnY, Goods.BOW, bows)
+        Goods.AddPileEx(opponent.spawnX, opponent.spawnY, Goods.GOLDBAR, goldBars)
+        if opponent.id == 8 then
+            Goods.AddPileEx(opponent.spawnX, opponent.spawnY, Goods.BATTLEAXE, axes)
+        end
+    end
+end
+
 function spawnEnemySupportPackage(settlersAmount, swords, bows, goldBars, axes)
-    if Game.HasPlayerLost(4) == 0 then
-        Settlers.AddSettlers(117, 145, 4, Settlers.CARRIER, settlersAmount)
-        Goods.AddPileEx(117, 145, Goods.SWORD, swords)
-        Goods.AddPileEx(117, 145, Goods.BOW, bows)
-        Goods.AddPileEx(117, 145, Goods.GOLDBAR, goldBars)
-    end
 
-    if Game.HasPlayerLost(5) == 0 then
-        Settlers.AddSettlers(273, 350, 5, Settlers.CARRIER, settlersAmount)
-        Goods.AddPileEx(273, 350, Goods.SWORD, swords)
-        Goods.AddPileEx(273, 350, Goods.BOW, bows)
-        Goods.AddPileEx(273, 350, Goods.GOLDBAR, goldBars)
-    end
+    spawnSupportForOpp(ops.o1, settlersAmount, swords, bows, goldBars, axes)
+    spawnSupportForOpp(ops.o2, settlersAmount, swords, bows, goldBars, axes)
+    spawnSupportForOpp(ops.o3, settlersAmount, swords, bows, goldBars, axes)
+    spawnSupportForOpp(ops.o4, settlersAmount, swords, bows, goldBars, axes)
+    spawnSupportForOpp(ops.o5, settlersAmount, swords, bows, goldBars, axes)
 
-    if Game.HasPlayerLost(6) == 0 then
-        Settlers.AddSettlers(447, 295, 6, Settlers.CARRIER, settlersAmount)
-        Goods.AddPileEx(447, 295, Goods.SWORD, swords)
-        Goods.AddPileEx(447, 295, Goods.BOW, bows)
-        Goods.AddPileEx(447, 295, Goods.GOLDBAR, goldBars)
-    end
-    if Game.HasPlayerLost(7) == 0 then
-        Settlers.AddSettlers(726, 301, 7, Settlers.CARRIER, settlersAmount)
-        Goods.AddPileEx(726, 301, Goods.SWORD, swords)
-        Goods.AddPileEx(726, 301, Goods.BOW, bows)
-        Goods.AddPileEx(726, 301, Goods.GOLDBAR, goldBars)
-    end
-    if Game.HasPlayerLost(8) == 0 then
-        Settlers.AddSettlers(782, 117, 8, Settlers.CARRIER, settlersAmount)
-        Goods.AddPileEx(782, 117, Goods.SWORD, swords)
-        Goods.AddPileEx(782, 117, Goods.BATTLEAXE, axes)
-        Goods.AddPileEx(782, 117, Goods.BOW, bows)
-        Goods.AddPileEx(782, 117, Goods.GOLDBAR, goldBars)
-    end
 end
 
 function preparePlayerTwo()
@@ -270,6 +299,7 @@ function preparePlayerTwo()
         Buildings.CrushBuilding(Buildings.GetFirstBuilding(2, Buildings.GUARDTOWERSMALL))
         mycounter = mycounter + 1
     end
+    removeGoodsAndSettlers(779, 16, 2)
 
     Buildings.AddBuilding(527, 795, 2, Buildings.STORAGEAREA)
     Buildings.AddBuilding(535, 743, 2, Buildings.STORAGEAREA)
@@ -293,45 +323,57 @@ function Siegbedingung()
     Game.DefaultGameEndCheck()
 end
 
-
 function doEveryMinuteSpawn()
     if isAIDebug() == 1 then
-        dbg.stm("Min:" .. Game.Time() .. " OppUn:" .. getAmountOfEnemysUnits() .. " MinOfLaAtt:" .. Vars.Save1 .. " MinAttAmo:" .. getMinAttackAmount() .. " LivHuman:" .. getn(humans) .. " LivOpp:" .. getn(opponents) .. " Pause:" .. getMinTimeBetweenAttacks() .. " Endgame:" .. endGame .. " Kampfkraft:" .. Game.GetOffenceFightingStrength(4) .. "/" .. Game.GetOffenceFightingStrength(5) .. "/" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8))
+        dbg.stm("Min:" .. Game.Time() .. " OppUn:" .. getAmountOfEnemysUnits() .. " MinOfLaAtt:" .. Vars.Save1 .. " MaxAttack" .. Vars.Save1 + getMaxTimeBetweenAttacks() .. " MinAttAmo:" .. getMinAttackAmount() .. " LivHuman:" .. getn(humans) .. " LivOpp:" .. getn(opponents) .. " Pause:" .. getMinTimeBetweenAttacks() .. " Endgame:" .. endGame .. " Kampfkraft:" .. Game.GetOffenceFightingStrength(4) .. "/" .. Game.GetOffenceFightingStrength(5) .. "/" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8))
     end
 
     --Genereller Spawn
-    if Game.Time() >= 17 then
-        if Game.Time() > getEndgameTime() + 10 then
-            if Game.Time() > 130 then
-                spawnEnemySupportPackage(5, 2, 1, 2, 1)
+    if Game.Time() >= 16 then
+        if Game.Time() > getEndgameTime()  then
+            if Game.Time() >= 120 then
+                spawnEnemySupportPackage(7, 4, 2, 4, 2)
             else
-                spawnEnemySupportPackage(4, 1, 0, 2, 1)
+                spawnEnemySupportPackage(6, 3, 1, 3, 2)
             end
         else
-            spawnEnemySupportPackage(2, 1, 0, 1, 0)
+            spawnEnemySupportPackage(4, 2, 0, 1, 1)
         end
     end
 
     --Extra Spawn für Schwer
-    if Game.Time() >= 35 and Vars.Save4 >= difficultyChooser.hard.difficulty then
-        spawnEnemySupportPackage(4, 2, 1, 6, 1)
+    if Game.Time() >= 30 and Vars.Save4 >= difficultyChooser.hard.difficulty then
+        if Game.Time() < getEndgameTime()  then
+            spawnEnemySupportPackage(6, 3, 1, 6, 1)
+        else
+            spawnEnemySupportPackage(8, 4, 2, 8, 2)
+        end
+ --       if isAIDebug() == 1 then
+  --          dbg.stm("extra spawn hard")
+  --      end
     end
 
     --Extra Spawn für extrem
-    if Game.Time() >= 30 and Vars.Save4 == difficultyChooser.extreme.difficulty then
-        spawnEnemySupportPackage(4, 2, 0, 2, 1)
+    if Game.Time() >= 26 and Vars.Save4 == difficultyChooser.extreme.difficulty then
+        if Game.Time() < getEndgameTime()  then
+            spawnEnemySupportPackage(5, 4, 0, 2, 1)
+        else
+            spawnEnemySupportPackage(8, 6, 1, 4, 2)
+        end
+--        if isAIDebug() == 1 then
+--            dbg.stm("extra spawn extreme")
+--        end
     end
 
     --Extra Spawn falls dritter Spieler
-    if Vars.Save5 == 1 and Game.Time() >= 40 then
-        if isAIDebug() == 1 then
-            dbg.stm("Da human extra spawn")
-        end
+    if Vars.Save5 == 1 and Game.Time() >= 36 then
 
-        if Vars.Save4 >= difficultyChooser.hard.difficulty then
-            spawnEnemySupportPackage(5, 2, 1, 2, 1)
+        if Vars.Save4 == difficultyChooser.extreme.difficulty then
+            spawnEnemySupportPackage(8, 4, 1, 3, 3)
+        elseif Vars.Save4 == difficultyChooser.hard.difficulty then
+            spawnEnemySupportPackage(6, 3, 1, 2, 2)
         else
-            spawnEnemySupportPackage(3, 2, 0, 1, 0)
+            spawnEnemySupportPackage(4, 3, 0, 1, 1)
         end
 
 
@@ -340,31 +382,48 @@ function doEveryMinuteSpawn()
     --Extra spawn für Endgame beim König
     if endGame == 1 then
 
-        if Game.HasPlayerLost(7) == 0 then
-            Settlers.AddSettlers(726, 301, 7, Settlers.CARRIER, 2)
-            Goods.AddPileEx(726, 301, Goods.SWORD, 1)
-            Goods.AddPileEx(726, 301, Goods.BOW, 1)
+        if Vars.Save4 >= difficultyChooser.hard.difficulty then
+            if Game.HasPlayerLost(7) == 0 then
+                Settlers.AddSettlers(ops.o4.spawnX, ops.o4.spawnY, 7, Settlers.CARRIER, 4)
+                Goods.AddPileEx(ops.o4.spawnX, ops.o4.spawnY, Goods.SWORD, 2)
+                Goods.AddPileEx(ops.o4.spawnX, ops.o4.spawnY, Goods.BOW, 1)
+                Goods.AddPileEx(ops.o4.spawnX, ops.o4.spawnY, Goods.GOLDBAR, 1)
+            end
         end
-
-        Settlers.AddSettlers(782, 117, 8, Settlers.CARRIER, 4)
-        Goods.AddPileEx(782, 117, Goods.BATTLEAXE, 1)
-        Goods.AddPileEx(782, 117, Goods.SWORD, 1)
-        Goods.AddPileEx(782, 117, Goods.BOW, 1)
+        Settlers.AddSettlers(ops.o5.spawnX, ops.o5.spawnY, 8, Settlers.CARRIER, 7)
+        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BATTLEAXE, 2)
+        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.SWORD, 2)
+        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BOW, 1)
+        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.GOLDBAR, 2)
+        if Vars.Save4 == difficultyChooser.extreme.difficulty then
+            Settlers.AddSettlers(ops.o5.spawnX, ops.o5.spawnY, 8, Settlers.CARRIER, 7)
+            Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BATTLEAXE, 2)
+            Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.SWORD, 2)
+            Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BOW, 1)
+        end
+ --       if isAIDebug() == 1 then
+ --           dbg.stm("extra spawn endgame")
+ --       end
     end
     --extra spawn beim könig und player 7
-    if Game.Time() > 135 then
-        if Game.HasPlayerLost(7) == 0 then
-            Settlers.AddSettlers(726, 301, 7, Settlers.CARRIER, 2)
-            Goods.AddPileEx(726, 301, Goods.SWORD, 1)
-            Goods.AddPileEx(726, 301, Goods.BOW, 1)
-            Goods.AddPileEx(726, 301, Goods.GOLDBAR, 1)
+    if Game.Time() > 120 then
+        if Vars.Save4 >= difficultyChooser.hard.difficulty then
+            if Game.HasPlayerLost(7) == 0 then
+                Settlers.AddSettlers(ops.o4.spawnX, ops.o4.spawnY, 7, Settlers.CARRIER, 3)
+                Goods.AddPileEx(ops.o4.spawnX, ops.o4.spawnY, Goods.SWORD, 1)
+                Goods.AddPileEx(ops.o4.spawnX, ops.o4.spawnY, Goods.BOW, 1)
+                Goods.AddPileEx(ops.o4.spawnX, ops.o4.spawnY, Goods.GOLDBAR, 1)
+            end
         end
 
-        Settlers.AddSettlers(782, 117, 8, Settlers.CARRIER, 5)
-        Goods.AddPileEx(782, 117, Goods.BATTLEAXE, 1)
-        Goods.AddPileEx(782, 117, Goods.BOW, 1)
-        Goods.AddPileEx(782, 117, Goods.SWORD, 2)
-        Goods.AddPileEx(782, 117, Goods.GOLDBAR, 1)
+        Settlers.AddSettlers(ops.o5.spawnX, ops.o5.spawnY, 8, Settlers.CARRIER, 6)
+        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BATTLEAXE, 2)
+        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BOW, 1)
+        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.SWORD, 2)
+        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.GOLDBAR, 2)
+ --       if isAIDebug() == 1 then
+ --           dbg.stm("extra spawn real endgame")
+ --       end
     end
 
 end
@@ -430,6 +489,22 @@ function doActionsAfterMinutes()
 
     end
 
+    if minuteReached(65) == 1 then
+        if Vars.Save4 == difficultyChooser.hard.difficulty then
+            Game.SetFightingStrength(4, 116)
+            Game.SetFightingStrength(5, 116)
+            Game.SetFightingStrength(6, 116)
+            Game.SetFightingStrength(7, 121)
+            Game.SetFightingStrength(8, 136)
+        elseif Vars.Save4 == difficultyChooser.extreme.difficulty then
+            Game.SetFightingStrength(4, 121)
+            Game.SetFightingStrength(5, 121)
+            Game.SetFightingStrength(6, 121)
+            Game.SetFightingStrength(7, 126)
+            Game.SetFightingStrength(8, 136)
+        end
+    end
+
     if minuteReached(getEndgameTime()) == 1 then
         endGame = 1
         spawnEnemySupportPackage(5, 2, 2, 2, 2)
@@ -483,23 +558,29 @@ end
 
 function setNewAttackAmount()
     if Game.Time() < 50 then
-        if Vars.Save4 >= difficultyChooser.hard.difficulty then
-            attackAmount = randomBetween(450, 500)
+        if Vars.Save4 == difficultyChooser.extreme.difficulty then
+            attackAmount = randomBetween(600, 700)
+        elseif Vars.Save4 == difficultyChooser.hard.difficulty then
+            attackAmount = randomBetween(520, 600)
         else
-            attackAmount = randomBetween(320, 360)
+            attackAmount = randomBetween(420, 460)
         end
     else
         if Game.Time() < getEndgameTime() then
-            if Vars.Save4 >= difficultyChooser.hard.difficulty then
-                attackAmount = randomBetween(550, 800)
+            if Vars.Save4 == difficultyChooser.extreme.difficulty then
+                attackAmount = randomBetween(800, 1000)
+            elseif Vars.Save4 == difficultyChooser.hard.difficulty then
+                attackAmount = randomBetween(750, 900)
             else
-                attackAmount = randomBetween(400, 650)
+                attackAmount = randomBetween(550, 700)
             end
         else
-            if Vars.Save4 >= difficultyChooser.hard.difficulty then
-                attackAmount = floorNumber(randomBetween(1100, 1600) * (getn(opponents) / 5))
+            if Vars.Save4 == difficultyChooser.extreme.difficulty then
+                attackAmount = floorNumber(randomBetween(1400, 1750) * (getn(opponents) / 5))
+            elseif Vars.Save4 == difficultyChooser.hard.difficulty then
+                attackAmount = floorNumber(randomBetween(1200, 1600) * (getn(opponents) / 5))
             else
-                attackAmount = floorNumber(randomBetween(900, 1400) * (getn(opponents) / 5))
+                attackAmount = floorNumber(randomBetween(1000, 1200) * (getn(opponents) / 5))
             end
             --anzahl wird reduziert, wenn gegner bereits besiegt wurden.
 
@@ -510,15 +591,15 @@ end
 function setNewPauseUntilAttack()
     if Vars.Save4 == difficultyChooser.extreme.difficulty then
         if endGame == 1 then
-            pauseUntilAttack = randomBetween(14, 17)
+            pauseUntilAttack = randomBetween(8, 11)
         else
-            pauseUntilAttack = randomBetween(12, 16)
+            pauseUntilAttack = randomBetween(10, 12)
         end
     else
         if endGame == 1 then
-            pauseUntilAttack = randomBetween(15, 18)
+            pauseUntilAttack = randomBetween(9, 12)
         else
-            pauseUntilAttack = randomBetween(13, 17)
+            pauseUntilAttack = randomBetween(11, 13)
         end
     end
 end
@@ -526,9 +607,9 @@ end
 function getEndgameTime()
 
     if Vars.Save4 >= difficultyChooser.hard.difficulty then
-        return 82
+        return 68
     else
-        return 85
+        return 73
     end
 end
 
@@ -538,19 +619,6 @@ end
 -- AI Funktionen die gesetzt werden muessen
 ---------------------
 ----------------------
-
-function isAIDebug()
-    return 0
-end
-
-function customCheckIfAttack()
-    return 0
-end
-
-function getMainPlayerToAttack()
-    return 2
-end
-
 function getAmoutOfAttackingEnemies()
     if endGame == 1 or Vars.Save4 >= difficultyChooser.hard.difficulty then
         return getn(opponents)
@@ -570,19 +638,38 @@ function getPercentageAttackingUnits(amountOfAttackingEnemies)
     else
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
             if Game.Time() < 55 then
-                return randomBetween(70, 80)
+                return randomBetween(75, 80)
             else
-                return randomBetween(80, 85)
+                return randomBetween(85, 90)
             end
         else
             if Game.Time() < 55 then
-                return randomBetween(75, 85)
+                return randomBetween(85, 90)
             else
-                return randomBetween(80, 90)
+                return randomBetween(90, 95)
             end
         end
     end
 end
+
+function getMaxTimeBetweenAttacks()
+    if endGame == 1 then
+        return 13
+    else
+        return 14
+    end
+
+end
+
+function customCheckIfAttack()
+    return 0
+end
+
+function getMainPlayerToAttack()
+    return 2
+end
+
+
 
 tickCounter = 1
 
@@ -599,13 +686,11 @@ function removeBoats()
         while index <= getn(humans) do
 
             if Vehicles.AmountInArea(humans[index], Vehicles.WARSHIP, 732, 24, 23) > 0 or Vehicles.AmountInArea(humans[index], Vehicles.WARSHIP, 824, 24, 23) > 0 then
-                dbg.stm("war in Area")
                 Vehicles.KillVehicles(humans[index], Vehicles.WARSHIP, 732, 24, 23)
                 Vehicles.KillVehicles(humans[index], Vehicles.WARSHIP, 824, 24, 23)
                 dbg.stm("Ein greller Blitz, zzzzzschhhhh. Eure Krigsschiffe wurden von Thor zerstört")
             end
             if Vehicles.AmountInArea(humans[index], Vehicles.FERRY, 732, 24, 23) > 0 or Vehicles.AmountInArea(humans[index], Vehicles.FERRY, 824, 24, 23) > 0 then
-                dbg.stm("war in Area")
                 Vehicles.KillVehicles(humans[index], Vehicles.FERRY, 732, 24, 23)
                 Vehicles.KillVehicles(humans[index], Vehicles.FERRY, 824, 24, 23)
                 dbg.stm("Ein greller Blitz, zzzzzschhhhh. Eure Krigsschiffe wurden von Thor zerstört")
@@ -632,14 +717,7 @@ function getMinTimeBetweenAttacks()
     return pauseUntilAttack
 end
 
-function getMaxTimeBetweenAttacks()
-    if endGame == 1 then
-        return 21
-    else
-        return 19
-    end
 
-end
 
 function attackStarted()
     --Ein neues min Level an Soldaten, macht es lustiger ;D
@@ -663,7 +741,7 @@ humans = { 1, 2, 3 }
 tickConterAI = 1
 function aiOperations()
     tickConterAI = tickConterAI + 1
-    if tickConterAI > 60 then
+    if tickConterAI > 100 then
         refreshIfSomeoneDied()
         checkAttack()
         tickConterAI = 1
@@ -722,30 +800,33 @@ end
 
 function checkAttack()
 
-    if Game.Time() >= (getEndgameTime() -10)  and Game.Time() <= (getEndgameTime() + 6) then
+    if Game.Time() >= (getEndgameTime() - 7) and Game.Time() < (getEndgameTime() + 1) then
         if isDebug() == 1 then
             dbg.stm("no attack, waiting for endgame Attack")
         end
     else
-        if Vars.Save1 + getMinTimeBetweenAttacks() <= Game.Time() then
-            local amoutOfEnemyUnits = getAmountOfEnemysUnits()
-
-            if customCheckIfAttack() ~= 0 then
-                startAttack(getMainPlayerToAttack(), "customAttack")
+        -- wenn 5 Minuten rum sind seit letztem Angriff schauen ob Burg im bau.
+        if Game.Time() >= (Vars.Save1 + 5) then
+            local castleBuildingHuman = getIdOfCastleBuildingHuman()
+            if castleBuildingHuman ~= 0 then
+                startAttack(castleBuildingHuman, "castleBuildimg", 70)
                 Vars.Save1 = Game.Time()
             else
-                if amoutOfEnemyUnits >= getMinAttackAmount() then
-                    startAttack(getMainPlayerToAttack(), "minAttackAmount")
-                    Vars.Save1 = Game.Time()
-                else
-                    if Vars.Save1 + getMaxTimeBetweenAttacks() <= Game.Time() and Game.Time() >= 40 then
-                        startAttack(getMainPlayerToAttack(), "maxTime")
+                if Vars.Save1 + getMinTimeBetweenAttacks() <= Game.Time() then
+                    local amoutOfEnemyUnits = getAmountOfEnemysUnits()
+
+                    if customCheckIfAttack() ~= 0 then
+                        startAttack(getMainPlayerToAttack(), "customAttack", 0)
                         Vars.Save1 = Game.Time()
                     else
-                        local castleBuildingHuman = getIdOfCastleBuildingHuman()
-                        if castleBuildingHuman ~= 0 then
-                            startAttack(castleBuildingHuman, "castleBuildimg")
+                        if amoutOfEnemyUnits >= getMinAttackAmount() then
+                            startAttack(getMainPlayerToAttack(), "minAttackAmount", 0)
                             Vars.Save1 = Game.Time()
+                        else
+                            if Vars.Save1 + getMaxTimeBetweenAttacks() <= Game.Time() and Game.Time() >= 40 then
+                                startAttack(getMainPlayerToAttack(), "maxTime", 0)
+                                Vars.Save1 = Game.Time()
+                            end
                         end
                     end
                 end
@@ -771,12 +852,10 @@ function getIdOfCastleBuildingHuman()
 end
 
 
-
-
 --Hier wird per zufall die Angriffsstrategie ausgewählt
 --Generell gilt die Logik, es kann über die methode getAmoutOfAttackingEnemies definiert werden, wieviele Gegner gleichzeitig angreifen. Es greifen dabei immer die stärksten Gegner an entsprechend der Anzahl ihrer Einheiten. 
 --Dabei gibt es verschiedene Angriffsszenarien, die per zufall ausgewählt werden.
-function startAttack(mainAttackPlayer, attackCondition)
+function startAttack(mainAttackPlayer, attackCondition, percentForceMain)
 
 
     local amountOfAttackingEnemies = getAmoutOfAttackingEnemies()
@@ -786,15 +865,19 @@ function startAttack(mainAttackPlayer, attackCondition)
     local mainPlayer = mainAttackPlayer
     local attackType = ""
 
-    if randomAttack <= 15 then
+    if randomAttack <= 15 or percentForceMain == 100 then
         -- greife alle den main player an
         attackType = "allMain"
         doAttackMainPlayer(amountOfAttackingEnemies, getPercentageAttackingUnits, mainAttackPlayer)
     else
-        if randomAttack <= 40 then
+        if randomAttack <= 40 or percentForceMain > 0 then
             -- 50% der gegner greifen den main spieler an rest ist zufaellig
+            local percentAttackMain = 50
+            if percentForceMain > 0 then
+                percentAttackMain = percentForceMain
+            end
             attackType = "mostMain"
-            doAttackMainPlayerMostEnemies(amountOfAttackingEnemies, getPercentageAttackingUnits, mainAttackPlayer, 50)
+            doAttackMainPlayerMostEnemies(amountOfAttackingEnemies, getPercentageAttackingUnits, mainAttackPlayer, percentAttackMain)
         else
             if randomAttack <= 55 then
                 -- greife gleichmaesig verteilt an
@@ -817,7 +900,7 @@ function startAttack(mainAttackPlayer, attackCondition)
 
     end
     if isAIDebug() == 1 then
-        dbg.stm("Angriff Prozent:" .. getPercentageAttackingUnits .. " Anzahl:" .. amountOfAttackingEnemies .. " AttackType:" .. attackType .. " MainPlayer:" .. mainPlayer .. " Condition:" .. attackCondition)
+        dbg.stm("Angriff Prozent:" .. getPercentageAttackingUnits .. " Anzahl:" .. amountOfAttackingEnemies .. " AttackType:" .. attackType .. " MainPlayer:" .. mainPlayer .. " Condition:" .. attackCondition .. " percentForceMain:" .. percentForceMain)
     end
     attackStarted()
 
@@ -892,9 +975,6 @@ function doDividedAttack(amountOfAttackingEnemies, getPercentageAttackingUnits)
         end
     end
 end
-
-
-
 
 
 ----------------------
@@ -1137,27 +1217,27 @@ end
 --LIB fuer Minute Events---
 -----
 
-MinuteEvents =  {
-	-- table of all events at all minutes in format _minuteEventTable[minute][funcid (from 1 - n; no specific meaning)]
-	_minuteEventTable = {}
+MinuteEvents = {
+    -- table of all events at all minutes in format _minuteEventTable[minute][funcid (from 1 - n; no specific meaning)]
+    _minuteEventTable = {}
 }
 
 -- calls all function types in table
-function MinuteEvents._subroutine_foreachFunction(i,v)
-	if type(v) == "function" then
-		v();
-	end
+function MinuteEvents._subroutine_foreachFunction(i, v)
+    if type(v) == "function" then
+        v();
+    end
 end
 function MinuteEvents.runMinuteEventTick()
-	-- true on first tick of new minute
-	local currentMinute = Game.Time()
-	if Vars.Save9 ~= currentMinute then
-		Vars.Save9 = currentMinute  -- minute
-		-- calls all functions in table
-		if MinuteEvents._minuteEventTable[Vars.Save9] ~= nil then
-			foreach(MinuteEvents._minuteEventTable[Vars.Save9],MinuteEvents._subroutine_foreachFunction)
-		end
-	end
+    -- true on first tick of new minute
+    local currentMinute = Game.Time()
+    if Vars.Save9 ~= currentMinute then
+        Vars.Save9 = currentMinute  -- minute
+        -- calls all functions in table
+        if MinuteEvents._minuteEventTable[Vars.Save9] ~= nil then
+            foreach(MinuteEvents._minuteEventTable[Vars.Save9], MinuteEvents._subroutine_foreachFunction)
+        end
+    end
 
 end
 

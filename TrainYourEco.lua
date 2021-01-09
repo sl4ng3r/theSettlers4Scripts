@@ -302,7 +302,12 @@ function initGame()
         requestMinuteEvent(printStatistic, statisticTime)
         statisticTime = statisticTime + 5
     end
-    --requestMinuteEvent(finishGame, getEndTime())
+
+    requestMinuteEvent(speedUpMsg, getEndTime() - 10)
+end
+
+function speedUpMsg()
+    dbg.stm("Die letzten 10 Minuten sind angebrochen. Gebt nochmal Gas!")
 end
 
 function getEndTime()
@@ -538,7 +543,7 @@ function calcPointsForSacPlace(player)
     points = points + getPointsForUnits(player, units30Points, 30)
     points = points + getPointsForUnits(player, units20Points, 20)
     points = points + getPointsForUnits(player, units12Points, 12)
-    points = points + getPointsForUnits(player, { Settlers.SQUADLEADER }, 35)
+    points = points + getPointsForUnits(player, { Settlers.SQUADLEADER }, 46)
 
     return points
 
