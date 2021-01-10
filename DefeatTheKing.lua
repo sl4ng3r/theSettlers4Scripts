@@ -41,11 +41,11 @@ function register_functions()
 end
 
 function isDebug()
-    return 0
+    return 1
 end
 
 function isAIDebug()
-    return 0
+    return 1
 end
 
 ops = {
@@ -201,7 +201,7 @@ function prepareDifficultMatch()
 end
 
 function checkIfPlayer3IsHuman()
-    if getAmoutOfBuildings(2) >= (64 + Vars.Save4) then
+    if getAmoutOfBuildings(2) > (64 + Vars.Save4) then
         dbg.stm("Der dritter Mitspieler wurde erkannt!")
         Vars.Save5 = 1
     else
@@ -329,9 +329,9 @@ function doEveryMinuteSpawn()
     end
 
     --Genereller Spawn
-    if Game.Time() >= 16 then
+    if Game.Time() >= 13 then
         if Game.Time() > getEndgameTime()  then
-            if Game.Time() >= 120 then
+            if Game.Time() >= 100 then
                 spawnEnemySupportPackage(9, 6, 2, 4, 3)
             else
                 spawnEnemySupportPackage(8, 5, 1, 3, 3)
@@ -381,50 +381,28 @@ function doEveryMinuteSpawn()
 
     --Extra spawn für Endgame beim König
     if endGame == 1 then
+        --leicht spawn
+        spawnSupportForOpp(ops.o5, 7, 2, 1, 2, 2)
 
-
-        Settlers.AddSettlers(ops.o5.spawnX, ops.o5.spawnY, 8, Settlers.CARRIER, 7)
-        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BATTLEAXE, 2)
-        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.SWORD, 2)
-        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BOW, 1)
-        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.GOLDBAR, 2)
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
-            if Game.HasPlayerLost(7) == 0 then
-                Settlers.AddSettlers(ops.o4.spawnX, ops.o4.spawnY, 7, Settlers.CARRIER, 4)
-                Goods.AddPileEx(ops.o4.spawnX, ops.o4.spawnY, Goods.SWORD, 2)
-                Goods.AddPileEx(ops.o4.spawnX, ops.o4.spawnY, Goods.BOW, 1)
-                Goods.AddPileEx(ops.o4.spawnX, ops.o4.spawnY, Goods.GOLDBAR, 1)
-            end
+            spawnSupportForOpp(ops.o4, 5, 2, 1, 1, 0)
+            spawnSupportForOpp(ops.o5, 4, 2, 1, 0, 1)
         end
         if Vars.Save4 == difficultyChooser.extreme.difficulty then
-            Settlers.AddSettlers(ops.o5.spawnX, ops.o5.spawnY, 8, Settlers.CARRIER, 7)
-            Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BATTLEAXE, 2)
-            Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.SWORD, 2)
-            Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BOW, 1)
-        end
- --       if isAIDebug() == 1 then
- --           dbg.stm("extra spawn endgame")
- --       end
-    end
-    --extra spawn beim könig und player 7
-    if Game.Time() > 120 then
-        if Vars.Save4 >= difficultyChooser.hard.difficulty then
-            if Game.HasPlayerLost(7) == 0 then
-                Settlers.AddSettlers(ops.o4.spawnX, ops.o4.spawnY, 7, Settlers.CARRIER, 3)
-                Goods.AddPileEx(ops.o4.spawnX, ops.o4.spawnY, Goods.SWORD, 1)
-                Goods.AddPileEx(ops.o4.spawnX, ops.o4.spawnY, Goods.BOW, 1)
-                Goods.AddPileEx(ops.o4.spawnX, ops.o4.spawnY, Goods.GOLDBAR, 1)
-            end
+            spawnSupportForOpp(ops.o5, 6, 3, 1, 2, 2)
         end
 
-        Settlers.AddSettlers(ops.o5.spawnX, ops.o5.spawnY, 8, Settlers.CARRIER, 6)
-        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BATTLEAXE, 2)
-        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BOW, 1)
-        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.SWORD, 2)
-        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.GOLDBAR, 2)
- --       if isAIDebug() == 1 then
- --           dbg.stm("extra spawn real endgame")
- --       end
+    end
+    --extra spawn beim könig und player 7
+    if Game.Time() > 100 then
+        spawnSupportForOpp(ops.o4, 5, 2, 1, 1, 0)
+        spawnSupportForOpp(ops.o5, 4, 2, 1, 0, 1)
+        if Vars.Save4 >= difficultyChooser.hard.difficulty then
+            if Game.HasPlayerLost(7) == 0 then
+                spawnSupportForOpp(ops.o4, 5, 2, 1, 1, 0)
+                spawnSupportForOpp(ops.o5, 4, 2, 1, 0, 1)
+            end
+        end
     end
 
 end
@@ -528,11 +506,10 @@ function doActionsAfterMinutes()
         dbg.stm("König Erdur: Du hast lange genug meinen Truppen stand gehalten! Ich werde meine Truppen sammeln, ein jeder wird kämpfen und dir die wahre Stärke meines Königreichs zeigen. Dein lächerlicher Widerstand wird bald ein Ende haben, hahahaha..")
     end
 
+
+
     if minuteReached(100) == 1 then
         spawnEnemySupportPackage(6, 2, 1, 3, 2)
-    end
-
-    if minuteReached(120) == 1 then
         if isDebug() == 1 then
             dbg.stm("real endgame reached")
         end
@@ -592,15 +569,15 @@ end
 function setNewPauseUntilAttack()
     if Vars.Save4 == difficultyChooser.extreme.difficulty then
         if endGame == 1 then
-            pauseUntilAttack = randomBetween(8, 11)
+            pauseUntilAttack = randomBetween(7, 9)
         else
             pauseUntilAttack = randomBetween(10, 12)
         end
     else
         if endGame == 1 then
-            pauseUntilAttack = randomBetween(9, 12)
+            pauseUntilAttack = randomBetween(8, 11)
         else
-            pauseUntilAttack = randomBetween(11, 13)
+            pauseUntilAttack = randomBetween(10, 12)
         end
     end
 end
@@ -608,9 +585,9 @@ end
 function getEndgameTime()
 
     if Vars.Save4 >= difficultyChooser.hard.difficulty then
-        return 66
+        return 64
     else
-        return 70
+        return 68
     end
 end
 
@@ -655,9 +632,9 @@ end
 
 function getMaxTimeBetweenAttacks()
     if endGame == 1 then
-        return 13
+        return 11
     else
-        return 14
+        return 13
     end
 
 end
