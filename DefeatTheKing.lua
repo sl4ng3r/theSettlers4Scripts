@@ -15,7 +15,7 @@ function new_game()
     request_event(doActionsAfterMinutes, Events.FIVE_TICKS)
     request_event(aiOperations, Events.FIVE_TICKS)
     request_event(initGame, Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
-    request_event(removeBoats, Events.FIVE_TICKS)
+    request_event(removeThiefs, Events.FIVE_TICKS)
     testfunction()
 
     preparePlayerTwo()
@@ -36,7 +36,7 @@ function register_functions()
     reg_func(aiOperations)
     reg_func(doActionsAfterMinutes)
     reg_func(initGame)
-    reg_func(removeBoats)
+    reg_func(removeThiefs)
     MinuteEvents.register_functions()
 end
 
@@ -54,40 +54,40 @@ ops = {
         spawnY = 107,
         ai = 0,
         id = 4,
-        checkTowerX=145,
-        checkTowerY=109
+        checkTowerX = 145,
+        checkTowerY = 109
     },
     o2 = {
         spawnX = 262,
         spawnY = 346,
         ai = 0,
         id = 5,
-        checkTowerX=256,
-        checkTowerY=339
+        checkTowerX = 256,
+        checkTowerY = 339
     },
     o3 = {
         spawnX = 458,
         spawnY = 300,
         ai = 0,
         id = 6,
-        checkTowerX=454,
-        checkTowerY=289
+        checkTowerX = 454,
+        checkTowerY = 289
     },
     o4 = {
         spawnX = 704,
         spawnY = 276,
         ai = 0,
         id = 7,
-        checkTowerX=709,
-        checkTowerY=290
+        checkTowerX = 709,
+        checkTowerY = 290
     },
     o5 = {
         spawnX = 756,
         spawnY = 135,
         ai = 0,
         id = 8,
-        checkTowerX=821,
-        checkTowerY=143
+        checkTowerX = 821,
+        checkTowerY = 143
     }
 }
 
@@ -185,7 +185,6 @@ function prepareDifficultMatch()
         Game.SetFightingStrength(8, 116)
     end
 
-
     addStuff(ops.o1)
     addStuff(ops.o2)
     addStuff(ops.o3)
@@ -271,7 +270,7 @@ function testfunction()
 end
 
 function spawnSupportForOpp(opponent, settlersAmount, swords, bows, goldBars, axes)
-    if Game.HasPlayerLost(opponent.id) == 0 and Buildings.ExistsBuildingInArea(opponent.id,Buildings.GUARDTOWERSMALL,opponent.checkTowerX,opponent.checkTowerY,2, Buildings.READY) > 0 then
+    if Game.HasPlayerLost(opponent.id) == 0 and Buildings.ExistsBuildingInArea(opponent.id, Buildings.GUARDTOWERSMALL, opponent.checkTowerX, opponent.checkTowerY, 2, Buildings.READY) > 0 then
         Settlers.AddSettlers(opponent.spawnX, opponent.spawnY, opponent.id, Settlers.CARRIER, settlersAmount)
         Goods.AddPileEx(opponent.spawnX, opponent.spawnY, Goods.SWORD, swords)
         Goods.AddPileEx(opponent.spawnX, opponent.spawnY, Goods.BOW, bows)
@@ -323,6 +322,19 @@ function Siegbedingung()
     Game.DefaultGameEndCheck()
 end
 
+function removeThiesAtKing()
+    removeThiefsAtPoint(1, 34, 34, 80)
+    removeThiefsAtPoint(2, 34, 34, 80)
+    removeThiefsAtPoint(3, 34, 34, 80)
+end
+
+function removeThiefsAtPoint(playerId, x, y, radius)
+    if Settlers.AmountInArea(playerId, Settlers.THIEF, x, y, radius) > 0 then
+        Settlers.KillSelectableSettlers(playerId, Settlers.THIEF, x, y, radius, 0)
+        dbg.stm("König Limpto: Ich dulde keine Diebe in meinem Land! Sperrt sie ein! Wir werden diesen Krieg ehrenhaft gewinnen.")
+    end
+end
+
 function doEveryMinuteSpawn()
     if isAIDebug() == 1 then
         dbg.stm("Min:" .. Game.Time() .. " OppUn:" .. getAmountOfEnemysUnits() .. " MinOfLaAtt:" .. Vars.Save1 .. " MaxAttack" .. Vars.Save1 + getMaxTimeBetweenAttacks() .. " MinAttAmo:" .. getMinAttackAmount() .. " LivHuman:" .. getn(humans) .. " LivOpp:" .. getn(opponents) .. " Pause:" .. getMinTimeBetweenAttacks() .. " Endgame:" .. endGame .. " Kampfkraft:" .. Game.GetOffenceFightingStrength(4) .. "/" .. Game.GetOffenceFightingStrength(5) .. "/" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8))
@@ -330,11 +342,11 @@ function doEveryMinuteSpawn()
 
     --Genereller Spawn
     if Game.Time() >= 13 then
-        if Game.Time() > getEndgameTime()  then
+        if Game.Time() > getEndgameTime() then
             if Game.Time() >= 100 then
-                spawnEnemySupportPackage(9, 6, 2, 4, 3)
+                spawnEnemySupportPackage(9, 7, 2, 4, 2)
             else
-                spawnEnemySupportPackage(8, 5, 1, 3, 3)
+                spawnEnemySupportPackage(8, 6, 1, 3, 2)
             end
         else
             spawnEnemySupportPackage(4, 2, 0, 1, 1)
@@ -343,33 +355,33 @@ function doEveryMinuteSpawn()
 
     --Extra Spawn für Schwer
     if Game.Time() >= 30 and Vars.Save4 >= difficultyChooser.hard.difficulty then
-        if Game.Time() < getEndgameTime()  then
+        if Game.Time() < getEndgameTime() then
             spawnEnemySupportPackage(6, 3, 1, 6, 1)
         else
             spawnEnemySupportPackage(8, 4, 2, 8, 2)
         end
- --       if isAIDebug() == 1 then
-  --          dbg.stm("extra spawn hard")
-  --      end
+        --       if isAIDebug() == 1 then
+        --          dbg.stm("extra spawn hard")
+        --      end
     end
 
     --Extra Spawn für extrem
     if Game.Time() >= 26 and Vars.Save4 == difficultyChooser.extreme.difficulty then
-        if Game.Time() < getEndgameTime()  then
+        if Game.Time() < getEndgameTime() then
             spawnEnemySupportPackage(5, 4, 0, 2, 1)
         else
             spawnEnemySupportPackage(8, 6, 1, 4, 2)
         end
---        if isAIDebug() == 1 then
---            dbg.stm("extra spawn extreme")
---        end
+        --        if isAIDebug() == 1 then
+        --            dbg.stm("extra spawn extreme")
+        --        end
     end
 
     --Extra Spawn falls dritter Spieler
     if Vars.Save5 == 1 and Game.Time() >= 36 then
 
         if Vars.Save4 == difficultyChooser.extreme.difficulty then
-            spawnEnemySupportPackage(8, 4, 1, 3, 3)
+            spawnEnemySupportPackage(8, 5, 1, 3, 2)
         elseif Vars.Save4 == difficultyChooser.hard.difficulty then
             spawnEnemySupportPackage(6, 3, 1, 2, 2)
         else
@@ -382,24 +394,26 @@ function doEveryMinuteSpawn()
     --Extra spawn für Endgame beim König
     if endGame == 1 then
         --leicht spawn
+        spawnSupportForOpp(ops.o1, 3, 2, 1, 1, 0)
         spawnSupportForOpp(ops.o5, 7, 2, 1, 2, 2)
-
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
-            spawnSupportForOpp(ops.o4, 5, 2, 1, 1, 0)
+            spawnSupportForOpp(ops.o1, 5, 3, 1, 1, 0)
             spawnSupportForOpp(ops.o5, 4, 2, 1, 0, 1)
         end
         if Vars.Save4 == difficultyChooser.extreme.difficulty then
-            spawnSupportForOpp(ops.o5, 6, 3, 1, 2, 2)
+            spawnSupportForOpp(ops.o1, 2, 2, 0, 1, 0)
+            spawnSupportForOpp(ops.o4, 2, 2, 0, 1, 0)
+            spawnSupportForOpp(ops.o5, 6, 4, 1, 2, 1)
         end
 
     end
     --extra spawn beim könig und player 7
     if Game.Time() > 100 then
-        spawnSupportForOpp(ops.o4, 5, 2, 1, 1, 0)
+        spawnSupportForOpp(ops.o1, 5, 2, 1, 1, 0)
         spawnSupportForOpp(ops.o5, 4, 2, 1, 0, 1)
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
             if Game.HasPlayerLost(7) == 0 then
-                spawnSupportForOpp(ops.o4, 5, 2, 1, 1, 0)
+                spawnSupportForOpp(ops.o1, 5, 2, 1, 1, 0)
                 spawnSupportForOpp(ops.o5, 4, 2, 1, 0, 1)
             end
         end
@@ -505,8 +519,6 @@ function doActionsAfterMinutes()
 
         dbg.stm("König Erdur: Du hast lange genug meinen Truppen stand gehalten! Ich werde meine Truppen sammeln, ein jeder wird kämpfen und dir die wahre Stärke meines Königreichs zeigen. Dein lächerlicher Widerstand wird bald ein Ende haben, hahahaha..")
     end
-
-
 
     if minuteReached(100) == 1 then
         spawnEnemySupportPackage(6, 2, 1, 3, 2)
@@ -647,40 +659,14 @@ function getMainPlayerToAttack()
     return 2
 end
 
-
-
 tickCounter = 1
 
-function removeBoats()
+function removeThiefs()
 
     tickCounter = tickCounter + 5
 
-    if tickCounter >= 350 then
-
-
-        local index = 1
-
-        --IDs der Gebaeude gehen von 1 - 83
-        while index <= getn(humans) do
-
-            if Vehicles.AmountInArea(humans[index], Vehicles.WARSHIP, 732, 24, 23) > 0 or Vehicles.AmountInArea(humans[index], Vehicles.WARSHIP, 824, 24, 23) > 0 then
-                Vehicles.KillVehicles(humans[index], Vehicles.WARSHIP, 732, 24, 23)
-                Vehicles.KillVehicles(humans[index], Vehicles.WARSHIP, 824, 24, 23)
-                dbg.stm("Ein greller Blitz, zzzzzschhhhh. Eure Krigsschiffe wurden von Thor zerstört")
-            end
-            if Vehicles.AmountInArea(humans[index], Vehicles.FERRY, 732, 24, 23) > 0 or Vehicles.AmountInArea(humans[index], Vehicles.FERRY, 824, 24, 23) > 0 then
-                Vehicles.KillVehicles(humans[index], Vehicles.FERRY, 732, 24, 23)
-                Vehicles.KillVehicles(humans[index], Vehicles.FERRY, 824, 24, 23)
-                dbg.stm("Ein greller Blitz, zzzzzschhhhh. Eure Krigsschiffe wurden von Thor zerstört")
-            end
-            --if Vehicles.AmountInArea(humans[index],Vehicles.FERRY,800, 65, 60) > 0  then
-            --	dbg.stm("ferry in Area")
-            --	Vehicles.KillVehicles(humans[index], Vehicles.FERRY, 800, 65, 60)
-            --	dbg.stm("Ein greller Blitz, zzzzzschhhhh. Eure Krigsschiffe wurden von Thor zerstört")
-            --end
-            index = index + 1
-        end
-
+    if tickCounter >= 150 then
+        removeThiesAtKing()
         tickCounter = 1
     end
 
@@ -694,8 +680,6 @@ end
 function getMinTimeBetweenAttacks()
     return pauseUntilAttack
 end
-
-
 
 function attackStarted()
     --Ein neues min Level an Soldaten, macht es lustiger ;D
@@ -902,7 +886,7 @@ end
 function doAttackMainPlayerMostEnemies(amountOfAttackingEnemies, getPercentageAttackingUnits, mainAttackPlayer, percentOfEnemiesAttackingMainPlayer)
     local position = 1
     while position <= amountOfAttackingEnemies do
-        local attackrnd = randomBetween(1,100)
+        local attackrnd = randomBetween(1, 100)
         local humanIdToAttack = mainAttackPlayer
         if attackrnd >= percentOfEnemiesAttackingMainPlayer then
             humanIdToAttack = getRandomHuman()
@@ -1028,7 +1012,7 @@ end
 
 function getRandomHuman()
     local amountOfhumans = getn(humans)
-    local playerId = randomBetween(1,amountOfhumans)
+    local playerId = randomBetween(1, amountOfhumans)
     --local playerId = humans[Game.Random(amountOfhumans) + 1]
     return playerId
 end
