@@ -201,7 +201,7 @@ function prepareDifficultMatch()
 end
 
 function checkIfPlayer3IsHuman()
-    if getAmoutOfBuildings(2) > (64 + Vars.Save4) then
+    if getAmoutOfBuildings(2) >= (64 + Vars.Save4) then
         dbg.stm("Der dritter Mitspieler wurde erkannt!")
         Vars.Save5 = 1
     else
@@ -332,9 +332,9 @@ function doEveryMinuteSpawn()
     if Game.Time() >= 16 then
         if Game.Time() > getEndgameTime()  then
             if Game.Time() >= 120 then
-                spawnEnemySupportPackage(7, 4, 2, 4, 2)
+                spawnEnemySupportPackage(9, 6, 2, 4, 3)
             else
-                spawnEnemySupportPackage(6, 3, 1, 3, 2)
+                spawnEnemySupportPackage(8, 5, 1, 3, 3)
             end
         else
             spawnEnemySupportPackage(4, 2, 0, 1, 1)
@@ -382,6 +382,12 @@ function doEveryMinuteSpawn()
     --Extra spawn für Endgame beim König
     if endGame == 1 then
 
+
+        Settlers.AddSettlers(ops.o5.spawnX, ops.o5.spawnY, 8, Settlers.CARRIER, 7)
+        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BATTLEAXE, 2)
+        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.SWORD, 2)
+        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BOW, 1)
+        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.GOLDBAR, 2)
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
             if Game.HasPlayerLost(7) == 0 then
                 Settlers.AddSettlers(ops.o4.spawnX, ops.o4.spawnY, 7, Settlers.CARRIER, 4)
@@ -390,11 +396,6 @@ function doEveryMinuteSpawn()
                 Goods.AddPileEx(ops.o4.spawnX, ops.o4.spawnY, Goods.GOLDBAR, 1)
             end
         end
-        Settlers.AddSettlers(ops.o5.spawnX, ops.o5.spawnY, 8, Settlers.CARRIER, 7)
-        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BATTLEAXE, 2)
-        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.SWORD, 2)
-        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BOW, 1)
-        Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.GOLDBAR, 2)
         if Vars.Save4 == difficultyChooser.extreme.difficulty then
             Settlers.AddSettlers(ops.o5.spawnX, ops.o5.spawnY, 8, Settlers.CARRIER, 7)
             Goods.AddPileEx(ops.o5.spawnX, ops.o5.spawnY, Goods.BATTLEAXE, 2)
@@ -607,9 +608,9 @@ end
 function getEndgameTime()
 
     if Vars.Save4 >= difficultyChooser.hard.difficulty then
-        return 68
+        return 66
     else
-        return 73
+        return 70
     end
 end
 
@@ -843,6 +844,7 @@ end
 function getIdOfCastleBuildingHuman()
     local counter = 1
     while counter <= getn(humans) do
+        --todo hier noch performanter
         if Buildings.ExistsBuildingInArea(humans[counter], Buildings.CASTLE, 461, 700, 1000, Buildings.UNDERCONSTRUCTION) == 1 then
             return humans[counter]
         end
@@ -885,7 +887,7 @@ function startAttack(mainAttackPlayer, attackCondition, percentForceMain)
                 attackType = "divided equal"
                 doDividedAttack(amountOfAttackingEnemies, getPercentageAttackingUnits)
             else
-                if randomAttack <= 75 then
+                if randomAttack <= 80 then
                     -- greife einen zufaelligen Spieler als main an
                     attackType = "randomMainPlayer"
                     mainPlayer = getRandomHuman()
@@ -923,7 +925,7 @@ end
 function doAttackMainPlayerMostEnemies(amountOfAttackingEnemies, getPercentageAttackingUnits, mainAttackPlayer, percentOfEnemiesAttackingMainPlayer)
     local position = 1
     while position <= amountOfAttackingEnemies do
-        local attackrnd = Game.Random100()
+        local attackrnd = randomBetween(1,100)
         local humanIdToAttack = mainAttackPlayer
         if attackrnd >= percentOfEnemiesAttackingMainPlayer then
             humanIdToAttack = getRandomHuman()
@@ -1049,7 +1051,8 @@ end
 
 function getRandomHuman()
     local amountOfhumans = getn(humans)
-    local playerId = humans[Game.Random(amountOfhumans) + 1]
+    local playerId = randomBetween(1,amountOfhumans)
+    --local playerId = humans[Game.Random(amountOfhumans) + 1]
     return playerId
 end
 
