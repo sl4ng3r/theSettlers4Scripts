@@ -41,11 +41,11 @@ function register_functions()
 end
 
 function isDebug()
-    return 1
+    return 0
 end
 
 function isAIDebug()
-    return 1
+    return 0
 end
 
 ops = {
@@ -178,10 +178,10 @@ function prepareDifficultMatch()
         Game.SetFightingStrength(7, 106)
         Game.SetFightingStrength(8, 111)
     elseif Vars.Save4 == difficultyChooser.extreme.difficulty then
-        Game.SetFightingStrength(4, 101)
+        Game.SetFightingStrength(4, 111)
         Game.SetFightingStrength(5, 101)
         Game.SetFightingStrength(6, 101)
-        Game.SetFightingStrength(7, 111)
+        Game.SetFightingStrength(7, 101)
         Game.SetFightingStrength(8, 116)
     end
 
@@ -200,7 +200,7 @@ function prepareDifficultMatch()
 end
 
 function checkIfPlayer3IsHuman()
-    if getAmoutOfBuildings(2) > (64 + Vars.Save4) then
+    if getAmoutOfBuildings(2) > (65 + Vars.Save4) then
         dbg.stm("Der dritter Mitspieler wurde erkannt!")
         Vars.Save5 = 1
     else
@@ -323,15 +323,25 @@ function Siegbedingung()
 end
 
 function removeThiesAtKing()
-    removeThiefsAtPoint(1, 34, 34, 80)
-    removeThiefsAtPoint(2, 34, 34, 80)
-    removeThiefsAtPoint(3, 34, 34, 80)
+    checkRemoveThiefs(392,731)
+    checkRemoveThiefs(385,770)
+    checkRemoveThiefs(574,771)
+    checkRemoveThiefs(521,724)
+    checkRemoveThiefs(450,715)
+    checkRemoveThiefs(417,725)
 end
+
+function checkRemoveThiefs(x, y)
+    removeThiefsAtPoint(1, x, y, 60)
+    removeThiefsAtPoint(2, x, y, 60)
+    removeThiefsAtPoint(3, x, y, 60)
+end
+
 
 function removeThiefsAtPoint(playerId, x, y, radius)
     if Settlers.AmountInArea(playerId, Settlers.THIEF, x, y, radius) > 0 then
         Settlers.KillSelectableSettlers(playerId, Settlers.THIEF, x, y, radius, 0)
-        dbg.stm("König Limpto: Ich dulde keine Diebe in meinem Land! Sperrt sie ein! Wir werden diesen Krieg ehrenhaft gewinnen.")
+        dbg.stm("König Limto: Ich dulde keine Diebe in meinem Land! Sperrt sie ein! Wir werden diesen Krieg ehrenhaft gewinnen.")
     end
 end
 
@@ -341,7 +351,7 @@ function doEveryMinuteSpawn()
     end
 
     --Genereller Spawn
-    if Game.Time() >= 13 then
+    if Game.Time() >= 14 then
         if Game.Time() > getEndgameTime() then
             if Game.Time() >= 100 then
                 spawnEnemySupportPackage(9, 7, 2, 4, 2)
@@ -395,25 +405,25 @@ function doEveryMinuteSpawn()
     if endGame == 1 then
         --leicht spawn
         spawnSupportForOpp(ops.o1, 3, 2, 1, 1, 0)
-        spawnSupportForOpp(ops.o5, 7, 2, 1, 2, 2)
+        spawnSupportForOpp(ops.o5, 7, 2, 1, 2, 1)
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
             spawnSupportForOpp(ops.o1, 5, 3, 1, 1, 0)
             spawnSupportForOpp(ops.o5, 4, 2, 1, 0, 1)
         end
         if Vars.Save4 == difficultyChooser.extreme.difficulty then
-            spawnSupportForOpp(ops.o1, 2, 2, 0, 1, 0)
+            spawnSupportForOpp(ops.o1, 4, 3, 1, 1, 0)
             spawnSupportForOpp(ops.o4, 2, 2, 0, 1, 0)
-            spawnSupportForOpp(ops.o5, 6, 4, 1, 2, 1)
+            spawnSupportForOpp(ops.o5, 5, 3, 1, 2, 0)
         end
 
     end
     --extra spawn beim könig und player 7
     if Game.Time() > 100 then
-        spawnSupportForOpp(ops.o1, 5, 2, 1, 1, 0)
+        spawnSupportForOpp(ops.o1, 5, 3, 1, 1, 0)
         spawnSupportForOpp(ops.o5, 4, 2, 1, 0, 1)
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
             if Game.HasPlayerLost(7) == 0 then
-                spawnSupportForOpp(ops.o1, 5, 2, 1, 1, 0)
+                spawnSupportForOpp(ops.o1, 5, 3, 1, 1, 0)
                 spawnSupportForOpp(ops.o5, 4, 2, 1, 0, 1)
             end
         end
@@ -473,10 +483,10 @@ function doActionsAfterMinutes()
             Game.SetFightingStrength(7, 111)
             Game.SetFightingStrength(8, 131)
         elseif Vars.Save4 == difficultyChooser.extreme.difficulty then
-            Game.SetFightingStrength(4, 116)
+            Game.SetFightingStrength(4, 121)
             Game.SetFightingStrength(5, 116)
             Game.SetFightingStrength(6, 116)
-            Game.SetFightingStrength(7, 121)
+            Game.SetFightingStrength(7, 116)
             Game.SetFightingStrength(8, 136)
         end
 
@@ -484,16 +494,16 @@ function doActionsAfterMinutes()
 
     if minuteReached(65) == 1 then
         if Vars.Save4 == difficultyChooser.hard.difficulty then
-            Game.SetFightingStrength(4, 116)
+            Game.SetFightingStrength(4, 121)
             Game.SetFightingStrength(5, 116)
             Game.SetFightingStrength(6, 116)
-            Game.SetFightingStrength(7, 121)
+            Game.SetFightingStrength(7, 116)
             Game.SetFightingStrength(8, 136)
         elseif Vars.Save4 == difficultyChooser.extreme.difficulty then
-            Game.SetFightingStrength(4, 121)
+            Game.SetFightingStrength(4, 126)
             Game.SetFightingStrength(5, 121)
             Game.SetFightingStrength(6, 121)
-            Game.SetFightingStrength(7, 126)
+            Game.SetFightingStrength(7, 121)
             Game.SetFightingStrength(8, 136)
         end
     end
@@ -504,16 +514,16 @@ function doActionsAfterMinutes()
         setNewAttackAmount()
         setNewPauseUntilAttack()
         if Vars.Save4 == difficultyChooser.hard.difficulty then
-            Game.SetFightingStrength(4, 116)
+            Game.SetFightingStrength(4, 121)
             Game.SetFightingStrength(5, 116)
             Game.SetFightingStrength(6, 116)
-            Game.SetFightingStrength(7, 121)
+            Game.SetFightingStrength(7, 116)
             Game.SetFightingStrength(8, 136)
         elseif Vars.Save4 == difficultyChooser.extreme.difficulty then
-            Game.SetFightingStrength(4, 126)
+            Game.SetFightingStrength(4, 131)
             Game.SetFightingStrength(5, 126)
             Game.SetFightingStrength(6, 126)
-            Game.SetFightingStrength(7, 131)
+            Game.SetFightingStrength(7, 126)
             Game.SetFightingStrength(8, 141)
         end
 
@@ -526,16 +536,16 @@ function doActionsAfterMinutes()
             dbg.stm("real endgame reached")
         end
         if Vars.Save4 == difficultyChooser.hard.difficulty then
-            Game.SetFightingStrength(4, 121)
+            Game.SetFightingStrength(4, 126)
             Game.SetFightingStrength(5, 121)
             Game.SetFightingStrength(6, 121)
-            Game.SetFightingStrength(7, 126)
+            Game.SetFightingStrength(7, 121)
             Game.SetFightingStrength(8, 141)
         elseif Vars.Save4 == difficultyChooser.extreme.difficulty then
-            Game.SetFightingStrength(4, 141)
+            Game.SetFightingStrength(4, 146)
             Game.SetFightingStrength(5, 141)
             Game.SetFightingStrength(6, 141)
-            Game.SetFightingStrength(7, 146)
+            Game.SetFightingStrength(7, 141)
             Game.SetFightingStrength(8, 151)
         end
     end
@@ -553,7 +563,7 @@ function setNewAttackAmount()
         elseif Vars.Save4 == difficultyChooser.hard.difficulty then
             attackAmount = randomBetween(520, 600)
         else
-            attackAmount = randomBetween(420, 460)
+            attackAmount = randomBetween(400, 450)
         end
     else
         if Game.Time() < getEndgameTime() then
@@ -597,7 +607,7 @@ end
 function getEndgameTime()
 
     if Vars.Save4 >= difficultyChooser.hard.difficulty then
-        return 64
+        return 63
     else
         return 68
     end
