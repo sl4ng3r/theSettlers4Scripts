@@ -207,6 +207,7 @@ function checkIfPlayer3IsHuman()
         dbg.stm("Ihr spielt eine Partie mit zwei Spielern!")
         Vars.Save5 = 0
     end
+    setNewPauseUntilAttack()
 end
 
 function initGame()
@@ -347,11 +348,12 @@ end
 
 function doEveryMinuteSpawn()
     if isAIDebug() == 1 then
+        dbg.stm(randomBetween(10, 13))
         dbg.stm("Min:" .. Game.Time() .. " OppUn:" .. getAmountOfEnemysUnits() .. " MinOfLaAtt:" .. Vars.Save1 .. " MaxAttack" .. Vars.Save1 + getMaxTimeBetweenAttacks() .. " MinAttAmo:" .. getMinAttackAmount() .. " LivHuman:" .. getn(humans) .. " LivOpp:" .. getn(opponents) .. " Pause:" .. getMinTimeBetweenAttacks() .. " Endgame:" .. endGame .. " Kampfkraft:" .. Game.GetOffenceFightingStrength(4) .. "/" .. Game.GetOffenceFightingStrength(5) .. "/" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8))
     end
 
     --Genereller Spawn
-    if Game.Time() >= 14 then
+    if Game.Time() >= 15 then
         if Game.Time() > getEndgameTime() then
             if Game.Time() >= 100 then
                 spawnEnemySupportPackage(9, 7, 2, 4, 2)
@@ -366,9 +368,9 @@ function doEveryMinuteSpawn()
     --Extra Spawn für Schwer
     if Game.Time() >= 30 and Vars.Save4 >= difficultyChooser.hard.difficulty then
         if Game.Time() < getEndgameTime() then
-            spawnEnemySupportPackage(6, 3, 1, 6, 1)
+            spawnEnemySupportPackage(5, 2, 1, 6, 1)
         else
-            spawnEnemySupportPackage(8, 4, 2, 8, 2)
+            spawnEnemySupportPackage(7, 4, 1, 8, 2)
         end
         --       if isAIDebug() == 1 then
         --          dbg.stm("extra spawn hard")
@@ -388,12 +390,12 @@ function doEveryMinuteSpawn()
     end
 
     --Extra Spawn falls dritter Spieler
-    if Vars.Save5 == 1 and Game.Time() >= 36 then
+    if Vars.Save5 == 1 and Game.Time() >= 40 then
 
         if Vars.Save4 == difficultyChooser.extreme.difficulty then
             spawnEnemySupportPackage(8, 5, 1, 3, 2)
         elseif Vars.Save4 == difficultyChooser.hard.difficulty then
-            spawnEnemySupportPackage(6, 3, 1, 2, 2)
+            spawnEnemySupportPackage(5, 3, 1, 2, 1)
         else
             spawnEnemySupportPackage(4, 3, 0, 1, 1)
         end
@@ -467,7 +469,7 @@ function doActionsAfterMinutes()
         setNewAttackAmount()
     end
 
-    if minuteReached(30) == 1 then
+    if minuteReached(32) == 1 then
         checkIfPlayer3IsHuman()
         spawnEnemySupportPackage(5, 2, 1, 5, 2)
     end
@@ -568,9 +570,9 @@ function setNewAttackAmount()
     else
         if Game.Time() < getEndgameTime() then
             if Vars.Save4 == difficultyChooser.extreme.difficulty then
-                attackAmount = randomBetween(800, 1000)
+                attackAmount = randomBetween(900, 1100)
             elseif Vars.Save4 == difficultyChooser.hard.difficulty then
-                attackAmount = randomBetween(750, 900)
+                attackAmount = randomBetween(800, 950)
             else
                 attackAmount = randomBetween(550, 700)
             end
@@ -593,7 +595,7 @@ function setNewPauseUntilAttack()
         if endGame == 1 then
             pauseUntilAttack = randomBetween(7, 9)
         else
-            pauseUntilAttack = randomBetween(10, 12)
+            pauseUntilAttack = randomBetween(10, 11)
         end
     else
         if endGame == 1 then
@@ -607,9 +609,9 @@ end
 function getEndgameTime()
 
     if Vars.Save4 >= difficultyChooser.hard.difficulty then
-        return 63
+        return 62
     else
-        return 68
+        return 67
     end
 end
 
@@ -656,7 +658,7 @@ function getMaxTimeBetweenAttacks()
     if endGame == 1 then
         return 11
     else
-        return 13
+        return 14
     end
 
 end
@@ -772,7 +774,7 @@ end
 
 function checkAttack()
 
-    if Game.Time() >= (getEndgameTime() - 7) and Game.Time() < (getEndgameTime() + 1) then
+    if Game.Time() >= (getEndgameTime() - 6) and Game.Time() < (getEndgameTime() + 1) then
         if isDebug() == 1 then
             dbg.stm("no attack, waiting for endgame Attack")
         end
@@ -843,7 +845,7 @@ function startAttack(mainAttackPlayer, attackCondition, percentForceMain)
         attackType = "allMain"
         doAttackMainPlayer(amountOfAttackingEnemies, getPercentageAttackingUnits, mainAttackPlayer)
     else
-        if randomAttack <= 40 or percentForceMain > 0 then
+        if randomAttack <= 35 or percentForceMain > 0 then
             -- 50% der gegner greifen den main spieler an rest ist zufaellig
             local percentAttackMain = 50
             if percentForceMain > 0 then
@@ -852,7 +854,7 @@ function startAttack(mainAttackPlayer, attackCondition, percentForceMain)
             attackType = "mostMain"
             doAttackMainPlayerMostEnemies(amountOfAttackingEnemies, getPercentageAttackingUnits, mainAttackPlayer, percentAttackMain)
         else
-            if randomAttack <= 55 then
+            if randomAttack <= 60 then
                 -- greife gleichmaesig verteilt an
                 --dbg.stm("divided")
                 attackType = "divided equal"
