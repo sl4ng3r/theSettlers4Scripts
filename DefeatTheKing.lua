@@ -193,7 +193,7 @@ function prepareDifficultMatch()
 
     Buildings.AddBuilding(155, 107, 4, Buildings.BARRACKS)
     Buildings.AddBuilding(263, 360, 5, Buildings.BARRACKS)
-    Buildings.AddBuilding(473, 308, 6, Buildings.BARRACKS)
+    Buildings.AddBuilding(440, 285, 6, Buildings.BARRACKS)
     Buildings.AddBuilding(721, 320, 7, Buildings.BARRACKS)
     Buildings.AddBuilding(714, 62, 8, Buildings.BARRACKS)
 
@@ -230,10 +230,29 @@ function initGame()
 
     --Message zum waehlen der Schwirigkeit
     requestMinuteEvent(msgDifficulty, 1)
+    if isDebug() == 1 then
+        requestMinuteEvent(prepareDebugGame, 1)
+    end
 
     --Die Schwierigkeit wird nach 4 minuten abgeprüft.
     requestMinuteEvent(checkDifficulty, 5)
 
+end
+
+function prepareDebugGame()
+    Buildings.AddBuilding(565, 701, 3, Buildings.GUARDTOWERBIG)
+    Buildings.AddBuilding(325, 743, 1, Buildings.GUARDTOWERBIG)
+    local mycounter = 1
+    while mycounter <= 2 do
+        Buildings.CrushBuilding(Buildings.GetFirstBuilding(1, Buildings.GUARDTOWERSMALL))
+        mycounter = mycounter + 1
+    end
+    mycounter = 1
+    while mycounter <= 2 do
+        Buildings.CrushBuilding(Buildings.GetFirstBuilding(3, Buildings.GUARDTOWERSMALL))
+        mycounter = mycounter + 1
+    end
+    spawnmilitary()
 end
 
 function spawnmilitary()
@@ -242,14 +261,14 @@ function spawnmilitary()
     --Settlers.AddSettlers(799, 75, 8, Settlers.CARRIER, 3)
 
     -- Verstaerkung fuer Endgabe Test
-    Settlers.AddSettlers(183, 681, 1, Settlers.SWORDSMAN_03, 200)
-    Settlers.AddSettlers(191, 679, 1, Settlers.BOWMAN_03, 800)
+    Settlers.AddSettlers(325, 743, 1, Settlers.SWORDSMAN_03, 200)
+    Settlers.AddSettlers(325, 743, 1, Settlers.BOWMAN_03, 800)
 
 
     --Settlers.AddSettlers(485, 717, 2, Settlers.SWORDSMAN_03, 200)
     Settlers.AddSettlers(467, 706, 2, Settlers.BOWMAN_03, 800)
 
-    Settlers.AddSettlers(666, 663, 3, Settlers.BOWMAN_03, 800)
+    Settlers.AddSettlers(565, 701, 3, Settlers.BOWMAN_03, 800)
     Game.SetFightingStrength(1, 150)
     Game.SetFightingStrength(2, 150)
     Game.SetFightingStrength(3, 150)
@@ -260,11 +279,10 @@ end
 
 function testfunction()
     if isDebug() == 1 then
-        spawnmilitary()
+
         dbg.aioff(3)
 
         Magic.IncreaseMana(1, 500)
-        dbg.stm("Anzahl Gebäude" .. getAmoutOfBuildings(2))
     end
 
 
@@ -348,41 +366,36 @@ end
 
 function doEveryMinuteSpawn()
     if isAIDebug() == 1 then
-        dbg.stm(randomBetween(10, 13))
         dbg.stm("Min:" .. Game.Time() .. " OppUn:" .. getAmountOfEnemysUnits() .. " MinOfLaAtt:" .. Vars.Save1 .. " MaxAttack" .. Vars.Save1 + getMaxTimeBetweenAttacks() .. " MinAttAmo:" .. getMinAttackAmount() .. " LivHuman:" .. getn(humans) .. " LivOpp:" .. getn(opponents) .. " Pause:" .. getMinTimeBetweenAttacks() .. " Endgame:" .. endGame .. " Kampfkraft:" .. Game.GetOffenceFightingStrength(4) .. "/" .. Game.GetOffenceFightingStrength(5) .. "/" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8))
     end
 
     --Genereller Spawn
-    if Game.Time() >= 15 then
+    if Game.Time() >= 16 then
         if Game.Time() > getEndgameTime() then
             if Game.Time() >= 100 then
-                spawnEnemySupportPackage(9, 7, 2, 4, 2)
+                spawnEnemySupportPackage(7, 5, 2, 4, 2)
             else
-                spawnEnemySupportPackage(8, 6, 1, 3, 2)
+                spawnEnemySupportPackage(6, 4, 1, 3, 1)
             end
         else
-            spawnEnemySupportPackage(4, 2, 0, 1, 1)
+            spawnEnemySupportPackage(3, 1, 1, 1, 0)
         end
     end
 
     --Extra Spawn für Schwer
-    if Game.Time() >= 30 and Vars.Save4 >= difficultyChooser.hard.difficulty then
-        if Game.Time() < getEndgameTime() then
-            spawnEnemySupportPackage(5, 2, 1, 6, 1)
-        else
+    if Game.Time() >= 25 and Vars.Save4 >= difficultyChooser.hard.difficulty then
             spawnEnemySupportPackage(7, 4, 1, 8, 2)
-        end
         --       if isAIDebug() == 1 then
         --          dbg.stm("extra spawn hard")
         --      end
     end
 
     --Extra Spawn für extrem
-    if Game.Time() >= 26 and Vars.Save4 == difficultyChooser.extreme.difficulty then
+    if Game.Time() >= 27 and Vars.Save4 == difficultyChooser.extreme.difficulty then
         if Game.Time() < getEndgameTime() then
-            spawnEnemySupportPackage(5, 4, 0, 2, 1)
+            spawnEnemySupportPackage(5, 3, 1, 2, 1)
         else
-            spawnEnemySupportPackage(8, 6, 1, 4, 2)
+            spawnEnemySupportPackage(6, 4, 1, 4, 1)
         end
         --        if isAIDebug() == 1 then
         --            dbg.stm("extra spawn extreme")
@@ -390,14 +403,23 @@ function doEveryMinuteSpawn()
     end
 
     --Extra Spawn falls dritter Spieler
-    if Vars.Save5 == 1 and Game.Time() >= 40 then
-
-        if Vars.Save4 == difficultyChooser.extreme.difficulty then
-            spawnEnemySupportPackage(8, 5, 1, 3, 2)
-        elseif Vars.Save4 == difficultyChooser.hard.difficulty then
-            spawnEnemySupportPackage(5, 3, 1, 2, 1)
+    if Vars.Save5 == 1 and Game.Time() >= 33 then
+        if Game.Time() < getEndgameTime() then
+            if Vars.Save4 == difficultyChooser.extreme.difficulty then
+                spawnEnemySupportPackage(7, 4, 1, 3, 1)
+            elseif Vars.Save4 == difficultyChooser.hard.difficulty then
+                spawnEnemySupportPackage(4, 2, 1, 2, 1)
+            else
+                spawnEnemySupportPackage(3, 2, 0, 1, 1)
+            end
         else
-            spawnEnemySupportPackage(4, 3, 0, 1, 1)
+            if Vars.Save4 == difficultyChooser.extreme.difficulty then
+                spawnEnemySupportPackage(9, 5, 2, 3, 2)
+            elseif Vars.Save4 == difficultyChooser.hard.difficulty then
+                spawnEnemySupportPackage(6, 3, 2, 2, 1)
+            else
+                spawnEnemySupportPackage(5, 3, 1, 1, 1)
+            end
         end
 
 
@@ -407,15 +429,15 @@ function doEveryMinuteSpawn()
     if endGame == 1 then
         --leicht spawn
         spawnSupportForOpp(ops.o1, 3, 2, 1, 1, 0)
-        spawnSupportForOpp(ops.o5, 7, 2, 1, 2, 1)
+        spawnSupportForOpp(ops.o5, 5, 3, 1, 2, 1)
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
-            spawnSupportForOpp(ops.o1, 5, 3, 1, 1, 0)
-            spawnSupportForOpp(ops.o5, 4, 2, 1, 0, 1)
+            spawnSupportForOpp(ops.o1, 6, 4, 2, 1, 0)
+            spawnSupportForOpp(ops.o5, 9, 6, 2, 0, 1)
         end
         if Vars.Save4 == difficultyChooser.extreme.difficulty then
-            spawnSupportForOpp(ops.o1, 4, 3, 1, 1, 0)
+            spawnSupportForOpp(ops.o1, 5, 4, 2, 1, 0)
             spawnSupportForOpp(ops.o4, 2, 2, 0, 1, 0)
-            spawnSupportForOpp(ops.o5, 5, 3, 1, 2, 0)
+            spawnSupportForOpp(ops.o5, 5, 4, 2, 2, 0)
         end
 
     end
@@ -436,6 +458,7 @@ end
 function doActionsAfterMinutes()
     --wird jede Minute ausgefuehrt
     if newMinute() == 1 then
+
 
         doEveryMinuteSpawn()
 
@@ -561,7 +584,7 @@ end
 function setNewAttackAmount()
     if Game.Time() < 50 then
         if Vars.Save4 == difficultyChooser.extreme.difficulty then
-            attackAmount = randomBetween(600, 700)
+            attackAmount = randomBetween(620, 700)
         elseif Vars.Save4 == difficultyChooser.hard.difficulty then
             attackAmount = randomBetween(520, 600)
         else
@@ -774,7 +797,7 @@ end
 
 function checkAttack()
 
-    if Game.Time() >= (getEndgameTime() - 6) and Game.Time() < (getEndgameTime() + 1) then
+    if Game.Time() >= (getEndgameTime() - 6) and Game.Time() < (getEndgameTime() + 2) then
         if isDebug() == 1 then
             dbg.stm("no attack, waiting for endgame Attack")
         end
@@ -854,7 +877,7 @@ function startAttack(mainAttackPlayer, attackCondition, percentForceMain)
             attackType = "mostMain"
             doAttackMainPlayerMostEnemies(amountOfAttackingEnemies, getPercentageAttackingUnits, mainAttackPlayer, percentAttackMain)
         else
-            if randomAttack <= 60 then
+            if randomAttack <= 65 then
                 -- greife gleichmaesig verteilt an
                 --dbg.stm("divided")
                 attackType = "divided equal"
