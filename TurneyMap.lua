@@ -1,4 +1,3 @@
-
 -----------------------------------------------
 -----------------------------------------------
 ----Script fuer die Siedler 4 WM 2021----------
@@ -56,8 +55,20 @@ function addGoods()
     local xP2 = 487
     local yP2 = 345
 
-    ---Wikinger --> 6 Äxte / 3 Säge / 40 Bretter
+    ---roemer
+    if Game.PlayerRace(1) == 0 then
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 4)
+        Goods.AddPileEx(xP1, yP1, Goods.LOG, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.LOG, 2)
+    end
+    ---Wikinger
     if Game.PlayerRace(1) == 1 then
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
         Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
         Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
         Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
@@ -66,82 +77,136 @@ function addGoods()
         Goods.AddPileEx(xP1, yP1, Goods.AXE, 6)
         Goods.AddPileEx(xP1, yP1, Goods.SAW, 3)
     end
-    ---roemer
-    if Game.PlayerRace(1) == 0 then
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 4)
-    end
     ---trojaner
     if Game.PlayerRace(1) == 4 then
-        --- 60 Bretter
         Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
         Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
         Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
         Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
         Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
+
         Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
         Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 4)
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
+
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
 
         Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
         Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
         Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
         Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
         Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
+
         Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
         Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 4)
-        Goods.AddPileEx(xP1, yP1, Goods.AXE, 4)
-        Goods.AddPileEx(xP1, yP1, Goods.SAW, 2)
+        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
+
+        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
+        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
+
+        Goods.AddPileEx(xP1, yP1, Goods.AXE, 7)
+        Goods.AddPileEx(xP1, yP1, Goods.SAW, 3)
+        Goods.AddPileEx(xP1, yP1, Goods.SCYTHE, 3)
+        Goods.AddPileEx(xP1, yP1, Goods.ROD, 2)
+        Goods.AddPileEx(xP1, yP1, Goods.HAMMER,  8)
+        Goods.AddPileEx(xP1, yP1, Goods.HAMMER,  8)
+        Goods.AddPileEx(xP1, yP1, Goods.SHOVEL,  8)
+        Goods.AddPileEx(xP1, yP1, Goods.BREAD,  8)
+        Goods.AddPileEx(xP1, yP1, Goods.BREAD,  8)
+        Goods.AddPileEx(xP1, yP1, Goods.MEAT,  8)
+        Goods.AddPileEx(xP1, yP1, Goods.MEAT,  8)
+        Settlers.AddSettlers(xP1, yP1, 1, Settlers.CARRIER, 10)
     end
 
     ----Player 2
-
-    if Game.PlayerRace(2) == 1 then
-        Goods.AddPileEx(xP2,yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2,yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2,yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2,yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2,yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.AXE, 6)
-        Goods.AddPileEx(xP2, yP2, Goods.SAW, 3)
-    end
 
     ---roemer
     if Game.PlayerRace(2) == 0 then
         Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
         Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
         Goods.AddPileEx(xP2, yP2, Goods.BOARD, 4)
+        Goods.AddPileEx(xP2, yP2, Goods.LOG, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.LOG, 2)
+    end
+    ---Wikinger
+    if Game.PlayerRace(2) == 1 then
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.AXE, 6)
+        Goods.AddPileEx(xP2, yP2, Goods.SAW, 3)
     end
     ---trojaner
     if Game.PlayerRace(2) == 4 then
-        --- 60 Bretter
         Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
         Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
         Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
         Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
         Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+
         Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
         Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 4)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
 
         Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
         Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
         Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
         Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
         Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
+
         Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
         Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 4)
-        Goods.AddPileEx(xP2, yP2, Goods.AXE, 4)
-        Goods.AddPileEx(xP2, yP2, Goods.SAW, 2)
+        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
+
+        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
+        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
+
+        Goods.AddPileEx(xP2, yP2, Goods.AXE, 7)
+        Goods.AddPileEx(xP2, yP2, Goods.SAW, 3)
+        Goods.AddPileEx(xP2, yP2, Goods.SCYTHE, 3)
+        Goods.AddPileEx(xP2, yP2, Goods.ROD, 2)
+        Goods.AddPileEx(xP2, yP2, Goods.HAMMER,  8)
+        Goods.AddPileEx(xP2, yP2, Goods.HAMMER,  8)
+        Goods.AddPileEx(xP2, yP2, Goods.SHOVEL,  8)
+        Goods.AddPileEx(xP2, yP2, Goods.BREAD,  8)
+        Goods.AddPileEx(xP2, yP2, Goods.BREAD,  8)
+        Goods.AddPileEx(xP2, yP2, Goods.MEAT,  8)
+        Goods.AddPileEx(xP2, yP2, Goods.MEAT,  8)
+        Settlers.AddSettlers(xP2, yP2, 2, Settlers.CARRIER, 10)
+
     end
-
-
-
-
 end
+
 
 
 function addGoodsForPlayerAndRace(player, race)
@@ -153,15 +218,14 @@ end
 
 
 
---- Ein Debug schalter. Habe damit bei der Entwicklung gute Erfahrungen gemacht.
+--- Ein Debug schalter.
 function isDebug()
     return FALSE;
 end
 
 
-
---- Hier kommen Initialisierungen hin, die bei start oder laden ausgefuehrt werden sollen
 function initGame()
+
 
     local i,v = next(spectator,nil)
     local localPlayer = Game.LocalPlayer();
@@ -172,9 +236,10 @@ function initGame()
         i,v = next(spectator,i);
     end
 
-    dbg.stm("The Settlers IV WM 2021")
-    dbg.stm("PeaceTime: 45 Min. Thieves are allowed and may steal and Sabotours are allowed from 45 minutes")
-    dbg.stm("Have fun und good luck!  ~sl4ng3r~ ")
+    dbg.stm("~~~The Settlers IV WM 2021~~~")
+    dbg.stm("PeaceTime: " .. getPeaceTime() .. " Min. Thieves are allowed and may steal. Sabotours after peacetime. ")
+    dbg.stm("The north path opens at min " .. getPeaceTime() - 1 .. " and the south path at min " .. getPeaceTime() - 2)
+    dbg.stm("Have fun und good luck!")
 
     --Buildings.Delete(Buildings.GetFirstBuilding(3, 46),2)
     --Buildings.Delete(Buildings.GetFirstBuilding(4, 46),2)
@@ -182,15 +247,33 @@ function initGame()
     if isDebug() == TRUE then
         ---Deckt die Karte auf
         Tutorial.RWM(1)
-        requestMinuteEvent(peaceTimeOver, getPeaceTime())
+        --setOpenTimes()
+
         --Settlers.AddSettlers(496, 342, 2, Settlers.SWORDSMAN_03, 70)
         Settlers.AddSettlers(203, 342, 1, Settlers.SWORDSMAN_03, 70)
     end
 
+
+
+    requestMinuteEvent(msgTop, getPeaceTime() -1)
+    requestMinuteEvent(msgBottom, getPeaceTime() -2)
+
 end
 
+
+
+
+function msgBottom()
+    dbg.stm("The southern path is now passable...")
+end
+
+function msgTop()
+    dbg.stm("The northern path is now passable...")
+end
+
+
 function getPeaceTime()
-    return 45
+    return 40
 end
 
 function doActionsAfterMinutes()
@@ -210,28 +293,48 @@ function printMsgForPlayer(playerId)
     local AmountOfMilitary3 =  Settlers.Amount(playerId, Settlers.SWORDSMAN_03) +  Settlers.Amount(playerId, Settlers.BOWMAN_03) +Settlers.Amount(playerId, Settlers.AXEWARRIOR_03) + Settlers.Amount(playerId, Settlers.BLOWGUNWARRIORS_03)  + Settlers.Amount(playerId, Settlers.BACKPACKCATAPULIST_03)  + Settlers.Amount(playerId, Settlers.MEDIC_03) + Settlers.Amount(playerId, Settlers.SQUADLEADER)
     local playerKills= Statistic.UnitsDestroyed(playerId)
     local playerSettlers = Settlers.Amount(playerId, Settlers.CARRIER)
+    local playerOffenceFightingStrength = Game.GetOffenceFightingStrength(playerId)
+    local playerMagic = Magic.CurrentManaAmount(playerId)
+    local playerSABOTEUR = Settlers.Amount(playerId,Settlers.SABOTEUR)
+    local playerTHIEF = Settlers.Amount(playerId,Settlers.THIEF)
 
     if Game.LocalPlayer() >= 3 then
-        dbg.stm("Player " .. playerId .. ": " .. " Soldiers: " .. getAmountOfPlayerUnits(playerId).. " L3(" .. AmountOfMilitary3 ..  ")" .. " Kills: " .. playerKills .. " Settlers: " .. playerSettlers)
+        dbg.stm("Player " .. playerId .. "(" .. getTextForPlayerRace(playerId) .. "): " .. " Soldiers: " .. getAmountOfPlayerUnits(playerId).. " L3(" .. AmountOfMilitary3 ..  ")" .. " Kills: " .. playerKills .. " Settlers: " .. playerSettlers .. " FightStr: " .. playerOffenceFightingStrength .. " Magic: " .. playerMagic .. " Sabos: " .. playerSABOTEUR .. " Tiefs: " .. playerTHIEF)
     end
 end
 
 tickCounter = 0
 function killUnits()
-    if Game.Time() < getPeaceTime() then
-        tickCounter = tickCounter + 5
-        if tickCounter >= 200 then
-            removeUnitsNearPoint(330,661,1,40)
-            removeUnitsNearPoint(42,180,1,40)
+    tickCounter = tickCounter + 5
+    if tickCounter >= 150 then
 
-            removeUnitsNearPoint(622,668,2,40)
-            removeUnitsNearPoint(322,174,2,40)
-            ---mitte
-           ---removeUnitsNearPoint(363,543,1,40)
-            ---removeUnitsNearPoint(462,545,2,40)
-
-            tickCounter = 1
+        --oben
+        if Game.Time() < (getPeaceTime() - 1)  then
+            removeUnitsNearPoint(45,185,1,40)
+            removeUnitsNearPoint(323,180,2,40)
         end
+
+        --unten
+        if Game.Time() < (getPeaceTime() - 2)  then
+            removeUnitsNearPoint(334,667,1,40)
+            removeUnitsNearPoint(624,672,2,40)
+        end
+
+
+        --mitte
+        if Game.Time() < getPeaceTime() then
+            removeUnitsNearPoint(438,617,1,30)
+            removeUnitsNearPoint(418,579,1,30)
+            removeUnitsNearPoint(390,527,1,30)
+            removeUnitsNearPoint(378,501,1,30)
+
+            removeUnitsNearPoint(467,617,2,30)
+            removeUnitsNearPoint(449,581,2,30)
+            removeUnitsNearPoint(424,528,2,30)
+            removeUnitsNearPoint(412,503,2,30)
+
+        end
+        tickCounter = 1
     end
 end
 
@@ -244,7 +347,7 @@ function removeUnitsNearPoint(x, y, playerId, radius)
     while index <= getn(specialists) do
         if Settlers.AmountInArea(playerId, specialists[index], x, y, radius) > 0 then
             Settlers.KillSelectableSettlers(playerId, specialists[index], x, y, radius, 0)
-            dbg.stm("Ein greller Blitz, zzzzzschhhhh. Deine Einheiten sterben... Du hörst eine Stimme... Du kannst diese Passage erst ab Minute " .. getPeaceTime() .. " durchqueren")
+            dbg.stm("A flash of lightning, zzzzzschhhhh. Your units are dying and you hear a penetrating voice... YOU SHALL NOT PASS")
         end
         index = index +  1
     end
@@ -252,7 +355,7 @@ end
 
 function peaceTimeOver()
     dbg.stm("--------------------")
-    dbg.stm("Möge die Schlacht beginnen! Die PeaceTime (PT) ist vorbei!")
+    dbg.stm("Let the battle begin! The peace time in the mid is over!!")
     dbg.stm("--------------------")
 end
 
