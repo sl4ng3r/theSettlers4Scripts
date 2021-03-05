@@ -1,321 +1,278 @@
+---- Dieses Template kannst du in deine neue map einfach kopieren. Es stellt dir viele "Standard" Funktionen bereits zur Verfügung.
+---- Das eigentliche Script geht ab der Zeile 169 los --> "Ab hier beginnt das eigentliche Script".
+---- Have fun -- sl4ng3r --
+
+-------------------------------------------------------------
+----SCRIPT zum erhöhen der Speichermöglichkeiten ------------
+----(Da sonst begrenzt auf die 9 Vars.Save Variablen)--------
+----Es muss vor dem eigentlichen Script ausgeführt werden----
+----Danke an MuffinMario für dieses göttliche Script!!-------
+-------------------------------------------------------------
+
+VarsExt = {
+    MAXSPACE = 9
+}
+VarsExt["Vars"] = {
+    VarsExt.MAXSPACE, VarsExt.MAXSPACE, VarsExt.MAXSPACE,
+
+    VarsExt.MAXSPACE, VarsExt.MAXSPACE, VarsExt.MAXSPACE,
+
+    VarsExt.MAXSPACE, VarsExt.MAXSPACE, VarsExt.MAXSPACE
+}
+
+-- if str is not at least minSize characters, fill char from the left until size is reached
+-- e.g. str_fill_left("123","0",9) becomes "000000123"
+function str_fill_left(str, char, minSize)
+    local its = (minSize - strlen(str)) / strlen(char)
+    local endStr = ""
+    while its > 0 do
+        endStr = endStr .. char
+        its = its - 1
+    end
+    endStr = endStr .. str
+    return endStr;
+end
+
+VarsExt.saveVar = function(save, offset, size, value)
+    local currentSaveVal = Vars["Save" .. save];
+    local saveValStr = str_fill_left(format("%.0f", currentSaveVal), "0", VarsExt.MAXSPACE)
+    --print(saveValStr .. " = saveVar(): current value ");
+    local leftsize = offset
+    local leftStr = strsub(saveValStr, 1, leftsize);
+    local rightStr = strsub(saveValStr, offset + 1 + size)
+    local newstr = leftStr .. str_fill_left(tostring(value), "0", size) .. rightStr;
+    --print(newstr .. " = saveVar(): after safe value ");
+    Vars["Save" .. save] = tonumber(newstr);
+end
+VarsExt.getVar = function(save, offset, size)
+
+    local currentSaveVal = Vars["Save" .. save];
+
+    local saveValStr = str_fill_left(format("%.0f", currentSaveVal), "0", VarsExt.MAXSPACE)
+
+    local myVal = tonumber(strsub(saveValStr, offset + 1, offset + size))
+
+    return myVal;
+end
+VarsExt.save = function(this, value)
+    if value > this.maxnum or value < 0 then
+        return ;
+    end
+    VarsExt.saveVar(this.i, this.off, this.size, value);
+end
+VarsExt.get = function(this)
+    return VarsExt.getVar(this.i, this.off, this.size);
+end
+
+-- util foreach
+function foreach_ext (t, f, ...)
+    local i, v = next(t, nil)
+    while i do
+        -- we could maybe optimise this, but its really not a big deal
+        local args = arg
+        tinsert(args, 1, v)
+        tinsert(args, 1, i)
+        local res = call(f, args)
+
+        tremove(args, 1); -- it is the same object hence remove it again
+        tremove(args, 1);
+
+        if res then
+            return res
+        end
+        i, v = next(t, i)
+    end
+end
+
+--
+-- find index with size on any vars, returns first save with enough size
+--
+VarsExt.findIndexWithSize = function(size)
+    if size < 1 then
+        return nil;
+    end
+
+    return foreach_ext(VarsExt.Vars, function(i, var, s)
+        if var >= s then
+            return i
+        end
+    end, size);
+end
+--
+-- reserve size on save.expects size to be fitting
+-- returns offset from 0 on SaveX
+VarsExt.reserve = function(save, size)
+    local currentSize = VarsExt.Vars[save]
+    VarsExt.Vars[save] = currentSize - size
+    return VarsExt.MAXSPACE - currentSize;
+end
+
+-- main function to occupy part of a save variable, starting from 1 up to 9, ignores occupied save variables.
+--
+-- return: save "class"-object with save(x) and get() member function, if space is left
+--				 nil, if no space is left
+VarsExt.create = function(size)
+    local index = VarsExt.findIndexWithSize(size);
+
+    if index == nil then
+        dbg.stm("VarsExt: SPEICHERVARIABLE NICHT ANGELEGT, VARIABLE UEBERTRAGT MOEGLICHERWEISE DIE GROESSE 9, ODER ES SIND ZU VIELE ANGELEGT")
+        return nil
+    end
+    if size < 1 then
+        return nil;
+    end
+    -- init
+    if Vars["Save" .. index] == nil then
+        Vars["Save" .. index] = 0
+    end
+    local offset = VarsExt.reserve(index, size);
+
+
+    -- highest number of 10^size -1
+    local maxnum = 1;
+    do
+        local i = size;
+        while i > 0 do
+            maxnum = maxnum * 10;
+            i = i - 1
+        end
+        maxnum = maxnum - 1;
+    end
+
+    -- create "class" object
+    local myVar = {
+        i = index,
+        off = offset,
+        size = size,
+        maxnum = maxnum
+    };
+    myVar.save = VarsExt.save;
+    myVar.get = VarsExt.get;
+    return myVar;
+end
+
+-- in case you are using a Vars.Save on your own, you can state here that it will not be used. THIS ACTION CANNOT BE REVERSED (since scripts are hard coded.);
+VarsExt.occupy = function(save)
+    if VarsExt.Vars[save] > 0 then
+        -- 0 or -1 or -0 ?
+        VarsExt.Vars[save] = -1;
+    end
+end
 
 -----------------------------------------------
 -----------------------------------------------
-----Script fuer die Siedler 4 WM 2021----------
------------------HAVE FUN ---------------------
------------------~sl4ng3r~---------------------
 -----------------------------------------------
-
-spectator = { 3,4 }
-
+----Ab hier beginnt das eigentliche Script ----
+-----------------------------------------------
+-----------------------------------------------
+-----------------------------------------------
 function new_game()
     request_event(doActionsAfterMinutes, Events.FIVE_TICKS)
     request_event(initGame, Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
-    request_event(winCondition, Events.VICTORY_CONDITION_CHECK)
-    request_event(killUnits, Events.FIVE_TICKS)
     MinuteEvents.new_game()
-    preparePlayers()
-    addGoods()
 end
 
 function register_functions()
     reg_func(doActionsAfterMinutes)
     reg_func(initGame)
-    reg_func(winCondition)
-    reg_func(killUnits)
-
     MinuteEvents.register_functions()
 end
-
-function preparePlayers()
-    Buildings.AddBuilding(190, 288, 1, Buildings.GUARDTOWERSMALL)
-    Buildings.AddBuilding(160, 288, 1, Buildings.GUARDTOWERSMALL)
-    Buildings.AddBuilding(440, 288, 2, Buildings.GUARDTOWERSMALL)
-    Buildings.AddBuilding(470, 288, 2, Buildings.GUARDTOWERSMALL)
-end
-
-function winCondition()
-    ---killSpecators
-    Game.DefaultPlayersLostCheck()
-    if Game.HasPlayerLost(1) == 1 then
-        Game.PlayerLost(3)
-        Game.PlayerLost(4)
-    end
-    if Game.HasPlayerLost(2) == 1 then
-        Game.PlayerLost(3)
-        Game.PlayerLost(4)
-    end
-    Game.DefaultGameEndCheck()
-end
-
-
-function addGoods()
-    local xP1 = 200
-    local yP1 = 345
-
-    local xP2 = 487
-    local yP2 = 345
-
-    ---roemer
-    if Game.PlayerRace(1) == 0 then
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 4)
-        Goods.AddPileEx(xP1, yP1, Goods.LOG, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.LOG, 2)
-    end
-    ---Wikinger
-    if Game.PlayerRace(1) == 1 then
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 4)
-        Goods.AddPileEx(xP1, yP1, Goods.AXE, 6)
-        Goods.AddPileEx(xP1, yP1, Goods.SAW, 3)
-    end
-    ---trojaner
-    if Game.PlayerRace(1) == 4 then
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-		Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-		Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-
-        Goods.AddPileEx(xP1, yP1, Goods.AXE, 7)
-        Goods.AddPileEx(xP1, yP1, Goods.SAW, 3)
-        Goods.AddPileEx(xP1, yP1, Goods.SCYTHE, 3)
-        Goods.AddPileEx(xP1, yP1, Goods.ROD, 2)
-		Goods.AddPileEx(xP1, yP1, Goods.HAMMER,  8)
-		Goods.AddPileEx(xP1, yP1, Goods.HAMMER,  8)
-		Goods.AddPileEx(xP1, yP1, Goods.SHOVEL,  8)
-		Goods.AddPileEx(xP1, yP1, Goods.BREAD,  8)
-	Goods.AddPileEx(xP1, yP1, Goods.BREAD,  8)
-	Goods.AddPileEx(xP1, yP1, Goods.MEAT,  8)
-	Goods.AddPileEx(xP1, yP1, Goods.MEAT,  8)
-	Settlers.AddSettlers(xP1, yP1, 1, Settlers.CARRIER, 10)
-
-    end
-
-    ----Player 2
-
-    ---roemer
-    if Game.PlayerRace(2) == 0 then
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 4)
-        Goods.AddPileEx(xP2, yP2, Goods.LOG, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.LOG, 2)
-    end
-    ---Wikinger
-    if Game.PlayerRace(2) == 1 then
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 4)
-        Goods.AddPileEx(xP2, yP2, Goods.AXE, 6)
-        Goods.AddPileEx(xP2, yP2, Goods.SAW, 3)
-    end
-    ---trojaner
-    if Game.PlayerRace(2) == 4 then
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-		Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-		Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-
-        Goods.AddPileEx(xP2, yP2, Goods.AXE, 7)
-        Goods.AddPileEx(xP2, yP2, Goods.SAW, 3)
-        Goods.AddPileEx(xP2, yP2, Goods.SCYTHE, 3)
-        Goods.AddPileEx(xP2, yP2, Goods.ROD, 2)
-		Goods.AddPileEx(xP2, yP2, Goods.HAMMER,  8)
-		Goods.AddPileEx(xP2, yP2, Goods.HAMMER,  8)
-		Goods.AddPileEx(xP2, yP2, Goods.SHOVEL,  8)
-		Goods.AddPileEx(xP2, yP2, Goods.BREAD,  8)
-		Goods.AddPileEx(xP2, yP2, Goods.BREAD,  8)
-		Goods.AddPileEx(xP2, yP2, Goods.MEAT,  8)
-		Goods.AddPileEx(xP2, yP2, Goods.MEAT,  8)
-		Settlers.AddSettlers(xP2, yP2, 2, Settlers.CARRIER, 10)
-
-    end
-
-
-
-end
-
 
 --- Ein Debug schalter. Habe damit bei der Entwicklung gute Erfahrungen gemacht.
 function isDebug()
     return TRUE;
 end
 
+--- Vars.Save8 und Vars.Save9 werden reserviert, da sie in Funktionen genutzt werden. Möchtet ihr die Vars Variablen verwenden und nicht das VarsExt Framework, müsst ihr diese hier
+--- reservieren.
+VarsExt.occupy(8)
+VarsExt.occupy(9)
+
+--- So solltet ihr Variablen setzten, die ihr nach dem Laden noch braucht. Das VarsExt hat die Limitierung auf nur 9 Variablen um ein vielfaches erhöht.
+meineTolleVarsVariable = VarsExt.create(2);
 
 
 --- Hier kommen Initialisierungen hin, die bei start oder laden ausgefuehrt werden sollen
 function initGame()
-
-    local i,v = next(spectator,nil)
-    local localPlayer = Game.LocalPlayer();
-    while i do
-        if localPlayer == v then
-            Tutorial.RWM(1);
-        end
-        i,v = next(spectator,i);
-    end
-
-    dbg.stm("The Settlers IV WM 2021")
-    dbg.stm("PeaceTime: 40 Min. Thieves are allowed and may steal and Sabotours are allowed from 40 minutes")
-    dbg.stm("Have fun und good luck!  ~sl4ng3r~ ")
-
-    --Buildings.Delete(Buildings.GetFirstBuilding(3, 46),2)
-    --Buildings.Delete(Buildings.GetFirstBuilding(4, 46),2)
-
     if isDebug() == TRUE then
         ---Deckt die Karte auf
         Tutorial.RWM(1)
-        requestMinuteEvent(peaceTimeOver, getPeaceTime())
-        Settlers.AddSettlers(496, 342, 2, Settlers.SWORDSMAN_03, 70)
-        Settlers.AddSettlers(203, 342, 1, Settlers.SWORDSMAN_03, 70)
+        dbgTestFunction()
+        requestMinuteEvent(funktionNach5Minuten, 1)
     end
-
+	AI.SetPlayerVar(4, "AttackMode", 0, 0, 0)
+    AI.SetPlayerVar(8, "AttackMode", 0, 0, 0)
+	--dbg.aioff(4)
+	--dbg.aioff(8)
 end
 
-function getPeaceTime()
-    return 40
+function dbgTestFunction()
+    -- Hier könnt ihr code zum Testen hinschreiben.
+    dbg.stm("dbug Script geht ")
+    meineTolleVarsVariable:save(55)
+    dbg.stm("Wert von meineTolleVarsVariable " .. meineTolleVarsVariable:get())
 end
 
 function doActionsAfterMinutes()
     --wird jede Minute ausgefuehrt
     if newMinute() == 1 then
-        if Game.LocalPlayer() >= 3 then
-            dbg.stm("Statistik für Minute "..Game.Time())
-        end
-        printMsgForPlayer(1)
-        printMsgForPlayer(2)
+		 if Game.Time() >= 1 then
+			 --Settlers.AddSettlers(363, 600, 4, Settlers.SWORDSMAN_01, 5)
+			 --AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
+			 --Settlers.AddSettlers(510, 600, 4, Settlers.SWORDSMAN_01, 5)
+			 --AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
+			 --Settlers.AddSettlers(676, 600, 4, Settlers.SWORDSMAN_01, 5)
+			 --AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
+
+			 --Settlers.AddSettlers(227, 320, 8, Settlers.SWORDSMAN_01, 5)
+			 -- AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
+			 --Settlers.AddSettlers(380, 320, 8, Settlers.SWORDSMAN_01, 5)
+			  --AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
+			 --Settlers.AddSettlers(540, 320, 8, Settlers.SWORDSMAN_01, 5)
+			 -- AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
+
+
+			 Settlers.AddSettlers(340, 295, 4, Settlers.SWORDSMAN_01, 5)
+			 AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
+			 --Settlers.AddSettlers(450, 507, 4, Settlers.SWORDSMAN_01, 5)
+			 --AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
+			 Settlers.AddSettlers(560, 725, 4, Settlers.SWORDSMAN_01, 5)
+			 AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
+			 Settlers.AddSettlers(725, 720, 8, Settlers.SWORDSMAN_01, 5)
+			 AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
+			 --Settlers.AddSettlers(607, 502, 8, Settlers.SWORDSMAN_01, 5)
+			 --AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
+			 Settlers.AddSettlers(502, 290, 8, Settlers.SWORDSMAN_01, 5)
+			 AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
+
+
+		 end
+        dbg.stm("wieder eine Minute rum")
     end
 
 end
-
-function printMsgForPlayer(playerId)
-   -- local AmountOfMilitary =  Settlers.Amount(playerId, Settlers.SWORDSMAN_01) +  Settlers.Amount(playerId, Settlers.SWORDSMAN_02) + Settlers.Amount(playerId, Settlers.SWORDSMAN_03) + Settlers.Amount(playerId, Settlers.BOWMAN_01) +  Settlers.Amount(playerId, Settlers.BOWMAN_02) + Settlers.Amount(playerId, Settlers.BOWMAN_03)+ Settlers.Amount(playerId, Settlers.AXEWARRIOR_01) + Settlers.Amount(playerId, Settlers.AXEWARRIOR_02) + Settlers.Amount(playerId, Settlers.AXEWARRIOR_03) + Settlers.Amount(playerId, Settlers.BLOWGUNWARRIORS_01) + Settlers.Amount(playerId, Settlers.BLOWGUNWARRIORS_02) + Settlers.Amount(playerId, Settlers.BLOWGUNWARRIORS_03) +Settlers.Amount(playerId, Settlers.BACKPACKCATAPULIST_01)	+ Settlers.Amount(playerId, Settlers.BACKPACKCATAPULIST_02) + Settlers.Amount(playerId, Settlers.BACKPACKCATAPULIST_03)  + Settlers.Amount(playerId, Settlers.MEDIC_01) + Settlers.Amount(playerId, Settlers.MEDIC_02) + Settlers.Amount(playerId, Settlers.MEDIC_03) + Settlers.Amount(playerId, Settlers.SQUADLEADER)
-    local AmountOfMilitary3 =  Settlers.Amount(playerId, Settlers.SWORDSMAN_03) +  Settlers.Amount(playerId, Settlers.BOWMAN_03) +Settlers.Amount(playerId, Settlers.AXEWARRIOR_03) + Settlers.Amount(playerId, Settlers.BLOWGUNWARRIORS_03)  + Settlers.Amount(playerId, Settlers.BACKPACKCATAPULIST_03)  + Settlers.Amount(playerId, Settlers.MEDIC_03) + Settlers.Amount(playerId, Settlers.SQUADLEADER)
-    local playerKills= Statistic.UnitsDestroyed(playerId)
-    local playerSettlers = Settlers.Amount(playerId, Settlers.CARRIER)
-
-    if Game.LocalPlayer() >= 3 then
-        dbg.stm("Player " .. playerId .. ": " .. " Soldiers: " .. getAmountOfPlayerUnits(playerId).. " L3(" .. AmountOfMilitary3 ..  ")" .. " Kills: " .. playerKills .. " Settlers: " .. playerSettlers)
-    end
-end
-
-tickCounter = 0
-function killUnits()
-    if Game.Time() < getPeaceTime() then
-        tickCounter = tickCounter + 5
-        if tickCounter >= 200 then
-            removeUnitsNearPoint(330,661,1,40)
-            removeUnitsNearPoint(42,180,1,40)
-
-            removeUnitsNearPoint(622,668,2,40)
-            removeUnitsNearPoint(322,174,2,40)
-            ---mitte
-           ---removeUnitsNearPoint(363,543,1,40)
-            ---removeUnitsNearPoint(462,545,2,40)
-
-            tickCounter = 1
-        end
-    end
-end
+-- 363 600
+function funktionNach5Minuten()
 
 
-function removeUnitsNearPoint(x, y, playerId, radius)
-    local specialists = {Settlers.PIONEER,Settlers.SABOTEUR,Settlers.GEOLOGIST,Settlers.GARDENER, Settlers.SWORDSMAN_01, Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03, Settlers.BOWMAN_01, Settlers.BOWMAN_02, Settlers.BOWMAN_03, Settlers.AXEWARRIOR_01, Settlers.AXEWARRIOR_02, Settlers.AXEWARRIOR_03, Settlers.BLOWGUNWARRIOR_01, Settlers.BLOWGUNWARRIOR_02, Settlers.BLOWGUNWARRIOR_03, Settlers.BACKPACKCATAPULIST_01, Settlers.BACKPACKCATAPULIST_02, Settlers.BACKPACKCATAPULIST_03, Settlers.MEDIC_01, Settlers.MEDIC_02, Settlers.MEDIC_03, Settlers.SQUADLEADER}
-    local index = 1
 
-    --IDs der Gebaeude gehen von 1 - 83
-    while index <= getn(specialists) do
-        if Settlers.AmountInArea(playerId, specialists[index], x, y, radius) > 0 then
-            Settlers.KillSelectableSettlers(playerId, specialists[index], x, y, radius, 0)
-            dbg.stm("Ein greller Blitz, zzzzzschhhhh. Deine Einheiten sterben... Du hörst eine Stimme... Du kannst diese Passage erst ab Minute " .. getPeaceTime() .. " durchqueren")
-        end
-        index = index +  1
-    end
-end
+	--Buildings.AddBuilding(363, 600, 4, Buildings.GUARDTOWERSMALL)
+	--Buildings.AddBuilding(510, 600, 4, Buildings.GUARDTOWERSMALL)
+	--Buildings.AddBuilding(676, 600, 4, Buildings.GUARDTOWERSMALL)
 
-function peaceTimeOver()
-    dbg.stm("--------------------")
-    dbg.stm("Möge die Schlacht beginnen! Die PeaceTime (PT) ist vorbei!")
-    dbg.stm("--------------------")
+	--Buildings.AddBuilding(227, 320, 8, Buildings.GUARDTOWERSMALL)
+	--Buildings.AddBuilding(380, 320, 8, Buildings.GUARDTOWERSMALL)
+	--Buildings.AddBuilding(540, 320, 8, Buildings.GUARDTOWERSMALL)
+
+
+
+
+
+
+
+
+
+    dbg.stm("nach 5 Minuten")
 end
 
 -------------------------------------------------------------
@@ -327,6 +284,79 @@ end
 TRUE = 1
 FALSE = 0
 
+--- gibt aus einem array von Spielern ("playersTable" mit den IDs der Spielern) die Spieler ID zurück, der am  "enemyPosition" meisten Einheiten hat
+---BSP: enemyPosition == 1 --> gibt den Spieler mit den meisten Units zurück
+---BSP: enemyPosition == 2 --> gibt den Spieler mit den zweitmeisten Units zurück..
+function getPlayerIDWithMostUnitsForPosition(playersTable, enemyPosition)
+
+    local playercache = { 0, 0, 0, 0, 0, 0, 0, 0 }
+
+    local i = 1
+    -- setzt an die einzelnen stellen innerhalb des playerchache arrays die Einheitenanzahl etsprechend der spielerId
+    -- Bpsp {0,0,0,34,12,43,34,34) --> jetzt waeren die letzten fuenf spieler opponents mit der entsprechenden Anzahl Einheiten
+    while i <= getn(playersTable) do
+        playercache[playersTable[i]] = getAmountOfPlayerUnitsWithoutBuildings(playersTable[i])
+        i = i + 1
+    end
+
+    --dbg.stm(playercache[1] .. " " .. playercache[2] .. " " .. playercache[3] .. " " .. playercache[4] .. " " .. playercache[5] .. " " .. playercache[6] .. " " .. playercache[7] .. " " .. playercache[8])
+
+    -- delete biggest until empty
+    local counter = 1
+    local counter2 = 1
+    local biggestValue = 0
+    local biggestId = 1
+
+
+    --loescht nach und nach den hoechsten aus dem cache
+    while counter < enemyPosition do
+        counter2 = 1
+        biggestValue = 0
+        while counter2 <= getn(playercache) do
+            if playercache[counter2] > 0 then
+                actualOpponentsId = counter2
+                actualOpponentsAmount = playercache[counter2]
+                if actualOpponentsAmount > biggestValue then
+                    biggestId = actualOpponentsId
+                    biggestValue = actualOpponentsAmount
+                end
+            end
+            counter2 = counter2 + 1
+        end
+        playercache[biggestId] = 0
+        counter = counter + 1
+    end
+
+    biggestValue = 0
+    counter2 = 1
+    biggestId = 1
+
+    --jetzt is der hoechste der gesuchte. Alle hoeheren wurden geloescht
+    while counter2 <= getn(playercache) do
+        actualOpponentsId = counter2
+        actualOpponentsAmount = playercache[counter2]
+        if actualOpponentsAmount > biggestValue then
+            biggestId = actualOpponentsId
+            biggestValue = actualOpponentsAmount
+        end
+        counter2 = counter2 + 1
+    end
+
+    return biggestId
+end
+
+
+
+function isValueInArray(theArray, value)
+    local counter = 1
+    while counter <= getn(theArray) do
+        if theArray[counter] == value then
+            return TRUE
+        end
+        counter = counter + 1
+    end
+    return FALSE
+end
 
 function getTextForPlayerRace(playerId)
     local raceId = Game.PlayerRace(playerId)
@@ -381,7 +411,11 @@ function getAmountOfPlayerUnitsWithoutBuildings(playerId)
     return allUnitsWithoutBuilding
 end
 
-
+function randomBetweenSimple(fromNumber, toNumber)
+    local divNumber = toNumber - fromNumber
+    local randomNumber = fromNumber + Game.Random(divNumber + 1)
+    return randomNumber
+end
 
 seed = 0
 lastSeed = 0
@@ -451,6 +485,29 @@ function floorNumber(floatNumber)
 end
 
 
+-----------------------------------------------------
+--Modul Funktion. Danke an Hippo für dieses Script---
+-----------------------------------------------------
+-- returns a mod(b). Or a%b in many languages. The remainder of the division a/b--
+function mod(a, b)
+    if b < 1 or a < 0
+    then
+        return -1 -- remainder isn’t going to be calculated
+    end
+    local c = a / b
+    local d = strfind("" .. c, "(%.+)")
+    if d == nil
+    then
+        return 0 -- remainder is 0
+    end
+    c = tonumber(strsub("" .. c, d)) + 0.0000000000005 -- drop everything before . and add a tiny amount
+    d = strfind("" .. c * b, "(%.+)")
+    if d == nil
+    then
+        return c * b
+    end
+    return tonumber(strsub("" .. c * b, 1, d)) -- multiply c with b and drop everything after .
+end
 
 ----
 --LIB fuer Minute Events---
