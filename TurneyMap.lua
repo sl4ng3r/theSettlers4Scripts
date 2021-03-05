@@ -58,150 +58,11 @@ function addGoods()
     addGoodsForPlayerRace(1,xP1,yP1)
     addGoodsForPlayerRace(2,xP2,yP2)
 
-    ---roemer
-    if Game.PlayerRace(1) == 0 then
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 4)
-
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 2)
-
-        Goods.AddPileEx(xP1, yP1, Goods.LOG, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.LOG, 2)
-    end
-    ---Wikinger
-    if Game.PlayerRace(1) == 1 then
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 4)
-
-        Goods.AddPileEx(xP1, yP1, Goods.AXE, 6)
-        Goods.AddPileEx(xP1, yP1, Goods.SAW, 3)
-
-        Goods.AddPileEx(xP1, yP1, Goods.LOG, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.LOG, 2)
-
-        Settlers.AddSettlers(xP1, yP1, 1, Settlers.CARRIER, 10)
-
-    end
-    ---trojaner
-    if Game.PlayerRace(1) == 4 then
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.BOARD, 8)
-
-
-
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.STONE, 8)
-
-        Goods.AddPileEx(xP1, yP1, Goods.AXE, 7)
-        Goods.AddPileEx(xP1, yP1, Goods.SAW, 3)
-
-        Goods.AddPileEx(xP1, yP1, Goods.LOG, 8)
-        Goods.AddPileEx(xP1, yP1, Goods.LOG, 2)
-
-        Settlers.AddSettlers(xP1, yP1, 1, Settlers.CARRIER, 10)
-    end
-
-    ----Player 2
-
-    ---roemer
-    if Game.PlayerRace(2) == 0 then
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 4)
-
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 2)
-
-        Goods.AddPileEx(xP2, yP2, Goods.LOG, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.LOG, 2)
-    end
-    ---Wikinger
-    if Game.PlayerRace(2) == 1 then
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 4)
-
-        Goods.AddPileEx(xP2, yP2, Goods.AXE, 6)
-        Goods.AddPileEx(xP2, yP2, Goods.SAW, 3)
-
-        Goods.AddPileEx(xP2, yP2, Goods.LOG, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.LOG, 2)
-
-        Settlers.AddSettlers(xP2, xP2,2, Settlers.CARRIER, 10)
-    end
-    ---trojaner
-    if Game.PlayerRace(2) == 4 then
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.BOARD, 8)
-
-
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.STONE, 8)
-
-
-        Goods.AddPileEx(xP2, yP2, Goods.LOG, 8)
-        Goods.AddPileEx(xP2, yP2, Goods.LOG, 2)
-
-        Goods.AddPileEx(xP2, yP2, Goods.AXE, 7)
-        Goods.AddPileEx(xP2, yP2, Goods.SAW, 3)
-
-        Settlers.AddSettlers(xP2, yP2, 2, Settlers.CARRIER, 10)
-
-    end
 end
 
-
 function addGoodsForPlayerRace(playerId, spawnX, spawnY)
+
+    ---Roemer
     if Game.PlayerRace(playerId) == 0 then
         Goods.AddPileEx(spawnX, spawnY, Goods.BOARD, 8)
         Goods.AddPileEx(spawnX, spawnY, Goods.BOARD, 8)
@@ -230,9 +91,11 @@ function addGoodsForPlayerRace(playerId, spawnX, spawnY)
         Goods.AddPileEx(spawnX, spawnY, Goods.LOG, 8)
         Goods.AddPileEx(spawnX, spawnY, Goods.LOG, 2)
 
-        Settlers.AddSettlers(spawnX, spawnX,2, Settlers.CARRIER, 10)
+        Settlers.AddSettlers(spawnX, spawnX,playerId, Settlers.CARRIER, 10)
     end
-    ---trojaner
+
+
+     ---trojaner
     if Game.PlayerRace(playerId) == 4 then
         Goods.AddPileEx(spawnX, spawnY, Goods.BOARD, 8)
         Goods.AddPileEx(spawnX, spawnY, Goods.BOARD, 8)
@@ -266,7 +129,7 @@ function addGoodsForPlayerRace(playerId, spawnX, spawnY)
         Goods.AddPileEx(spawnX, spawnY, Goods.AXE, 7)
         Goods.AddPileEx(spawnX, spawnY, Goods.SAW, 3)
 
-        Settlers.AddSettlers(spawnX, spawnY, 2, Settlers.CARRIER, 10)
+        Settlers.AddSettlers(spawnX, spawnY, playerId, Settlers.CARRIER, 10)
 
     end
 end
@@ -274,7 +137,7 @@ end
 
 --- Ein Debug schalter.
 function isDebug()
-    return TRUE;
+    return FALSE;
 end
 
 
@@ -290,22 +153,11 @@ function initGame()
         i,v = next(spectator,i);
     end
 
-    dbg.stm("~~~The Settlers IV WM 2021~~~")
+    dbg.stm("~~~Welcome to the Settlers IV WM 2021~~~")
     dbg.stm("PeaceTime: " .. getPeaceTime() .. " Min. Thieves are allowed and may steal. Sabotours after peacetime. ")
-    dbg.stm("The north path opens at min " .. getPeaceTime() - 1 .. " and the south path at min " .. getPeaceTime() - 2 .. ".")
+    dbg.stm("The northern path opens at min " .. getPeaceTime() - 1 .. " and the southern path at min " .. getPeaceTime() - 2 .. ".")
     dbg.stm("Have fun und good luck!")
 
-    --Buildings.Delete(Buildings.GetFirstBuilding(3, 46),2)
-    --Buildings.Delete(Buildings.GetFirstBuilding(4, 46),2)
-
-    if isDebug() == TRUE then
-        ---Deckt die Karte auf
-        Tutorial.RWM(1)
-        --setOpenTimes()
-
-        --Settlers.AddSettlers(496, 342, 2, Settlers.SWORDSMAN_03, 70)
-        Settlers.AddSettlers(203, 342, 1, Settlers.SWORDSMAN_03, 70)
-    end
 
 
 
@@ -411,7 +263,7 @@ end
 
 function peaceTimeOver()
     dbg.stm("--------------------")
-    dbg.stm("Let the battle begin! The peace time in the mid is over!!")
+    dbg.stm("Let the battle begin! The peace time in the mid is now over!!")
     dbg.stm("--------------------")
 end
 
