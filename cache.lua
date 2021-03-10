@@ -1,561 +1,677 @@
----- Dieses Template kannst du in deine neue map einfach kopieren. Es stellt dir viele "Standard" Funktionen bereits zur Verfügung.
----- Das eigentliche Script geht ab der Zeile 169 los --> "Ab hier beginnt das eigentliche Script".
----- Have fun -- sl4ng3r --
+tick1 = 0 --
+tick2 = 0 --
+tick3 = 0 --
+tick4 = 0
+tick5 = 0
+tick6 = 0
+tick7 = 0
+tick8 = 0
+fire = 0
+water = 0
+boom = 0
 
--------------------------------------------------------------
-----SCRIPT zum erhöhen der Speichermöglichkeiten ------------
-----(Da sonst begrenzt auf die 9 Vars.Save Variablen)--------
-----Es muss vor dem eigentlichen Script ausgeführt werden----
-----Danke an MuffinMario für dieses göttliche Script!!-------
--------------------------------------------------------------
-
-VarsExt = {
-    MAXSPACE = 9
-}
-VarsExt["Vars"] = {
-    VarsExt.MAXSPACE, VarsExt.MAXSPACE, VarsExt.MAXSPACE,
-
-    VarsExt.MAXSPACE, VarsExt.MAXSPACE, VarsExt.MAXSPACE,
-
-    VarsExt.MAXSPACE, VarsExt.MAXSPACE, VarsExt.MAXSPACE
-}
-
--- if str is not at least minSize characters, fill char from the left until size is reached
--- e.g. str_fill_left("123","0",9) becomes "000000123"
-function str_fill_left(str, char, minSize)
-    local its = (minSize - strlen(str)) / strlen(char)
-    local endStr = ""
-    while its > 0 do
-        endStr = endStr .. char
-        its = its - 1
-    end
-    endStr = endStr .. str
-    return endStr;
+function InitVar()
+	Vars.Save1 = 0	-- aufgabe 1
+	Vars.Save2 = 0	-- aufgabe 2
+	Vars.Save3 = 0 	-- aufgabe 3
+	Vars.Save4 = 0    	-- aufgabe 4
+	Vars.Save5 = 0    	--
+	Vars.Save6 = 0    	--
+	Vars.Save7 = 0	--
+	Vars.Save8 = 0	--
+	Vars.Save9 = 0	--test
 end
 
-VarsExt.saveVar = function(save, offset, size, value)
-    local currentSaveVal = Vars["Save" .. save];
-    local saveValStr = str_fill_left(format("%.0f", currentSaveVal), "0", VarsExt.MAXSPACE)
-    --print(saveValStr .. " = saveVar(): current value ");
-    local leftsize = offset
-    local leftStr = strsub(saveValStr, 1, leftsize);
-    local rightStr = strsub(saveValStr, offset + 1 + size)
-    local newstr = leftStr .. str_fill_left(tostring(value), "0", size) .. rightStr;
-    --print(newstr .. " = saveVar(): after safe value ");
-    Vars["Save" .. save] = tonumber(newstr);
-end
-VarsExt.getVar = function(save, offset, size)
+function addreefs()
+	Map.AddReef(613,599,107)
+	Map.AddReef(617,602,107)
+	Map.AddReef(622,606,107)
+	Map.AddReef(627,610,107)
+	Map.AddReef(632,614,107)
+	Map.AddReef(638,618,107)  --barriere 1
 
-    local currentSaveVal = Vars["Save" .. save];
-
-    local saveValStr = str_fill_left(format("%.0f", currentSaveVal), "0", VarsExt.MAXSPACE)
-
-    local myVal = tonumber(strsub(saveValStr, offset + 1, offset + size))
-
-    return myVal;
-end
-VarsExt.save = function(this, value)
-    if value > this.maxnum or value < 0 then
-        return ;
-    end
-    VarsExt.saveVar(this.i, this.off, this.size, value);
-end
-VarsExt.get = function(this)
-    return VarsExt.getVar(this.i, this.off, this.size);
+	Map.AddReef(466,552,107)
+	Map.AddReef(469,557,107)
+	Map.AddReef(473,564,107)
+	Map.AddReef(477,570,107)
+	Map.AddReef(481,576,107)
+	Map.AddReef(485,581,107) --barriere 2
 end
 
--- util foreach
-function foreach_ext (t, f, ...)
-    local i, v = next(t, nil)
-    while i do
-        -- we could maybe optimise this, but its really not a big deal
-        local args = arg
-        tinsert(args, 1, v)
-        tinsert(args, 1, i)
-        local res = call(f, args)
+function addShips()
+	ferryId1=Vehicles.AddVehicle(976,476,1,Vehicles.FERRY,0,0,0)
+		Settlers.AddSettlersToFerry(ferryId1,Settlers.BOWMAN_03,10)
+		Vehicles.AddWheelerToFerry(ferryId1,Vehicles.FOUNDATION_CART)
+	ferryId2=Vehicles.AddVehicle(956,476,1,Vehicles.FERRY,0,0,0)
+		Settlers.AddSettlersToFerry(ferryId2,Settlers.BOWMAN_03,10)
+		Vehicles.AddWheelerToFerry(ferryId2,Vehicles.FOUNDATION_CART)
+	ferryId3=Vehicles.AddVehicle(936,476,1,Vehicles.FERRY,0,0,0)
+		Vehicles.AddWheelerToFerry(ferryId3,Vehicles.FOUNDATION_CART)
+		Settlers.AddSettlersToFerry(ferryId3,Settlers.PRIEST,3)
+		Settlers.AddSettlersToFerry(ferryId3,Settlers.THIEF,5)
+	ferryId4=Vehicles.AddVehicle(930,458,1,Vehicles.FERRY,0,0,0)
+		Vehicles.AddWheelerToFerry(ferryId4,Vehicles.FOUNDATION_CART)
+		Settlers.AddSettlersToFerry(ferryId4,Settlers.SWORDSMAN_03,5)
+		Settlers.AddSettlersToFerry(ferryId4,Settlers.THIEF,5)
+	ferryId5=Vehicles.AddVehicle(950,458,1,Vehicles.FERRY,0,0,0)
+		Vehicles.AddWheelerToFerry(ferryId5,Vehicles.FOUNDATION_CART)
+		Settlers.AddSettlersToFerry(ferryId5,Settlers.BOWMAN_03,10)
 
-        tremove(args, 1); -- it is the same object hence remove it again
-        tremove(args, 1);
+	Magic.IncreaseMana(1,120)
 
-        if res then
-            return res
-        end
-        i, v = next(t, i)
-    end
+
 end
 
---
--- find index with size on any vars, returns first save with enough size
---
-VarsExt.findIndexWithSize = function(size)
-    if size < 1 then
-        return nil;
-    end
-
-    return foreach_ext(VarsExt.Vars, function(i, var, s)
-        if var >= s then
-            return i
-        end
-    end, size);
-end
---
--- reserve size on save.expects size to be fitting
--- returns offset from 0 on SaveX
-VarsExt.reserve = function(save, size)
-    local currentSize = VarsExt.Vars[save]
-    VarsExt.Vars[save] = currentSize - size
-    return VarsExt.MAXSPACE - currentSize;
+function defense()
+		Settlers.SetHealthInArea(8,Settlers.BOWMAN_03,731,947,25,125)
 end
 
--- main function to occupy part of a save variable, starting from 1 up to 9, ignores occupied save variables.
---
--- return: save "class"-object with save(x) and get() member function, if space is left
---				 nil, if no space is left
-VarsExt.create = function(size)
-    local index = VarsExt.findIndexWithSize(size);
-
-    if index == nil then
-        dbg.stm("VarsExt: SPEICHERVARIABLE NICHT ANGELEGT, VARIABLE UEBERTRAGT MOEGLICHERWEISE DIE GROESSE 9, ODER ES SIND ZU VIELE ANGELEGT")
-        return nil
-    end
-    if size < 1 then
-        return nil;
-    end
-    -- init
-    if Vars["Save" .. index] == nil then
-        Vars["Save" .. index] = 0
-    end
-    local offset = VarsExt.reserve(index, size);
-
-
-    -- highest number of 10^size -1
-    local maxnum = 1;
-    do
-        local i = size;
-        while i > 0 do
-            maxnum = maxnum * 10;
-            i = i - 1
-        end
-        maxnum = maxnum - 1;
-    end
-
-    -- create "class" object
-    local myVar = {
-        i = index,
-        off = offset,
-        size = size,
-        maxnum = maxnum
-    };
-    myVar.save = VarsExt.save;
-    myVar.get = VarsExt.get;
-    return myVar;
+function teleport()
+	if Settlers.AmountInArea(1, Settlers.PRIEST, 753, 982, 3) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.PRIEST, 753, 982, 3, 0)
+		Settlers.AddSettlers(59, 669, 1, Settlers.PRIEST, 1)
+	end
 end
 
--- in case you are using a Vars.Save on your own, you can state here that it will not be used. THIS ACTION CANNOT BE REVERSED (since scripts are hard coded.);
-VarsExt.occupy = function(save)
-    if VarsExt.Vars[save] > 0 then
-        -- 0 or -1 or -0 ?
-        VarsExt.Vars[save] = -1;
-    end
+function GenerateEnemies()
+  	tick4 = tick4 +1
+	if tick4 == 2100 and Vars.Save5 == 0 then
+		Settlers.AddSettlers(177, 355, 4, Settlers.SWORDSMAN_03, 35)
+		Settlers.AddSettlers(177, 355, 4, Settlers.BOWMAN_03, 40)
+		Settlers.AddSettlers(177, 355, 4, Settlers.AXEWARRIOR_03, 8)
+		AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
+		tick4 = 0
+	end
+	if Vars.Save2 == 2 and Buildings.ExistsBuildingInArea(5,Buildings.CASTLE,157,153,30, Buildings.ALL) == 0 then
+		unrequest_event(GenerateEnemies, Events.FIVE_TICKS)
+	elseif Game.HasPlayerLost(4) == 1 then
+		unrequest_event(GenerateEnemies, Events.FIVE_TICKS)
+	end
+end
+function GenerateSettlers()
+  	tick5 = tick5 +1
+	if tick5 == 1400 and Vars.Save6 == 0 then
+		Settlers.AddSettlers(912, 123, 7, Settlers.CARRIER, 25)
+		Goods.AddPileEx(861,153, Goods.SUNFLOWEROIL, 8)
+		Goods.AddPileEx(861,153, Goods.SUNFLOWEROIL, 8)
+		Goods.AddPileEx(861,153, Goods.SUNFLOWEROIL, 8)
+		Goods.AddPileEx(861,153, Goods.SUNFLOWEROIL, 8)
+		Goods.AddPileEx(861,153, Goods.SUNFLOWEROIL, 8)
+		tick5 = 0
+	end
 end
 
------------------------------------------------
------------------------------------------------
------------------------------------------------
-----Ab hier beginnt das eigentliche Script ----
------------------------------------------------
------------------------------------------------
------------------------------------------------
+function firstmessage()
+	if Vars.Save1 == 0 then
+		tick1 = tick1 +1
+	end
+	if tick1 == 1 and Vars.Save9 == 0 then
+	dbg.stm("Eine große Insel befindet sich in Sichtweite. Ob dort das legendäre Schloss steht? Finden wir es heraus!")
+	--Tutorial.RWM(1)
+	Vars.Save9 = 1
+	end
+	if tick1 == 55 and Vars.Save9 == 1 then 	Settlers.AddSettlers(813, 862, 1, Settlers.THIEF, 1) end
+	if tick1 == 60 and Vars.Save9 == 1 then
+	dbg.stm("Ein Schloss konnte dieser Kundschafter auf dieser Insel nicht finden, jedoch entdeckte er diesen Hafen bei den Mayas.")
+	Map.SetScreenPos(818,863)
+	Vars.Save9 = 2
+	end
+	if tick1 == 120 and Vars.Save9 == 2 then
+	dbg.stm("Da uns die Mayas nicht wohlgesonnen sind, müssen wir wohl den Hafen erobern, um unsere Fahrt fortsetzen zu können!")
+	Map.SetScreenPos(818,863)
+	Vars.Save9 = 3
+	end
+	if Game.IsAreaOwned(1,807,817,5) == 1 and Game.IsAreaOwned(1,871,917,5) == 1 and Game.IsAreaOwned(1,851,865,5) == 1 and Vars.Save9 == 3 then
+	dbg.stm("Sehr gut, hier können wir eine Werft bauen und unsere Fahrt fortsetzen. Wir sollten eine Fähre Richtung Norden entsenden!")
+	Map.SetScreenPos(862,860)
+	Vars.Save9 = 4
+	Vars.Save1 = 1
+	end
+end
+
+function secondmessage()
+	if Vehicles.AmountInArea(1,Vehicles.FERRY,722, 767, 16) >= 1 and Vars.Save2 == 0 then
+	dbg.stm("Uns erreichte soeben ein Hilferuf von Verbündeten im Norden! Sicherheitshalber sollten wir ein paar unserer Männer dorthin mitnehmen!")
+	Map.SetScreenPos(467,498)
+	Settlers.AddSettlers(429, 230, 3, Settlers.CARRIER, 150)
+	Settlers.AddSettlers(173, 236, 4, Settlers.CARRIER, 200)
+	Magic.CastSpell(1,4,7,467,498)
+	Vars.Save2 = 1
+	end
+	if Vehicles.AmountInArea(1,Vehicles.FERRY,465, 491, 16) >= 1 and Vars.Save2 == 1 then
+	dbg.stm("Seid gegrüßt, Verbündeter! Wir werden schon seit langer Zeit von Barbaren belagert. Helft uns, sie zu vertreiben; Vernichtet die drei Burgen des Häuptlings! Im Gegenzug helfen wir euch dafür bei eurer weiteren Reise! Unsere Siedlung darf nicht fallen!")
+	Map.SetScreenPos(393,224)
+	Settlers.AddSettlers(391, 223, 1, Settlers.DONKEY, 1)
+	Settlers.AddSettlers(372, 203, 1, Settlers.DONKEY, 1)
+	Settlers.AddSettlers(398, 252, 1, Settlers.DONKEY, 1)
+	Settlers.AddSettlers(309, 204, 1, Settlers.DONKEY, 1)
+	Magic.CastSpell(1,4,7,395,223)
+	Magic.CastSpell(1,4,7,310,206)
+	Magic.CastSpell(1,4,7,156,152)
+	request_event(GenerateEnemies, Events.FIVE_TICKS)
+	Vars.Save2 = 2
+	end
+	if Vars.Save2 == 2 and Buildings.ExistsBuildingInArea(5,Buildings.CASTLE,157,153,30, Buildings.ALL) == 0 then
+		tick2 = tick2 +1
+		end
+	if tick2 == 1 and Vars.Save2 == 2 then
+	dbg.stm("Ihr habt es geschafft! Endlich können wir hier wieder in Frieden leben! Als Dank helfen wir euch, die Barriere zur nächsten Insel aus dem Weg zu räumen!")
+	Map.SetScreenPos(156,152)
+	Map.DeleteReef(613,599,107)
+	Map.DeleteReef(617,602,107)
+	Map.DeleteReef(622,606,107)
+	Map.DeleteReef(627,610,107)
+	Map.DeleteReef(632,614,107)
+	Map.DeleteReef(638,618,107)
+	Magic.CastSpell(1,4,7,624,597)
+	unrequest_event(barbar, Events.FIVE_TICKS)
+	end
+	if tick2 == 14 and Vars.Save2 == 2 then
+	dbg.stm("Seht her, die Riffe sind entfernt! Viel Erfolg für Eure Reise!")
+	Map.SetScreenPos(631,617)
+	Vars.Save2 = 3
+	end
+
+end
+
+function thirdmessage()
+	if Vehicles.AmountInArea(1,Vehicles.FERRY,639, 309, 16) >= 1 and Vars.Save3 == 0 then
+	tick3 = tick3 +1
+	end
+	if tick3 == 1 and Vars.Save3 == 0 then Magic.CastSpell(1,4,7,643,240) end
+	if tick3 == 6 and Vars.Save3 == 0 then
+	dbg.stm("Diese armen Bauern werden von ihrem Herrscher Hector gnadenlos unterdrückt und zu allem Überfluss ist auch noch die Pest über sie hergefallen!")
+	Map.SetScreenPos(643,240)
+	Settlers.AddSettlers(690, 229, 1, Settlers.DONKEY, 1)
+	Settlers.AddSettlers(739, 198, 1, Settlers.DONKEY, 1)
+	Settlers.AddSettlers(671, 148, 1, Settlers.DONKEY, 1)
+	Settlers.AddSettlers(608, 180, 1, Settlers.DONKEY, 1)
+	Settlers.AddSettlers(786, 287, 1, Settlers.DONKEY, 2)
+	request_event(drawCircle1,Events.TICK)
+	request_event(GenerateSettlers, Events.FIVE_TICKS)
+	end
+	if tick3 == 30 and Vars.Save3 == 0 then Magic.CastSpell(1,4,7,789,292) end
+	if tick3 == 35 and Vars.Save3 == 0 then
+	Map.SetScreenPos(789,292)
+	dbg.stm("Befreie die Bauern von der Pest und unterstütze sie im Aufbau, damit sie sich von Hector dem Unterdrücker befreien können!")
+	end
+	if tick3 == 60 and Vars.Save3 == 0 then Magic.CastSpell(1,4,7,898,156) end
+	if tick3 == 65 and Vars.Save3 == 0 then
+	Map.SetScreenPos(902,165)
+	dbg.stm("Hectors Burg muss von den Bauern erobert werden! Wird sie zerstört, ist das Spiel verloren!")
+	end
+	if tick3 == 90 and Vars.Save3 == 0 then Magic.CastSpell(1,4,7,818,192) end
+	if tick3 == 95 and Vars.Save3 == 0 then
+	Map.SetScreenPos(828,199)
+	dbg.stm("Eure Soldaten und Priester können leider nicht durch Feuer gehen!")
+	tick3 = 0
+	Vars.Save3 = 1
+	end
+
+	if Vars.Save3 == 1 and Buildings.ExistsBuildingInArea(6,Buildings.CASTLE,895,149,20, Buildings.ALL) == 1 then
+		unrequest_event(GenerateSettlers, Events.FIVE_TICKS)
+		tick3 = tick3 +1
+	end
+	if tick3 == 1 and Vars.Save3 == 1 then Magic.CastSpell(1,4,7,898,156) end
+	if tick3 == 6 and Vars.Save3 == 1 then
+	dbg.stm("Endlich frei! Dank eurer Unterstützung konnten wir uns aus der Herrschaft von Hector befreien! Im Gegenzug möchten wir euch gerne bei eurer weiteren Reise behilflich sein!")
+	Map.SetScreenPos(907,162)
+	Map.DeleteReef(466,552,107)
+	Map.DeleteReef(469,557,107)
+	Map.DeleteReef(473,564,107)
+	Map.DeleteReef(477,570,107)
+	Map.DeleteReef(481,576,107)
+	Map.DeleteReef(485,581,107)
+	unrequest_event(drawCircle1,Events.TICK)
+	end
+	if tick3 == 30 and Vars.Save3 == 1 then Magic.CastSpell(1,4,7,476,568) end
+	if tick3 == 35 and Vars.Save3 == 1 then
+	dbg.stm("Unsere Spezialisten haben für euch diese Riffe entfernt. Möge euch Zeus bei eurer Reise wohlgesonnen sein!")
+	Map.SetScreenPos(489,581)
+	Vars.Save3 = 2
+	end
+end
+
+function fourthmessage()
+	if Vehicles.AmountInArea(1,Vehicles.FERRY,451, 581, 16) >= 1 and Vars.Save4 == 0 then
+	dbg.stm("Auf dieser Insel, so sagt man, gibt es ein magisches Portal, das uns zum Schloss führen soll...")
+	Map.SetScreenPos(454,591)
+	Vars.Save4 = 1
+	end
+	if Vehicles.AmountInArea(1,Vehicles.FERRY,415, 600, 12) >= 1 and Vars.Save4 == 1 then
+	dbg.stm("Offenbar wird diese Insel stark bewacht! Wir müssen uns den Weg zum Portal wohl freikämpfen!")
+	Map.SetScreenPos(417,610)
+	Vars.Save4 = 2
+	end
+	if Game.FindAnyUnit(1,707,919,8) >= 1 and Vars.Save4 == 2 then
+	dbg.stm("Dort vorne ist das Portal! Aber wie kommen wir an den unverwundbaren Bogenschützen vorbei??")
+	Magic.CastSpell(1,4,7,753,981)
+	Map.SetScreenPos(724,939)
+	Vars.Save4 = 3
+	end
+	if Game.FindAnyUnit(1,745,969,5) >= 1 and Vars.Save4 == 3 then
+	dbg.stm("Sehr gut, wir sind kurz vor dem Ziel! Das Portal kann allerdings nur von einem Priester betreten werden!")
+	Map.SetScreenPos(757,988)
+	Vars.Save4 = 4
+	end
+end
+function Solikill()
+	if Settlers.AmountInArea(1, Settlers.SWORDSMAN_01, 815, 185, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.SWORDSMAN_01, 815, 185, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.SWORDSMAN_02, 815, 185, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.SWORDSMAN_02, 815, 185, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.SWORDSMAN_03, 815, 185, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.SWORDSMAN_03, 815, 185, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.BOWMAN_01, 815, 185, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.BOWMAN_01, 815, 185, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.BOWMAN_02, 815, 185, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.BOWMAN_02, 815, 185, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.BOWMAN_03, 815, 185, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.BOWMAN_03, 815, 185, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.MEDIC_01, 815, 185, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.MEDIC_01, 815, 185, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.MEDIC_02, 815, 185, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.MEDIC_02, 815, 185, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.MEDIC_03, 815, 185, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.MEDIC_03, 815, 185, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.PRIEST, 815, 185, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.PRIEST, 815, 185, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.SQUADLEADER, 815, 185, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.SQUADLEADER, 815, 185, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.SWORDSMAN_01, 823, 195, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.SWORDSMAN_01, 823, 195, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.SWORDSMAN_02, 823, 195, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.SWORDSMAN_02, 823, 195, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.SWORDSMAN_03, 823, 195, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.SWORDSMAN_03, 823, 195, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.BOWMAN_01, 823, 195, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.BOWMAN_01, 823, 195, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.BOWMAN_02, 823, 195, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.BOWMAN_02, 823, 195, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.BOWMAN_03, 823, 195, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.BOWMAN_03, 823, 195, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.MEDIC_01, 823, 195, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.MEDIC_01, 823, 195, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.MEDIC_02, 823, 195, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.MEDIC_02, 823, 195, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.MEDIC_03, 823, 195, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.MEDIC_03, 823, 195, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.PRIEST, 823, 195, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.PRIEST, 823, 195, 6, 1)
+	elseif Settlers.AmountInArea(1, Settlers.SQUADLEADER, 823, 195, 6) >= 1 then
+		Settlers.KillSelectableSettlers(1, Settlers.SQUADLEADER, 823, 195, 6, 1)
+	end
+end
+
+function barbar()
+boom = boom + 1
+	if boom > 6 then
+
+	Effects.AddEffect(46 ,2 ,154,171,0)
+	Effects.AddEffect(46 ,2 ,157,154,0)
+	Effects.AddEffect(46 ,2 ,160,138,0)
+	boom = 0
+	end
+end
+
+function flames()
+fire = fire + 1
+	if fire > 2 then
+
+	Effects.AddEffect(78 ,48 ,811,183,0)
+	Effects.AddEffect(78 ,48 ,814,187,0)
+	Effects.AddEffect(78 ,48 ,817,191,0)
+	Effects.AddEffect(78 ,48 ,820,195,0)
+	Effects.AddEffect(78 ,48 ,823,199,0)
+	fire = 0
+	end
+end
+
+function waterfall()
+water = water + 1
+	if water > 1 then
+
+	Effects.AddEffect(44 ,92 ,536,661,0)
+	Effects.AddEffect(44 ,92 ,600,702,0)
+	water = 0
+	end
+end
 function new_game()
-    request_event(doActionsAfterMinutes, Events.FIVE_TICKS)
-    request_event(initGame, Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
-    MinuteEvents.new_game()
+  	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+  	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+  	request_event(firstmessage, Events.FIVE_TICKS)
+  	request_event(secondmessage, Events.FIVE_TICKS)
+  	request_event(thirdmessage, Events.FIVE_TICKS)
+  	request_event(fourthmessage, Events.FIVE_TICKS)
+	request_event(defense, Events.FIVE_TICKS)
+	request_event(Solikill, Events.FIVE_TICKS)
+	request_event(flames, Events.FIVE_TICKS)
+	request_event(barbar, Events.FIVE_TICKS)
+	request_event(waterfall, Events.FIVE_TICKS)
+	request_event(calculateCircles,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(teleport,Events.FIVE_TICKS)
+
+  	AI.SetPlayerVar(2, "AttackMode", 1, 2, 2)
+	AI.SetPlayerVar(3, "AttackMode", 0, 0, 0)
+	AI.SetPlayerVar(4, "AttackMode", 0, 0, 0)
+	AI.SetPlayerVar(5, "AttackMode", 0, 0, 0)
+	AI.SetPlayerVar(6, "AttackMode", 2, 2, 2)
+	AI.SetPlayerVar(7, "AttackMode", 0, 0, 0)
+	AI.SetPlayerVar(8, "AttackMode", 2, 2, 2)
+
+	addShips()
+	addreefs()
+
+  Game.SetFightingStrength(4, 150)
+  Game.SetFightingStrength(5, 100)
+  Game.SetFightingStrength(8, 120)
+
+  Game.SetAlliesDontRevealFog(1)
+  Game.ResetFogging()
 end
 
 function register_functions()
-    reg_func(doActionsAfterMinutes)
-    reg_func(initGame)
-    MinuteEvents.register_functions()
-end
-
---- Ein Debug schalter. Habe damit bei der Entwicklung gute Erfahrungen gemacht.
-function isDebug()
-    return TRUE;
-end
-
---- Vars.Save8 und Vars.Save9 werden reserviert, da sie in Funktionen genutzt werden. Möchtet ihr die Vars Variablen verwenden und nicht das VarsExt Framework, müsst ihr diese hier
---- reservieren.
-VarsExt.occupy(8)
-VarsExt.occupy(9)
-
---- So solltet ihr Variablen setzten, die ihr nach dem Laden noch braucht. Das VarsExt hat die Limitierung auf nur 9 Variablen um ein vielfaches erhöht.
-meineTolleVarsVariable = VarsExt.create(2);
-
-
---- Hier kommen Initialisierungen hin, die bei start oder laden ausgefuehrt werden sollen
-function initGame()
-    if isDebug() == TRUE then
-        ---Deckt die Karte auf
-        Tutorial.RWM(1)
-        dbgTestFunction()
-        requestMinuteEvent(funktionNach5Minuten, 1)
-    end
-	AI.SetPlayerVar(4, "AttackMode", 0, 0, 0)
-    AI.SetPlayerVar(8, "AttackMode", 0, 0, 0)
-	--dbg.aioff(4)
-	--dbg.aioff(8)
-end
-
-function dbgTestFunction()
-    -- Hier könnt ihr code zum Testen hinschreiben.
-    dbg.stm("dbug Script geht ")
-    meineTolleVarsVariable:save(55)
-    dbg.stm("Wert von meineTolleVarsVariable " .. meineTolleVarsVariable:get())
-end
-
-function doActionsAfterMinutes()
-    --wird jede Minute ausgefuehrt
-    if newMinute() == 1 then
-		 if Game.Time() >= 1 then
-			 --Settlers.AddSettlers(363, 600, 4, Settlers.SWORDSMAN_01, 5)
-			 --AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
-			 --Settlers.AddSettlers(510, 600, 4, Settlers.SWORDSMAN_01, 5)
-			 --AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
-			 --Settlers.AddSettlers(676, 600, 4, Settlers.SWORDSMAN_01, 5)
-			 --AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
-
-			 --Settlers.AddSettlers(227, 320, 8, Settlers.SWORDSMAN_01, 5)
-			 -- AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
-			 --Settlers.AddSettlers(380, 320, 8, Settlers.SWORDSMAN_01, 5)
-			  --AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
-			 --Settlers.AddSettlers(540, 320, 8, Settlers.SWORDSMAN_01, 5)
-			 -- AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
-
-
-			 Settlers.AddSettlers(340, 295, 4, Settlers.SWORDSMAN_01, 5)
-			 AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
-			 --Settlers.AddSettlers(450, 507, 4, Settlers.SWORDSMAN_01, 5)
-			 --AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
-			 Settlers.AddSettlers(560, 725, 4, Settlers.SWORDSMAN_01, 5)
-			 AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
-			 Settlers.AddSettlers(725, 720, 8, Settlers.SWORDSMAN_01, 5)
-			 AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
-			 --Settlers.AddSettlers(607, 502, 8, Settlers.SWORDSMAN_01, 5)
-			 --AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
-			 Settlers.AddSettlers(502, 290, 8, Settlers.SWORDSMAN_01, 5)
-			 AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
-
-
-		 end
-        dbg.stm("wieder eine Minute rum")
-    end
-
-end
--- 363 600
-function funktionNach5Minuten()
-
-
-
-	--Buildings.AddBuilding(363, 600, 4, Buildings.GUARDTOWERSMALL)
-	--Buildings.AddBuilding(510, 600, 4, Buildings.GUARDTOWERSMALL)
-	--Buildings.AddBuilding(676, 600, 4, Buildings.GUARDTOWERSMALL)
-
-	--Buildings.AddBuilding(227, 320, 8, Buildings.GUARDTOWERSMALL)
-	--Buildings.AddBuilding(380, 320, 8, Buildings.GUARDTOWERSMALL)
-	--Buildings.AddBuilding(540, 320, 8, Buildings.GUARDTOWERSMALL)
-
-
-
-
-
-
-
-
-
-    dbg.stm("nach 5 Minuten")
-end
-
--------------------------------------------------------------
--------------------------------------------------------------
------- generalUtility  --------------------------------------
--------Diese könnt ihr für eure Scripts nutzen---------------
--------------------------------------------------------------
-
-TRUE = 1
-FALSE = 0
-
---- gibt aus einem array von Spielern ("playersTable" mit den IDs der Spielern) die Spieler ID zurück, der am  "enemyPosition" meisten Einheiten hat
----BSP: enemyPosition == 1 --> gibt den Spieler mit den meisten Units zurück
----BSP: enemyPosition == 2 --> gibt den Spieler mit den zweitmeisten Units zurück..
-function getPlayerIDWithMostUnitsForPosition(playersTable, enemyPosition)
-
-    local playercache = { 0, 0, 0, 0, 0, 0, 0, 0 }
-
-    local i = 1
-    -- setzt an die einzelnen stellen innerhalb des playerchache arrays die Einheitenanzahl etsprechend der spielerId
-    -- Bpsp {0,0,0,34,12,43,34,34) --> jetzt waeren die letzten fuenf spieler opponents mit der entsprechenden Anzahl Einheiten
-    while i <= getn(playersTable) do
-        playercache[playersTable[i]] = getAmountOfPlayerUnitsWithoutBuildings(playersTable[i])
-        i = i + 1
-    end
-
-    --dbg.stm(playercache[1] .. " " .. playercache[2] .. " " .. playercache[3] .. " " .. playercache[4] .. " " .. playercache[5] .. " " .. playercache[6] .. " " .. playercache[7] .. " " .. playercache[8])
-
-    -- delete biggest until empty
-    local counter = 1
-    local counter2 = 1
-    local biggestValue = 0
-    local biggestId = 1
-
-
-    --loescht nach und nach den hoechsten aus dem cache
-    while counter < enemyPosition do
-        counter2 = 1
-        biggestValue = 0
-        while counter2 <= getn(playercache) do
-            if playercache[counter2] > 0 then
-                actualOpponentsId = counter2
-                actualOpponentsAmount = playercache[counter2]
-                if actualOpponentsAmount > biggestValue then
-                    biggestId = actualOpponentsId
-                    biggestValue = actualOpponentsAmount
-                end
-            end
-            counter2 = counter2 + 1
-        end
-        playercache[biggestId] = 0
-        counter = counter + 1
-    end
-
-    biggestValue = 0
-    counter2 = 1
-    biggestId = 1
-
-    --jetzt is der hoechste der gesuchte. Alle hoeheren wurden geloescht
-    while counter2 <= getn(playercache) do
-        actualOpponentsId = counter2
-        actualOpponentsAmount = playercache[counter2]
-        if actualOpponentsAmount > biggestValue then
-            biggestId = actualOpponentsId
-            biggestValue = actualOpponentsAmount
-        end
-        counter2 = counter2 + 1
-    end
-
-    return biggestId
-end
-
-
-
-function isValueInArray(theArray, value)
-    local counter = 1
-    while counter <= getn(theArray) do
-        if theArray[counter] == value then
-            return TRUE
-        end
-        counter = counter + 1
-    end
-    return FALSE
-end
-
-function getTextForPlayerRace(playerId)
-    local raceId = Game.PlayerRace(playerId)
-
-    if raceId == 0 then
-        return "Römer"
-    elseif raceId == 1 then
-        return "Wikinger"
-    elseif raceId == 2 then
-        return "Maya"
-    elseif raceId == 3 then
-        return "Dunkles Volk"
-    elseif raceId == 4 then
-        return "Trojaner"
-    end
+	reg_func(VictoryConditionCheck)
+	reg_func(InitVar)
+ 	reg_func(firstmessage)
+	reg_func(secondmessage)
+	reg_func(thirdmessage)
+	reg_func(fourthmessage)
+	reg_func(defense)
+	reg_func(Solikill)
+	reg_func(flames)
+	reg_func(barbar)
+	reg_func(waterfall)
+	reg_func(calculateCircles)
+	reg_func(drawCircle1)
+  	reg_func(GenerateEnemies)
+  	reg_func(GenerateSettlers)
+	reg_func(teleport)
 
 end
 
--- gibt jede Minute einmal 1 zurueck
-function newMinute()
-    if Vars.Save8 ~= Game.Time() then
-        Vars.Save8 = Game.Time()
-        return 1
-    else
-        return 0
-    end
-end
+function VictoryConditionCheck()
+  Game.DefaultPlayersLostCheck()
+  Game.DefaultPlayerLostCheck(1)
 
-militaryUnits = { Settlers.SWORDSMAN_01, Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03, Settlers.BOWMAN_01, Settlers.BOWMAN_02, Settlers.BOWMAN_03, Settlers.AXEWARRIOR_01, Settlers.AXEWARRIOR_02, Settlers.AXEWARRIOR_03, Settlers.BLOWGUNWARRIOR_01, Settlers.BLOWGUNWARRIOR_02, Settlers.BLOWGUNWARRIOR_03, Settlers.BACKPACKCATAPULIST_01, Settlers.BACKPACKCATAPULIST_02, Settlers.BACKPACKCATAPULIST_03, Settlers.MEDIC_01, Settlers.MEDIC_02, Settlers.MEDIC_03, Settlers.SQUADLEADER }
-
-function getAmountOfPlayerUnits(playerId)
-    local amoutOfMilitary = 0
-    local counter = 1
-    while counter <= getn(militaryUnits) do
-        amoutOfMilitary = amoutOfMilitary + Settlers.Amount(playerId, militaryUnits[counter])
-        counter = counter + 1
-    end
-    return amoutOfMilitary
-end
-
-function getUnitsInBuildings(playerId)
-    local allUnits = 0
-    allUnits = allUnits + Buildings.Amount(playerId, Buildings.GUARDTOWERSMALL, Buildings.READY)
-    allUnits = allUnits + Buildings.Amount(playerId, Buildings.GUARDTOWERBIG, Buildings.READY) * 6
-    allUnits = allUnits + Buildings.Amount(playerId, Buildings.CASTLE, Buildings.READY) * 8
-    return allUnits
-end
-
-function getAmountOfPlayerUnitsWithoutBuildings(playerId)
-    local allUnitsWithoutBuilding = getAmountOfPlayerUnits(playerId)
-    allUnitsWithoutBuilding = allUnitsWithoutBuilding - getUnitsInBuildings(playerId)
-    return allUnitsWithoutBuilding
-end
-
-function randomBetweenSimple(fromNumber, toNumber)
-    local divNumber = toNumber - fromNumber
-    local randomNumber = fromNumber + Game.Random(divNumber + 1)
-    return randomNumber
-end
-
-seed = 0
-lastSeed = 0
-function randomBetween(fromNumber, toNumber)
-    if seed == 0 or Game.Time() >= (lastSeed + 5) then
-        seed = getSeed()
-        lastSeed = Game.Time()
-    else
-        seed = seed * Settlers.Amount(1, Settlers.CARRIER)
-    end
-    seed = seed - floorNumber(seed)
-    local divNumber = toNumber - fromNumber
-    local randomNumber = fromNumber + floorNumber(seed * (divNumber + 1))
-    return randomNumber
-end
-
-function getSeed()
-    local width = Map.Width() - 1;
-    local height = Map.Height() - 1;
-    local x
-    local y
-    local p = Game.NumberOfPlayers()
-    local seed = 0
-
-    while p > 0
-    do
-        x = width
-        while x >= 0
-        do
-            y = height
-            while y >= 0
-            do
-                seed = seed + (Settlers.AmountInArea(p, Settlers.ANY_SETTLER, x, y, 1) * p * x * y) / 1000000
-                y = y - 10
-            end
-            x = x - 10
-        end
-        p = p - 1
-    end
-    return seed
-end
-
-function minNumber(number1, number2)
-    if number1 > number2 then
-        return number2
-    else
-        return number1
-    end
-end
-
-function maxNumber(number1, number2)
-    if number1 > number2 then
-        return number1
-    else
-        return number2
-    end
-end
-
-function floorNumber(floatNumber)
-    local stringmyValue = tostring(floatNumber)
-    if strfind(stringmyValue, "(%.+)") ~= nil then
-        local valuestring = strsub(stringmyValue, 1, strfind(stringmyValue, "(%.+)"))
-        return tonumber(valuestring)
-    else
-        return floatNumber
-    end
+	if Settlers.AmountInArea(1, Settlers.PRIEST, 140, 699, 8) >= 1 and Game.HasPlayerLost(1) == 0 then
+	Game.EnemyPlayersLost(1)
+  end
+	if Game.HasPlayerLost(3) == 1 then
+	Game.PlayerLost(1)
+	end
+	if Buildings.ExistsBuildingInArea(6,Buildings.CASTLE,895,149,20, Buildings.ALL) == 0
+	and Buildings.ExistsBuildingInArea(7,Buildings.CASTLE,895,149,20, Buildings.ALL) == 0 then
+	Game.PlayerLost(1)
+	end
+  Game.DefaultGameEndCheck()
 end
 
 
------------------------------------------------------
---Modul Funktion. Danke an Hippo für dieses Script---
------------------------------------------------------
--- returns a mod(b). Or a%b in many languages. The remainder of the division a/b--
-function mod(a, b)
-    if b < 1 or a < 0
-    then
-        return -1 -- remainder isn’t going to be calculated
-    end
-    local c = a / b
-    local d = strfind("" .. c, "(%.+)")
-    if d == nil
-    then
-        return 0 -- remainder is 0
-    end
-    c = tonumber(strsub("" .. c, d)) + 0.0000000000005 -- drop everything before . and add a tiny amount
-    d = strfind("" .. c * b, "(%.+)")
-    if d == nil
-    then
-        return c * b
-    end
-    return tonumber(strsub("" .. c * b, 1, d)) -- multiply c with b and drop everything after .
-end
-
-----
---LIB fuer Minute Events---
------
-
-MinuteEvents = {
-    -- table of all events at all minutes in format _minuteEventTable[minute][funcid (from 1 - n; no specific meaning)]
-    _minuteEventTable = {}
+circles={
+	circle1={
+		center={
+			x=895,
+			y=148
+		},
+		radius=17,
+		effect=Effects.RMAGIC_GIFTOFGOD,
+		sound=Sounds.NO_SOUND,
+		density=3,
+		delay=0,
+		effectsPerTick=8,
+		split=4,
+		coordinates={
+			x={},
+			y={}
+		},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	}
 }
 
--- calls all function types in table
-function MinuteEvents._subroutine_foreachFunction(i, v)
-    if type(v) == "function" then
-        v();
-    end
+function sqrt(_number)
+	lower=0
+	upper=_number
+	while upper-lower>0.001 do
+		result=(upper+lower)/2
+		if (result*result)<_number then
+			lower=result
+		else
+			upper=result
+		end
+	end
+	return result
 end
-function MinuteEvents.runMinuteEventTick()
-    -- true on first tick of new minute
-    local currentMinute = Game.Time()
-    if Vars.Save9 ~= currentMinute then
-        Vars.Save9 = currentMinute  -- minute
-        -- calls all functions in table
-        if MinuteEvents._minuteEventTable[Vars.Save9] ~= nil then
-            foreach(MinuteEvents._minuteEventTable[Vars.Save9], MinuteEvents._subroutine_foreachFunction)
-        end
-    end
+
+function sort(_table)
+	i=1
+	sectorAmount=getn(_table.x)
+	sa=sectorAmount
+	while i<=(sectorAmount) do
+		j=1
+		while j<sa-1 do
+			if _table.x[j]>_table.x[sa] then
+				temp=_table.x[sa]
+				_table.x[sa]=_table.x[j]
+				_table.x[j]=temp
+				temp=_table.y[sa]
+				_table.y[sa]=_table.y[j]
+				_table.y[j]=temp
+			end
+			j=j+1
+		end
+		sa=sa-1
+		i=i+1
+	end
+	i=1
+	while i<=getn(_table.x) do
+		if _table.x[i]==_table.x[(i+1)] or _table.y[i]==_table.y[(i+1)] then
+			tremove(_table.x,i)
+			tremove(_table.y,i)
+		else
+			i=i+1
+		end
+	end
+	sectorAmount=getn(_table.x)
+end
+
+function circles.calculateFirstSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+dx
+		sector.y[sectorAmount]=_circle.center.y-_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+_x
+		sector.y[sectorAmount]=_circle.center.y-dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateSecondSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+dx
+		sector.y[sectorAmount]=_circle.center.y+_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+_x
+		sector.y[sectorAmount]=_circle.center.y+dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateThirdSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-dx
+		sector.y[sectorAmount]=_circle.center.y+_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-_x
+		sector.y[sectorAmount]=_circle.center.y+dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateFourthSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-dx
+		sector.y[sectorAmount]=_circle.center.y-_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-_x
+		sector.y[sectorAmount]=_circle.center.y-dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculate(_circle)
+	circles.calculateFirstSector(_circle)
+	i=1
+	while i<=sectorAmount do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i+1
+	end
+	circles.calculateSecondSector(_circle)
+	i=sectorAmount
+	while i>0 do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i-1
+	end
+	circles.calculateThirdSector(_circle)
+	i=sectorAmount
+	while i>0 do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i-1
+	end
+	circles.calculateFourthSector(_circle)
+	i=1
+	while i<=sectorAmount do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i+1
+	end
+	i=1
+	while i<_circle.effectsAmount do
+		_y=_circle.coordinates.y[i]
+		_circle.coordinates.x[i]=_circle.coordinates.x[i]+(_y/2)-(_circle.center.y/2)
+		i=i+1
+	end
+	effectsAmount=getn(_circle.coordinates.x)
+end
+
+function circles.draw(_circle)
+	drawnEffects=0
+	while drawnEffects<_circle.effectsPerTick do
+		if _circle._j<_circle.split then
+			if _circle._i<=_circle.effectsAmount then
+				_x=_circle.coordinates.x[_circle._i]
+				_y=_circle.coordinates.y[_circle._i]
+				Effects.AddEffect(_circle.effect, _circle.sound, _x, _y, _circle.delay)
+				_circle._i=_circle._i+_circle.split
+			else
+				_circle._j=_circle._j+1
+				_circle._i=_circle._j
+			end
+		else
+			_circle._j=0
+		end
+		drawnEffects=drawnEffects+1
+	end
+end
+
+function calculateCircles()
+	circles.calculate(circles.circle1)
 
 end
 
--- sets Save9 to 0 on start
-function MinuteEvents.initVars()
-    Vars.Save9 = 0
-end
-function MinuteEvents.new_game()
-    request_event(MinuteEvents.runMinuteEventTick, Events.TICK)
-    request_event(register_minute_events, Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
-    request_event(MinuteEvents.initVars, Events.FIRST_TICK_OF_NEW_GAME)
-end
-function MinuteEvents.register_functions()
-    reg_func(MinuteEvents.runMinuteEventTick)
-    reg_func(MinuteEvents.initVars)
-    reg_func(register_minute_events)
-end
-
--- util function to use
-function requestMinuteEvent(eventfunc, minute)
-    if MinuteEvents._minuteEventTable[minute] == nil then
-        MinuteEvents._minuteEventTable[minute] = {}
-    end
-    tinsert(MinuteEvents._minuteEventTable[minute], eventfunc)
+function drawCircle1()
+		circles.draw(circles.circle1)
 end

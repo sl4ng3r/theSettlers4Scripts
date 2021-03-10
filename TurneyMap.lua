@@ -137,7 +137,7 @@ end
 
 --- Ein Debug schalter.
 function isDebug()
-    return FALSE;
+    return TRUE;
 end
 
 
@@ -158,24 +158,31 @@ function initGame()
     dbg.stm("The northern path opens at min " .. getPeaceTime() - 1 .. " and the southern path at min " .. getPeaceTime() - 2 .. ".")
     dbg.stm("Have fun und good luck!")
 
+    if isDebug() == TRUE then
+        ---Deckt die Karte auf
+        Tutorial.RWM(1)
+    end
 
 
-
-    requestMinuteEvent(msgTop, getPeaceTime() -1)
-    requestMinuteEvent(msgBottom, getPeaceTime() -2)
+    requestMinuteEvent(topOpen, getPeaceTime() -1)
+    requestMinuteEvent(bottomOpen, getPeaceTime() -2)
     requestMinuteEvent(peaceTimeOver, getPeaceTime())
-
 
 end
 
 
 
 
-function msgBottom()
+
+function bottomOpen()
+    dbg.stm("deletebottom")
+    Map.DeleteReef(527,765,50)
     dbg.stm("The southern path is now passable...")
 end
 
-function msgTop()
+function topOpen()
+    dbg.stm("deletetop")
+    Map.DeleteReef(129,71,50)
     dbg.stm("The northern path is now passable...")
 end
 
@@ -220,12 +227,14 @@ function killUnits()
         if Game.Time() < (getPeaceTime() - 1)  then
             removeUnitsNearPoint(45,185,1,40)
             removeUnitsNearPoint(323,180,2,40)
+            removeBoatsNearPoint(127,67,25)
         end
 
         --unten
         if Game.Time() < (getPeaceTime() - 2)  then
             removeUnitsNearPoint(334,667,1,40)
             removeUnitsNearPoint(624,672,2,40)
+            removeBoatsNearPoint(534,770,25)
         end
 
 
@@ -247,6 +256,25 @@ function killUnits()
 end
 
 
+function removeBoatsNearPoint(x, y, radius)
+
+    local ships = { Vehicles.WARSHIP, Vehicles.FERRY}
+    local index = 1
+
+    --IDs der Gebaeude gehen von 1 - 83
+    while index <= getn(ships) do
+        if Vehicles.AmountInArea(1, ships[index], x, y, radius) > 0 then
+            Vehicles.KillVehicles(1, ships[index], x, y, radius)
+            dbg.stm("A flash of lightning at Player 1, zzzzzschhhhh. Your ships are dying and you hear a penetrating voice... YOU SHALL NOT PASS!!")
+        end
+        if Vehicles.AmountInArea(2, ships[index], x, y, radius) > 0 then
+            Vehicles.KillVehicles(2, ships[index], x, y, radius)
+            dbg.stm("A flash of lightning at Player 2, zzzzzschhhhh. Your ships are dying and you hear a penetrating voice... YOU SHALL NOT PASS!!")
+        end
+        index = index +  1
+    end
+end
+
 function removeUnitsNearPoint(x, y, playerId, radius)
     local specialists = {Settlers.PIONEER,Settlers.SABOTEUR,Settlers.GEOLOGIST,Settlers.GARDENER, Settlers.SWORDSMAN_01, Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03, Settlers.BOWMAN_01, Settlers.BOWMAN_02, Settlers.BOWMAN_03, Settlers.AXEWARRIOR_01, Settlers.AXEWARRIOR_02, Settlers.AXEWARRIOR_03, Settlers.BLOWGUNWARRIOR_01, Settlers.BLOWGUNWARRIOR_02, Settlers.BLOWGUNWARRIOR_03, Settlers.BACKPACKCATAPULIST_01, Settlers.BACKPACKCATAPULIST_02, Settlers.BACKPACKCATAPULIST_03, Settlers.MEDIC_01, Settlers.MEDIC_02, Settlers.MEDIC_03, Settlers.SQUADLEADER}
     local index = 1
@@ -255,7 +283,7 @@ function removeUnitsNearPoint(x, y, playerId, radius)
     while index <= getn(specialists) do
         if Settlers.AmountInArea(playerId, specialists[index], x, y, radius) > 0 then
             Settlers.KillSelectableSettlers(playerId, specialists[index], x, y, radius, 0)
-            dbg.stm("A flash of lightning, zzzzzschhhhh. Your units are dying and you hear a penetrating voice... YOU SHALL NOT PASS!!")
+            dbg.stm("A flash of lightning at Player " .. playerId .. ", zzzzzschhhhh. Your units are dying and you hear a penetrating voice... YOU SHALL NOT PASS!!")
         end
         index = index +  1
     end

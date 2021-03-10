@@ -270,7 +270,7 @@ function initGame()
         ---Deckt die Karte auf
         Tutorial.RWM(1)
         dbgTestFunction()
-        requestMinuteEvent(funktionNach5Minuten, 1)
+        requestMinuteEvent(funktionNach5Minuten, 5)
     end
     -- AI.SetPlayerVar(4, "AttackMode", 0, 0, 0)
     -- AI.SetPlayerVar(8, "AttackMode", 0, 0, 0)
@@ -296,6 +296,10 @@ function doActionsAfterMinutes()
     if newMinute() == 1 then
         if Game.Time() >= 1 then
 
+            Settlers.AddSettlers(110,265, 4, Settlers.SWORDSMAN_01, 5)
+            local warriors = WarriorsLib.SelectWarriors(110,265,10,4,Settlers.SWORDSMAN_01)
+            WarriorsLib.Send(warriors,200,333,WarriorsLib.MOVE_FORWARD);
+
             sendSettlers(KIs.kiLeft, KIs.kiLeft.top, KIs.kiRight.top,Settlers.SWORDSMAN_01,5 )
             sendSettlers(KIs.kiLeft, KIs.kiLeft.mid, KIs.kiRight.mid,Settlers.SWORDSMAN_01,5 )
             sendSettlers(KIs.kiLeft, KIs.kiLeft.bot, KIs.kiRight.bot,Settlers.SWORDSMAN_01,5 )
@@ -311,8 +315,10 @@ function doActionsAfterMinutes()
 end
 -- 363 600
 function funktionNach5Minuten()
-
-
+    dbg.stm("asdf asdf")
+    local warriors = WarriorsLib.SelectWarriors(300,653,20,4,Settlers.SWORDSMAN_01)
+    WarriorsLib.Send(warriors,440,640,WarriorsLib.MOVE_FORWARD);
+    --AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
 
     --Buildings.AddBuilding(363, 600, 4, Buildings.GUARDTOWERSMALL)
     --Buildings.AddBuilding(510, 600, 4, Buildings.GUARDTOWERSMALL)
