@@ -137,7 +137,7 @@ end
 
 --- Ein Debug schalter.
 function isDebug()
-    return TRUE;
+    return FALSE;
 end
 
 
@@ -158,10 +158,6 @@ function initGame()
     dbg.stm("The northern path opens at min " .. getPeaceTime() - 1 .. " and the southern path at min " .. getPeaceTime() - 2 .. ".")
     dbg.stm("Have fun und good luck!")
 
-    if isDebug() == TRUE then
-        ---Deckt die Karte auf
-        Tutorial.RWM(1)
-    end
 
 
     requestMinuteEvent(topOpen, getPeaceTime() -1)
@@ -175,14 +171,10 @@ end
 
 
 function bottomOpen()
-    dbg.stm("deletebottom")
-    Map.DeleteReef(527,765,50)
     dbg.stm("The southern path is now passable...")
 end
 
 function topOpen()
-    dbg.stm("deletetop")
-    Map.DeleteReef(129,71,50)
     dbg.stm("The northern path is now passable...")
 end
 
@@ -221,7 +213,7 @@ end
 tickCounter = 0
 function killUnits()
     tickCounter = tickCounter + 5
-    if tickCounter >= 150 then
+    if tickCounter >= 130 then
 
         --oben
         if Game.Time() < (getPeaceTime() - 1)  then
@@ -359,47 +351,6 @@ function getAmountOfPlayerUnitsWithoutBuildings(playerId)
 end
 
 
-
-seed = 0
-lastSeed = 0
-function randomBetween(fromNumber, toNumber)
-    if seed == 0 or Game.Time() >= (lastSeed + 5) then
-        seed = getSeed()
-        lastSeed = Game.Time()
-    else
-        seed = seed * Settlers.Amount(1, Settlers.CARRIER)
-    end
-    seed = seed - floorNumber(seed)
-    local divNumber = toNumber - fromNumber
-    local randomNumber = fromNumber + floorNumber(seed * (divNumber + 1))
-    return randomNumber
-end
-
-function getSeed()
-    local width = Map.Width() - 1;
-    local height = Map.Height() - 1;
-    local x
-    local y
-    local p = Game.NumberOfPlayers()
-    local seed = 0
-
-    while p > 0
-    do
-        x = width
-        while x >= 0
-        do
-            y = height
-            while y >= 0
-            do
-                seed = seed + (Settlers.AmountInArea(p, Settlers.ANY_SETTLER, x, y, 1) * p * x * y) / 1000000
-                y = y - 10
-            end
-            x = x - 10
-        end
-        p = p - 1
-    end
-    return seed
-end
 
 function minNumber(number1, number2)
     if number1 > number2 then
