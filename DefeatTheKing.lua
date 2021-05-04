@@ -52,6 +52,8 @@ ops = {
     o1 = {
         spawnX = 150,
         spawnY = 107,
+        unitSpawnX = 60,
+        unitSpawnY = 87,
         ai = 0,
         id = 4,
         checkTowerX = 145,
@@ -60,14 +62,18 @@ ops = {
     o2 = {
         spawnX = 262,
         spawnY = 346,
+        unitSpawnX = 228,
+        unitSpawnY = 259,
         ai = 0,
         id = 5,
-        checkTowerX = 256,
-        checkTowerY = 339
+        checkTowerX = 240,
+        checkTowerY = 272
     },
     o3 = {
         spawnX = 458,
         spawnY = 300,
+        unitSpawnX = 400,
+        unitSpawnY = 230,
         ai = 0,
         id = 6,
         checkTowerX = 454,
@@ -76,6 +82,8 @@ ops = {
     o4 = {
         spawnX = 704,
         spawnY = 276,
+        unitSpawnX = 654,
+        unitSpawnY = 255,
         ai = 0,
         id = 7,
         checkTowerX = 709,
@@ -84,6 +92,8 @@ ops = {
     o5 = {
         spawnX = 756,
         spawnY = 135,
+        unitSpawnX = 800,
+        unitSpawnY = 200,
         ai = 0,
         id = 8,
         checkTowerX = 821,
@@ -240,8 +250,8 @@ function initGame()
 end
 
 function prepareDebugGame()
-    Buildings.AddBuilding(565, 701, 3, Buildings.GUARDTOWERBIG)
-    Buildings.AddBuilding(325, 743, 1, Buildings.GUARDTOWERBIG)
+    Buildings.AddBuilding(647, 778, 3, Buildings.GUARDTOWERBIG)
+    Buildings.AddBuilding(253, 588, 1, Buildings.GUARDTOWERBIG)
     local mycounter = 1
     while mycounter <= 2 do
         Buildings.CrushBuilding(Buildings.GetFirstBuilding(1, Buildings.GUARDTOWERSMALL))
@@ -261,14 +271,14 @@ function spawnmilitary()
     --Settlers.AddSettlers(799, 75, 8, Settlers.CARRIER, 3)
 
     -- Verstaerkung fuer Endgabe Test
-    Settlers.AddSettlers(325, 743, 1, Settlers.SWORDSMAN_03, 200)
-    Settlers.AddSettlers(325, 743, 1, Settlers.BOWMAN_03, 800)
+    Settlers.AddSettlers(253, 588, 1, Settlers.SWORDSMAN_03, 200)
+    Settlers.AddSettlers(253, 588, 1, Settlers.BOWMAN_03, 800)
 
 
     --Settlers.AddSettlers(485, 717, 2, Settlers.SWORDSMAN_03, 200)
-    Settlers.AddSettlers(467, 706, 2, Settlers.BOWMAN_03, 800)
+    Settlers.AddSettlers(450, 661, 2, Settlers.BOWMAN_03, 800)
 
-    Settlers.AddSettlers(565, 701, 3, Settlers.BOWMAN_03, 800)
+    Settlers.AddSettlers(647, 778, 3, Settlers.BOWMAN_03, 800)
     Game.SetFightingStrength(1, 150)
     Game.SetFightingStrength(2, 150)
     Game.SetFightingStrength(3, 150)
@@ -312,21 +322,20 @@ end
 
 function preparePlayerTwo()
 
-    local mycounter = 1
-    while mycounter <= 17 do
+    while Buildings.Amount(2,  Buildings.GUARDTOWERSMALL, Buildings.READY) > 0  do
         Buildings.CrushBuilding(Buildings.GetFirstBuilding(2, Buildings.GUARDTOWERSMALL))
-        mycounter = mycounter + 1
     end
     removeGoodsAndSettlers(779, 16, 2)
 
     Buildings.AddBuilding(527, 795, 2, Buildings.STORAGEAREA)
     Buildings.AddBuilding(535, 743, 2, Buildings.STORAGEAREA)
+    Buildings.AddBuilding(447, 799, 2, Buildings.STORAGEAREA)
 
 end
 
 function Siegbedingung()
     Game.DefaultPlayersLostCheck()
-    if Buildings.ExistsBuildingInArea(2, Buildings.CASTLE, 461, 700, 10, Buildings.READY) == 0 then
+    if Buildings.ExistsBuildingInArea(2, Buildings.CASTLE, 450, 661, 10, Buildings.READY) == 0 then
         Game.PlayerLost(1)
         Game.PlayerLost(2)
         Game.PlayerLost(3)
@@ -364,39 +373,60 @@ function removeThiefsAtPoint(playerId, x, y, radius)
     end
 end
 
+function spawnAllEnemySupportUnits(swords, bows)
+    spawnEnemySupportUnits(ops.o1, swords, bows)
+    spawnEnemySupportUnits(ops.o2, swords, bows)
+    spawnEnemySupportUnits(ops.o3, swords, bows)
+    spawnEnemySupportUnits(ops.o4, swords, bows)
+    spawnEnemySupportUnits(ops.o5, swords, bows)
+end
+
+function spawnEnemySupportUnits(opponent, swords, bows)
+    if Game.HasPlayerLost(opponent.id) == 0 and Buildings.ExistsBuildingInArea(opponent.id, Buildings.GUARDTOWERSMALL, opponent.checkTowerX, opponent.checkTowerY, 2, Buildings.READY) > 0 then
+        Settlers.AddSettlers(opponent.unitSpawnX,opponent.unitSpawnY, opponent.id,Settlers.SWORDSMAN_03, swords)
+        Settlers.AddSettlers(opponent.unitSpawnX,opponent.unitSpawnY, opponent.id,Settlers.BOWMAN_03, bows)
+    else
+        dbg.stm("no tower player "..  opponent.id)
+    end
+
+end
+
 function doEveryMinuteSpawn()
     if isAIDebug() == 1 then
         dbg.stm("Min:" .. Game.Time() .. " OppUn:" .. getAmountOfEnemysUnits() .. " MinOfLaAtt:" .. Vars.Save1 .. " MaxAttack" .. Vars.Save1 + getMaxTimeBetweenAttacks() .. " MinAttAmo:" .. getMinAttackAmount() .. " LivHuman:" .. getn(humans) .. " LivOpp:" .. getn(opponents) .. " Pause:" .. getMinTimeBetweenAttacks() .. " Endgame:" .. endGame .. " Kampfkraft:" .. Game.GetOffenceFightingStrength(4) .. "/" .. Game.GetOffenceFightingStrength(5) .. "/" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8))
     end
 
     --Genereller Spawn
-    if Game.Time() >= 16 then
+    if Game.Time() >= 13 then
         if Game.Time() > getEndgameTime() then
             if Game.Time() >= 100 then
-                spawnEnemySupportPackage(7, 5, 2, 4, 2)
+                spawnEnemySupportPackage(8, 6, 2, 5, 2)
             else
-                spawnEnemySupportPackage(6, 4, 1, 3, 1)
+                spawnEnemySupportPackage(7, 4, 2, 4, 1)
             end
         else
-            spawnEnemySupportPackage(3, 1, 1, 1, 0)
+            spawnEnemySupportPackage(4, 2, 1, 1, 0)
         end
     end
 
     --Extra Spawn für Schwer
-    if Game.Time() >= 25 and Vars.Save4 >= difficultyChooser.hard.difficulty then
-            spawnEnemySupportPackage(7, 4, 1, 8, 2)
+    if Game.Time() >= 23 and Vars.Save4 >= difficultyChooser.hard.difficulty then
+            spawnEnemySupportPackage(6, 3, 1, 8, 2)
         --       if isAIDebug() == 1 then
         --          dbg.stm("extra spawn hard")
         --      end
     end
 
     --Extra Spawn für extrem
-    if Game.Time() >= 27 and Vars.Save4 == difficultyChooser.extreme.difficulty then
+    if Game.Time() >= 25 and Vars.Save4 == difficultyChooser.extreme.difficulty then
         if Game.Time() < getEndgameTime() then
-            spawnEnemySupportPackage(5, 3, 1, 2, 1)
+            spawnEnemySupportPackage(4, 2, 1, 2, 1)
+            spawnAllEnemySupportUnits(2,2)
         else
-            spawnEnemySupportPackage(6, 4, 1, 4, 1)
+            spawnEnemySupportPackage(3, 1, 1, 2, 1)
+            spawnAllEnemySupportUnits(3,3)
         end
+
         --        if isAIDebug() == 1 then
         --            dbg.stm("extra spawn extreme")
         --        end
@@ -406,7 +436,8 @@ function doEveryMinuteSpawn()
     if Vars.Save5 == 1 and Game.Time() >= 33 then
         if Game.Time() < getEndgameTime() then
             if Vars.Save4 == difficultyChooser.extreme.difficulty then
-                spawnEnemySupportPackage(7, 4, 1, 3, 1)
+                spawnEnemySupportPackage(4, 1, 1, 1, 1)
+                spawnAllEnemySupportUnits(2,2)
             elseif Vars.Save4 == difficultyChooser.hard.difficulty then
                 spawnEnemySupportPackage(4, 2, 1, 2, 1)
             else
@@ -414,45 +445,65 @@ function doEveryMinuteSpawn()
             end
         else
             if Vars.Save4 == difficultyChooser.extreme.difficulty then
-                spawnEnemySupportPackage(9, 5, 2, 3, 2)
+                spawnEnemySupportPackage(4, 1, 1, 1, 1)
+                spawnAllEnemySupportUnits(3,3)
             elseif Vars.Save4 == difficultyChooser.hard.difficulty then
                 spawnEnemySupportPackage(6, 3, 2, 2, 1)
             else
                 spawnEnemySupportPackage(5, 3, 1, 1, 1)
             end
         end
-
-
     end
 
     --Extra spawn für Endgame beim König
     if endGame == 1 then
         --leicht spawn
-        spawnSupportForOpp(ops.o1, 3, 2, 1, 1, 0)
-        spawnSupportForOpp(ops.o5, 5, 3, 1, 2, 1)
+        spawnSupportForOpp(ops.o1, 4, 3, 1, 1, 0)
+        spawnSupportForOpp(ops.o5, 5, 3, 2, 3, 1)
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
             spawnSupportForOpp(ops.o1, 6, 4, 2, 1, 0)
-            spawnSupportForOpp(ops.o5, 9, 6, 2, 0, 1)
+            spawnSupportForOpp(ops.o5, 7, 5, 2, 0, 1)
         end
         if Vars.Save4 == difficultyChooser.extreme.difficulty then
-            spawnSupportForOpp(ops.o1, 5, 4, 2, 1, 0)
-            spawnSupportForOpp(ops.o4, 2, 2, 0, 1, 0)
-            spawnSupportForOpp(ops.o5, 5, 4, 2, 2, 0)
+            spawnEnemySupportUnits(ops.o1,3,2)
+            spawnSupportForOpp(ops.o1, 3, 2, 1, 2, 0)
+
+            spawnSupportForOpp(ops.o4, 3, 2, 0, 1, 0)
+
+            spawnEnemySupportUnits(ops.o5,3,3)
+            spawnSupportForOpp(ops.o5, 3, 2, 1, 1, 0)
         end
 
     end
-    --extra spawn beim könig und player 7
+    --extra spawn
     if Game.Time() > 100 then
         spawnSupportForOpp(ops.o1, 5, 3, 1, 1, 0)
         spawnSupportForOpp(ops.o5, 4, 2, 1, 0, 1)
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
             if Game.HasPlayerLost(7) == 0 then
-                spawnSupportForOpp(ops.o1, 5, 3, 1, 1, 0)
-                spawnSupportForOpp(ops.o5, 4, 2, 1, 0, 1)
+                spawnSupportForOpp(ops.o1, 4, 2, 1, 1, 0)
+                spawnSupportForOpp(ops.o5, 3, 1, 1, 0, 1)
             end
+        end
+        if Vars.Save4 == difficultyChooser.extreme.difficulty then
+            spawnEnemySupportUnits(ops.o1,1,1)
+            spawnEnemySupportUnits(ops.o5,1,1)
         end
     end
 
+end
+
+function portGold()
+    local xw = 584 -- X Koordinate von Goldschmelze
+    local yw = 795  -- Y Koordinate von Goldschmelze
+    local goldBars = Goods.GetAmountInArea(2, Goods.GOLDBAR, xw, yw, 10)
+    if goldBars >= 8 then
+        Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.AMB_FIRE, 543, 839, 0)
+        Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.AMB_FIRE, 584, 795, 0)
+        Goods.Delete(xw, yw, 10, Goods.GOLDBAR)
+        Goods.AddPileEx(543, 839, Goods.GOLDBAR, goldBars)
+
+    end
 end
 
 function doActionsAfterMinutes()
@@ -462,16 +513,7 @@ function doActionsAfterMinutes()
 
         doEveryMinuteSpawn()
 
-        local xw = 584 -- X Koordinate von Goldschmelze
-        local yw = 795  -- Y Koordinate von Goldschmelze
-        local goldBars = Goods.GetAmountInArea(2, Goods.GOLDBAR, xw, yw, 10)
-        if goldBars >= 8 then
-            Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.AMB_FIRE, 543, 839, 0)
-            Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.AMB_FIRE, 584, 795, 0)
-            Goods.Delete(xw, yw, 10, Goods.GOLDBAR)
-            Goods.AddPileEx(543, 839, Goods.GOLDBAR, goldBars)
 
-        end
 
     end
     ------------------------------------
@@ -484,7 +526,7 @@ function doActionsAfterMinutes()
     end
 
     if minuteReached(8) == 1 then
-        dbg.stm("Ihr erhaltet eine geheime Nachricht!!! Finde die drei legendären Inseln. Geht dir Stein aus, suche in der Mitte. Die Ecken sind dein Freund.")
+        dbg.stm("Ihr erhaltet eine geheime Nachricht!!! Finde die drei legendären Inseln. Geht dir Stein aus, suche in der Mitte. Die Ecken sind dein Freund. Ihr solltet Marktplätze bauen!")
     end
 
     if minuteReached(9) == 1 then
@@ -492,7 +534,7 @@ function doActionsAfterMinutes()
         setNewAttackAmount()
     end
 
-    if minuteReached(32) == 1 then
+    if minuteReached(30) == 1 then
         checkIfPlayer3IsHuman()
         spawnEnemySupportPackage(5, 2, 1, 5, 2)
     end
@@ -584,7 +626,7 @@ end
 function setNewAttackAmount()
     if Game.Time() < 50 then
         if Vars.Save4 == difficultyChooser.extreme.difficulty then
-            attackAmount = randomBetween(620, 700)
+            attackAmount = randomBetween(650, 700)
         elseif Vars.Save4 == difficultyChooser.hard.difficulty then
             attackAmount = randomBetween(520, 600)
         else
@@ -632,9 +674,9 @@ end
 function getEndgameTime()
 
     if Vars.Save4 >= difficultyChooser.hard.difficulty then
-        return 62
+        return 60
     else
-        return 67
+        return 65
     end
 end
 
@@ -700,8 +742,9 @@ function removeThiefs()
 
     tickCounter = tickCounter + 5
 
-    if tickCounter >= 150 then
+    if tickCounter >= 170 then
         removeThiesAtKing()
+        portGold()
         tickCounter = 1
     end
 
@@ -738,7 +781,7 @@ humans = { 1, 2, 3 }
 tickConterAI = 1
 function aiOperations()
     tickConterAI = tickConterAI + 1
-    if tickConterAI > 100 then
+    if tickConterAI > 170 then
         refreshIfSomeoneDied()
         checkAttack()
         tickConterAI = 1
@@ -862,6 +905,12 @@ function startAttack(mainAttackPlayer, attackCondition, percentForceMain)
 
     local mainPlayer = mainAttackPlayer
     local attackType = ""
+
+    AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
+    AI.NewSquad(5, AI.CMD_SUICIDE_MISSION )
+    AI.NewSquad(6, AI.CMD_SUICIDE_MISSION )
+    AI.NewSquad(7, AI.CMD_SUICIDE_MISSION )
+    AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
 
     if randomAttack <= 15 or percentForceMain == 100 then
         -- greife alle den main player an
