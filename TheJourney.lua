@@ -167,14 +167,16 @@ end
 -----------------------------------------------
 -----------------------------------------------
 function new_game()
-    request_event(doActionsAfterMinutes, Events.FIVE_TICKS)
     request_event(initGame, Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+    request_event(continuousCheck, Events.FIVE_TICKS)
+    request_event(continuousCheckSlow, Events.FIVE_TICKS)
     MinuteEvents.new_game()
 end
 
 function register_functions()
-    reg_func(doActionsAfterMinutes)
     reg_func(initGame)
+    reg_func(continuousCheck)
+    reg_func(continuousCheckSlow)
     MinuteEvents.register_functions()
 end
 
@@ -183,45 +185,313 @@ function isDebug()
     return TRUE;
 end
 
+humans = { 1, 2, 3, 4, 5 }
+activePlayers = {}
+
+
+
+islands= {
+    {
+        startX=120,
+        startY=254,
+        functionToStartIsland=startIsland1
+    },
+    {
+        startX=120,
+        startY=254,
+        functionToStartIsland=startIsland2
+    }
+
+}
+
+islandCount = getn(islands)
+
+finalIsland = {
+    startX=806,
+    startY=935,
+    functionToStartIsland=startFinalIsland
+}
+
 --- Vars.Save8 und Vars.Save9 werden reserviert, da sie in Funktionen genutzt werden. Möchtet ihr die Vars Variablen verwenden und nicht das VarsExt Framework, müsst ihr diese hier
 --- reservieren.
 VarsExt.occupy(8)
 VarsExt.occupy(9)
 
---- So solltet ihr Variablen setzten, die ihr nach dem Laden noch braucht. Das VarsExt hat die Limitierung auf nur 9 Variablen um ein vielfaches erhöht.
-meineTolleVarsVariable = VarsExt.create(2);
+---INITS----
+gameStarted = VarsExt.create(1);
+amountOfIslands = VarsExt.create(2);
+
+
+player1Active = VarsExt.create(1);
+player2Active = VarsExt.create(1);
+player3Active = VarsExt.create(1);
+player4Active = VarsExt.create(1);
+player5Active = VarsExt.create(1);
+
+binaryActiveIslands = VarsExt.create(9);
 
 
 --- Hier kommen Initialisierungen hin, die bei start oder laden ausgefuehrt werden sollen
 function initGame()
-    Buildings.AddBuilding(391, 858, 2,Buildings.GUARDTOWERSMALL)
+
+    Map.SetScreenPos(990, 982)
+
+
+
+    updateActivePlayers()
+    addAndRemoveSmallTower(954, 979, 1)
+    addAndRemoveSmallTower(994, 982, 1)
+
+
+    if Game.Time() < 2 then
+        gameStarted:save(0)
+        amountOfIslands:save(0)
+        player1Active:save(0)
+        player2Active:save(0)
+        player3Active:save(0)
+        player4Active:save(0)
+        player5Active:save(0)
+        binaryActiveIslands:save(0)
+    end
+
+    dbg.stm("Inseln " .. tostring(islandCount))
+
+    local counter = 1
+    while counter <= islandCount do
+        local bitNumber = set_bit(binaryActiveIslands:get(),counter,1)
+        binaryActiveIslands:save(bitNumber)
+        counter = counter + 1
+    end
+
+
+
 
     if isDebug() == TRUE then
         ---Deckt die Karte auf
-        Tutorial.RWM(1)
-        dbgTestFunction()
+        ---Tutorial.RWM(1)
+        addPlayer(1)
+        dbg.stm("Binarary Islands: " .. binaryActiveIslands:get())
+        local availableIslands = getAvailableIslands()
+        local numberOfIsland = getRandomNumberOfNumbers(availableIslands)
+        dbg.print("selected island" .. numberOfIsland)
+
+
+
         requestMinuteEvent(funktionNach5Minuten, 5)
     end
 
 end
 
-function dbgTestFunction()
-    -- Hier könnt ihr code zum Testen hinschreiben.
-    dbg.stm("dbug Script geht ")
-    meineTolleVarsVariable:save(55)
-    dbg.stm("Wert von meineTolleVarsVariable " .. meineTolleVarsVariable:get())
-end
+function startGame()
+    gameStarted:save(1)
+    dbg.stm("Spiel wurde gestartet!!")
+    chooseNewIsland()
 
-function doActionsAfterMinutes()
-    --wird jede Minute ausgefuehrt
-    if newMinute() == 1 then
-        dbg.stm("wieder eine Minute rum")
+    if isDebug() == TRUE then
+        local players = ""
+        local counter = 1
+        while counter <= getn(activePlayers) do
+            players = players .. activePlayers[counter] .. " "
+            counter = counter + 1
+        end
+        dbg.stm("Aktive Spieler: " .. players .. " / Inseln: " ..  amountOfIslands:get() )
+
     end
 
 end
 
+
+
+function dbgTestFunction()
+    -- Hier könnt ihr code zum Testen hinschreiben.
+    dbg.stm("dbug Script geht ")
+end
+
+
+
 function funktionNach5Minuten()
     dbg.stm("nach 5 Minuten")
+end
+
+
+continuousTickCounter = 1;
+function continuousCheck()
+    continuousTickCounter = continuousTickCounter + 1
+    if continuousTickCounter >= 30 then
+
+        if newMinute() == 1 then
+            if isDebug() == TRUE then
+                local availableIslands = getAvailableIslands()
+                dbg.stm("aktive Inseln " .. getn(availableIslands))
+                local numberOfIsland = getRandomNumberOfNumbers(availableIslands)
+                dbg.print("selected island" .. numberOfIsland)
+            end
+        end
+
+        continuousTickCounter = 1
+    end
+end
+
+continuousTickCounterSlow = 1;
+function continuousCheckSlow()
+    continuousTickCounterSlow = continuousTickCounterSlow + 1
+    if continuousTickCounterSlow >= 60 then
+        checkAddPlayer()
+        checkAddIsland()
+        continuousTickCounterSlow = 1
+    end
+end
+
+function startIsland1()
+    dbg.stm("Island 1 started")
+end
+
+function startIsland2()
+    dbg.stm("Island 2 started")
+end
+
+function startFinalIsland()
+    dbg.stm("Final Island started")
+end
+
+function chooseNewIsland()
+   local island =  getRandomIsland()
+    amountOfIslands:save(amountOfIslands:get() - 1)
+    island.functionToStartIsland()
+    Map.SetScreenPos(island.startX, island.startY)
+end
+
+
+function getRandomIsland()
+    if amountOfIslands:get() == 0 then
+        return finalIsland
+    else
+        local availableIslands = getAvailableIslands()
+        local numberOfIsland = getRandomNumberOfNumbers(availableIslands)
+
+        if isDebug() == TRUE then
+            dbg.print("selected island" .. numberOfIsland)
+        end
+
+        return islands[numberOfIsland]
+    end
+end
+
+function getAvailableIslands()
+    local activeIslands = {}
+
+    local counter = 1
+    dbg.stm("vorChecAv")
+    while counter <= islandCount do
+        if is_bit_set(binaryActiveIslands:get(), counter) == 1 then
+            activeIslands[getn(activeIslands) + 1]  = counter
+        end
+        counter = counter + 1
+    end
+    dbg.stm("nachChecAv")
+    return activeIslands
+end
+
+
+function getRandomNumberOfNumbers(numbers)
+    local randomIsland = randomBetweenSimple(1, getn(numbers))
+    dbg.stm("ausgewählter Insel index" .. randomIsland)
+    return numbers[randomIsland]
+end
+
+function addAndRemoveSmallTower(x, y, player)
+    Buildings.AddBuilding(x, y, player, Buildings.GUARDTOWERSMALL)
+    Buildings.CrushBuilding(Buildings.GetFirstBuilding(player, Buildings.GUARDTOWERSMALL))
+    removeGoodsAndSettlersAfterTower(x,y,player)
+end
+
+function removeGoodsAndSettlersAfterTower(x, y, player)
+    Settlers.KillSelectableSettlers(player, Settlers.SWORDSMAN_01, x, y, 10, 0)
+    Goods.Delete(x, y, 5, Goods.STONE)
+    Goods.Delete(x, y, 5, Goods.BOARD)
+end
+
+function removeSmallTowersForPlayer(playerId)
+    while Buildings.Amount(playerId,  Buildings.GUARDTOWERSMALL, Buildings.READY) > 0  do
+        Buildings.CrushBuilding(Buildings.GetFirstBuilding(playerId, Buildings.GUARDTOWERSMALL))
+    end
+end
+
+function checkAddIsland()
+    if gameStarted:get() == 0 then
+        amountOfSoldiers = Settlers.AmountInArea(1, Settlers.SWORDSMAN_03, 906,1003, 5)
+        if amountOfSoldiers > 0 then
+            Settlers.KillSelectableSettlers(1, Settlers.SWORDSMAN_03, 906,1003, 5, 0)
+            amountOfIslands:save(amountOfIslands:get() + amountOfSoldiers)
+            dbg.stm("Ihr habt euch für " .. amountOfIslands:get() .. " Inseln entschieden. Schickt den Hauptmann in das Portal, um die Partie zu starten!")
+        end
+
+        if Settlers.AmountInArea(1, Settlers.SQUADLEADER, 906,1003, 5) > 0 then
+            Settlers.KillSelectableSettlers(1, Settlers.SQUADLEADER, 906,1003, 5, 0)
+            Settlers.KillSelectableSettlers(1, Settlers.SWORDSMAN_03, 875,971, 9, 0)
+            startGame()
+        end
+    end
+end
+
+function checkAddPlayer()
+    if gameStarted:get() == 0 then
+        local counter = 1
+        while counter <= getn(humans) do
+            if Settlers.AmountInArea(counter, Settlers.SQUADLEADER, 967,980, 5) > 0 then
+                Settlers.KillSelectableSettlers(counter, Settlers.SQUADLEADER, 967,980, 5, 0)
+                addPlayer(counter)
+            end
+            counter = counter + 1
+        end
+    end
+
+end
+
+function prepareIslandChoose()
+    Settlers.AddSettlers(875, 971, 1, Settlers.SWORDSMAN_03, getn(islands))
+    Settlers.AddSettlers(902, 971, 1, Settlers.SQUADLEADER, 1)
+    addAndRemoveSmallTower(890,980,1)
+    dbg.stm("Wieviele Inseln auf dem Weg zur finalen Insel möchtet ihr spielen?")
+end
+
+function addPlayer(playerId)
+    if playerId == 1 then
+        player1Active:save(1)
+        prepareIslandChoose()
+        if Game.LocalPlayer() == 1 then
+            Map.SetScreenPos(890, 972)
+        end
+    elseif playerId == 2 then
+        player2Active:save(1)
+    elseif playerId == 3 then
+        player3Active:save(1)
+    elseif playerId == 4 then
+        player4Active:save(1)
+    elseif playerId == 5 then
+        player5Active:save(1)
+    end
+    dbg.stm("Spieler " .. playerId .. " ist mit von der Partie!")
+    updateActivePlayers()
+end
+
+function updateActivePlayers()
+    if player1Active:get() == 1 then
+        activePlayers[getn(activePlayers)+1] = 1
+    end
+    if player2Active:get() == 1 then
+        activePlayers[getn(activePlayers)+1] = 2
+    end
+    if player3Active:get() == 1 then
+        activePlayers[getn(activePlayers)+1] = 3
+    end
+    if player4Active:get() == 1 then
+        activePlayers[getn(activePlayers)+1] = 4
+    end
+    if player5Active:get() == 1 then
+        activePlayers[getn(activePlayers)+1] = 5
+    end
+
 end
 
 -------------------------------------------------------------
@@ -232,68 +502,6 @@ end
 
 TRUE = 1
 FALSE = 0
-
---- gibt aus einem array von Spielern ("playersTable" mit den IDs der Spielern) die Spieler ID zurück, der am  "enemyPosition" meisten Einheiten hat
----BSP: enemyPosition == 1 --> gibt den Spieler mit den meisten Units zurück
----BSP: enemyPosition == 2 --> gibt den Spieler mit den zweitmeisten Units zurück..
-function getPlayerIDWithMostUnitsForPosition(playersTable, enemyPosition)
-
-    local playercache = { 0, 0, 0, 0, 0, 0, 0, 0 }
-
-    local i = 1
-    -- setzt an die einzelnen stellen innerhalb des playerchache arrays die Einheitenanzahl etsprechend der spielerId
-    -- Bpsp {0,0,0,34,12,43,34,34) --> jetzt waeren die letzten fuenf spieler opponents mit der entsprechenden Anzahl Einheiten
-    while i <= getn(playersTable) do
-        playercache[playersTable[i]] = getAmountOfPlayerUnitsWithoutBuildings(playersTable[i])
-        i = i + 1
-    end
-
-    --dbg.stm(playercache[1] .. " " .. playercache[2] .. " " .. playercache[3] .. " " .. playercache[4] .. " " .. playercache[5] .. " " .. playercache[6] .. " " .. playercache[7] .. " " .. playercache[8])
-
-    -- delete biggest until empty
-    local counter = 1
-    local counter2 = 1
-    local biggestValue = 0
-    local biggestId = 1
-
-
-    --loescht nach und nach den hoechsten aus dem cache
-    while counter < enemyPosition do
-        counter2 = 1
-        biggestValue = 0
-        while counter2 <= getn(playercache) do
-            if playercache[counter2] > 0 then
-                actualOpponentsId = counter2
-                actualOpponentsAmount = playercache[counter2]
-                if actualOpponentsAmount > biggestValue then
-                    biggestId = actualOpponentsId
-                    biggestValue = actualOpponentsAmount
-                end
-            end
-            counter2 = counter2 + 1
-        end
-        playercache[biggestId] = 0
-        counter = counter + 1
-    end
-
-    biggestValue = 0
-    counter2 = 1
-    biggestId = 1
-
-    --jetzt is der hoechste der gesuchte. Alle hoeheren wurden geloescht
-    while counter2 <= getn(playercache) do
-        actualOpponentsId = counter2
-        actualOpponentsAmount = playercache[counter2]
-        if actualOpponentsAmount > biggestValue then
-            biggestId = actualOpponentsId
-            biggestValue = actualOpponentsAmount
-        end
-        counter2 = counter2 + 1
-    end
-
-    return biggestId
-end
-
 
 
 function isValueInArray(theArray, value)
@@ -458,6 +666,16 @@ function mod(a, b)
     return tonumber(strsub("" .. c * b, 1, d)) -- multiply c with b and drop everything after .
 end
 
+function pow(base, exponent)
+    local expNr = 0
+    local toReturn = 1
+    while expNr < exponent
+    do
+        toReturn = toReturn * base
+        expNr = expNr + 1
+    end
+    return toReturn
+end
 ----
 --LIB fuer Minute Events---
 -----
@@ -507,5 +725,79 @@ function requestMinuteEvent(eventfunc, minute)
         MinuteEvents._minuteEventTable[minute] = {}
     end
     tinsert(MinuteEvents._minuteEventTable[minute], eventfunc)
+end
+
+
+
+function get_bitset(num)
+    local bitset = {}
+    local tmpnum = floorNumber(num)
+    local bit = 1
+    local exp2 = 2
+    while tmpnum ~= 0 do -- floor guarantees this not to be (0,1)... at least for numbers < 9b...something, i cant promise anything
+        local bitval = mod(tmpnum,exp2)
+        bitset[bit] = boolvalue(bitval)
+        tmpnum = tmpnum - bitval
+        exp2 = exp2 + exp2
+        bit = bit + 1
+    end
+    return bitset
+end
+function is_bit_set(num,bit)
+    if get_bitset(num)[bit] ~= 0 then -- this expression returns 1 on true, and nil on false, cannot use this as a return value smh
+        return 1
+    else
+        return 0
+    end
+end
+-- 1 if num != 0
+-- 0 else
+function boolvalue(num)
+    if num ~= 0 and num ~= nil then return 1
+    else return 0
+    end
+end
+function bitset_to_int(bitset)
+    -- bitset problem example:
+    --given bitset value:
+    -- bitset[0] = 1 -- 0 is IGNORED
+    -- bitset[1] = 1 -- OK
+    -- bitset[2] = 0 -- OK
+    -- bitset[20] = 1 -- WHERE bitset[3-19] ? assume 0
+    -- bitset["string"] = "value" -- ignore
+
+    -- implement
+    local result = 0;
+    local i, v = next(bitset, nil)
+    while i do
+        local num = tonumber(i)
+        if num then
+            -- is number, check range [1,30]
+            num = floorNumber(num)
+            if num >= 1 and num <= 30 then -- integers > 1 billion are inconsistent in floating point value, only be able to set bits 2^0 - 2 ^30
+                -- TODO TEST WHAT VALUE bitset [1,1...,1] with n = 30 is (is <1b ?)
+                local boolval = boolvalue(v)
+                if boolval ~= 0 then
+                    result = result + pow(2,num-1) -- num-1 because 2 ^0 is first bit for example. lua starts indexing at 1 so we keep it that way
+                end
+            end
+        end
+        i, v = next(bitset, i)
+    end
+    return result
+end
+
+-- in: set_bit(5,2,1)
+-- process: 101b with bit 2 to 1
+-- out: 111b = 7
+function set_bit(num,bit,set)
+    local newbitset = get_bitset(num);
+    -- dont set bit outside of [1,30]
+    if bit < 1 or bit > 30 then
+        return num -- unchanged
+    end
+
+    newbitset[bit] = boolvalue(set);
+    return bitset_to_int(newbitset)
 end
 
