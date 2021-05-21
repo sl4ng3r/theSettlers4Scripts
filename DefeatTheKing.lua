@@ -41,11 +41,11 @@ function register_functions()
 end
 
 function isDebug()
-    return 0
+    return 1
 end
 
 function isAIDebug()
-    return 0
+    return 1
 end
 
 ops = {
@@ -193,6 +193,7 @@ function prepareDifficultMatch()
         Game.SetFightingStrength(6, 101)
         Game.SetFightingStrength(7, 101)
         Game.SetFightingStrength(8, 116)
+        Goods.AddPileEx(470, 710, Goods.HAMMER, 1)
     end
 
     addStuff(ops.o1)
@@ -245,7 +246,7 @@ function initGame()
     end
 
     --Die Schwierigkeit wird nach 4 minuten abgeprüft.
-    requestMinuteEvent(checkDifficulty, 5)
+    requestMinuteEvent(checkDifficulty, 3)
 
 end
 
@@ -420,11 +421,11 @@ function doEveryMinuteSpawn()
     --Extra Spawn für extrem
     if Game.Time() >= 25 and Vars.Save4 == difficultyChooser.extreme.difficulty then
         if Game.Time() < getEndgameTime() then
-            spawnEnemySupportPackage(4, 2, 1, 2, 1)
-            spawnAllEnemySupportUnits(2,2)
+            spawnEnemySupportPackage(5, 3, 1, 2, 1)
+            spawnAllEnemySupportUnits(1,2)
         else
             spawnEnemySupportPackage(3, 1, 1, 2, 1)
-            spawnAllEnemySupportUnits(3,3)
+            spawnAllEnemySupportUnits(2,3)
         end
 
         --        if isAIDebug() == 1 then
@@ -437,7 +438,7 @@ function doEveryMinuteSpawn()
         if Game.Time() < getEndgameTime() then
             if Vars.Save4 == difficultyChooser.extreme.difficulty then
                 spawnEnemySupportPackage(4, 1, 1, 1, 1)
-                spawnAllEnemySupportUnits(2,2)
+                spawnAllEnemySupportUnits(1,2)
             elseif Vars.Save4 == difficultyChooser.hard.difficulty then
                 spawnEnemySupportPackage(4, 2, 1, 2, 1)
             else
@@ -446,7 +447,7 @@ function doEveryMinuteSpawn()
         else
             if Vars.Save4 == difficultyChooser.extreme.difficulty then
                 spawnEnemySupportPackage(4, 1, 1, 1, 1)
-                spawnAllEnemySupportUnits(3,3)
+                spawnAllEnemySupportUnits(2,3)
             elseif Vars.Save4 == difficultyChooser.hard.difficulty then
                 spawnEnemySupportPackage(6, 3, 2, 2, 1)
             else
@@ -461,16 +462,16 @@ function doEveryMinuteSpawn()
         spawnSupportForOpp(ops.o1, 4, 3, 1, 1, 0)
         spawnSupportForOpp(ops.o5, 5, 3, 2, 3, 1)
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
-            spawnSupportForOpp(ops.o1, 6, 4, 2, 1, 0)
+            spawnSupportForOpp(ops.o1, 5, 3, 2, 1, 0)
             spawnSupportForOpp(ops.o5, 7, 5, 2, 0, 1)
         end
         if Vars.Save4 == difficultyChooser.extreme.difficulty then
-            spawnEnemySupportUnits(ops.o1,3,2)
+            spawnEnemySupportUnits(ops.o1,1,2)
             spawnSupportForOpp(ops.o1, 3, 2, 1, 2, 0)
 
             spawnSupportForOpp(ops.o4, 3, 2, 0, 1, 0)
 
-            spawnEnemySupportUnits(ops.o5,3,3)
+            spawnEnemySupportUnits(ops.o5,2,3)
             spawnSupportForOpp(ops.o5, 3, 2, 1, 1, 0)
         end
 
@@ -487,7 +488,7 @@ function doEveryMinuteSpawn()
         end
         if Vars.Save4 == difficultyChooser.extreme.difficulty then
             spawnEnemySupportUnits(ops.o1,1,1)
-            spawnEnemySupportUnits(ops.o5,1,1)
+            spawnEnemySupportUnits(ops.o5,1,2)
         end
     end
 
@@ -520,14 +521,16 @@ function doActionsAfterMinutes()
     ------------ab hier die Minutes-----
     ------------------------------------
 
-    if minuteReached(3) == 1 then
+    if minuteReached(2) == 1 then
+        dbg.stm("Ihr erhaltet eine geheime Nachricht!!! Finde die drei legendären Inseln. Geht dir Stein aus, suche in der Mitte. Die Ecken sind dein Freund. Ihr solltet Marktplätze bauen!")
+    end
+
+    if minuteReached(6) == 1 then
         Map.SetScreenPos(803, 61)
         dbg.stm("König Erdur: Du wagst es mich herauszufordern? Du hast keine Ahnung mit wem du es zu tun hast, hahahaha... ")
     end
 
-    if minuteReached(8) == 1 then
-        dbg.stm("Ihr erhaltet eine geheime Nachricht!!! Finde die drei legendären Inseln. Geht dir Stein aus, suche in der Mitte. Die Ecken sind dein Freund. Ihr solltet Marktplätze bauen!")
-    end
+
 
     if minuteReached(9) == 1 then
         --Wir nochmal neu gesetzt, da die Randomzahl nun zufaellig ist.
