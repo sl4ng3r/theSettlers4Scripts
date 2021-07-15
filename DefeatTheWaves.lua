@@ -277,7 +277,7 @@ difficultyChooser= {
 	extreme={
 		x=89,
 		y=866,
-		difficulty=5
+		difficulty=6
 	}
 }
 
@@ -370,16 +370,24 @@ end
 
 function checkDifficulty()
 
-	checkChooser(difficultyChooser.normal)
-	checkChooser(difficultyChooser.hard)
-	checkChooser(difficultyChooser.extreme)
+	local amountOfSoldiers = Settlers.AmountInArea(1, Settlers.SWORDSMAN_03, 906,1003, 8)
+	if amountOfSoldiers > 0 then
+		Settlers.KillSelectableSettlers(1, Settlers.SWORDSMAN_03, 906,1003, 5, 0)
+		Vars.Save4 = amountOfSoldiers
+	end
+	dbg.stm("Ihr habt euch für eine Partie der Stufe " .. Vars.Save4 .. " entschieden!")
 
-	if Vars.Save4 == 0 then
-		dbg.stm("Ihr habt euch für eine leichtere Partie entschieden!")
+
+	--checkChooser(difficultyChooser.normal)
+	--checkChooser(difficultyChooser.hard)
+	--checkChooser(difficultyChooser.extreme)
+
+	if Vars.Save4 < difficultyChooser.hard.difficulty then
+		dbg.stm("Es sollte eine leichte Partie werden.")
 		Buildings.AddBuilding(61, 845, 1, Buildings.EYECATCHER03)
 		players.p1.amountOfStartBuildings = players.p1.amountOfStartBuildings + 1
-	elseif Vars.Save4 == 1 then
-		dbg.stm("Ihr habt euch für eine schwere Partie entschieden!")
+	elseif Vars.Save4 < difficultyChooser.extreme.difficulty then
+		dbg.stm("Ihr werdet euch schon anstrengen müssen!")
 		Buildings.AddBuilding(61, 845, 1, Buildings.EYECATCHER03)
 		Buildings.AddBuilding(61, 851, 1, Buildings.EYECATCHER03)
 		players.p1.amountOfStartBuildings = players.p1.amountOfStartBuildings + 2
@@ -513,11 +521,11 @@ end
 function reduceCreepsInSpawnPoint(spawnpoint,amountPlayers)
 
 	local radius
-	if Vars.Save4 == difficultyChooser.normal.difficulty then
+	if Vars.Save4 <= difficultyChooser.normal.difficulty then
 		radius = 17 -  (( amountPlayers -1 ) * 3)
 	end
 
-	if Vars.Save4 == difficultyChooser.hard.difficulty or Vars.Save4 == difficultyChooser.extreme.difficulty then
+	if Vars.Save4 <= difficultyChooser.extreme.difficulty then
 		radius = 15 - (( amountPlayers -1 ) * 3)
 	end
 
@@ -703,7 +711,8 @@ end
 
 function spawnRandomUnitsOnSpawnPoint(spawnpointCheck, spawnPoint)
 	if spawnpointCheck.defeated == 0 then
-		local randomUnits = {Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03,Settlers.BOWMAN_02,Settlers.BOWMAN_03}
+
+		local randomUnits = {Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03,Settlers.BOWMAN_01,Settlers.BOWMAN_02,Settlers.BOWMAN_03}
 		if Vars.Save4 >= difficultyChooser.hard.difficulty then
 			randomUnits = {Settlers.SWORDSMAN_03,Settlers.BOWMAN_02,Settlers.BOWMAN_03}
 		end
@@ -711,59 +720,49 @@ function spawnRandomUnitsOnSpawnPoint(spawnpointCheck, spawnPoint)
 			randomUnits = {Settlers.SWORDSMAN_03,Settlers.BOWMAN_03}
 		end
 
-		local unitIndex = randomBetween(1,getn(randomUnits))
+		local amountOfSpawns = 1 + floorNumber(Vars.Save4 / 3)
 
-		Settlers.AddSettlers(spawnPoint.x, spawnPoint.y, spawnpointCheck.player, randomUnits[unitIndex],getAmountRandomUnits())
-		if Vars.Save4 >= difficultyChooser.hard.difficulty then
-			unitIndex = randomBetween(1, getn(randomUnits))
-			Settlers.AddSettlers(spawnPoint.x, spawnPoint.y, spawnpointCheck.player, randomUnits[unitIndex], getAdditionalRandomUnitsHard())
+		while amountOfSpawns > 0  do
+			local unitIndex = randomBetween(1,getn(randomUnits))
+			Settlers.AddSettlers(spawnPoint.x, spawnPoint.y, spawnpointCheck.player, randomUnits[unitIndex],getAmountRandomUnits())
+			amountOfSpawns = amountOfSpawns -  1
 		end
-        if Vars.Save4 >= difficultyChooser.extreme.difficulty then
-            unitIndex = randomBetween(1, getn(randomUnits))
-            Settlers.AddSettlers(spawnPoint.x, spawnPoint.y, spawnpointCheck.player, randomUnits[unitIndex], getAdditionalRandomUnitsExtreme())
-        end
-
-
+		unitIndex = randomBetween(1,getn(randomUnits))
+		Settlers.AddSettlers(spawnPoint.x, spawnPoint.y, spawnpointCheck.player, randomUnits[unitIndex],getAmountRandomUnitsDiff())
 	end
 end
 
 
 
 function getAmountRandomUnits()
-    return floorNumber(0.5 * Vars.Save2 + 1) * Vars.Save1
+    return floorNumber(0.02 * Vars.Save2 * Vars.Save2 + 0.02 * Vars.Save2 ) * Vars.Save1
 end
 
-function getAdditionalRandomUnitsHard()
-    if Vars.Save4 >= difficultyChooser.hard.difficulty then
-        return floorNumber((0.002 * Vars.Save2 * Vars.Save2 *Vars.Save2 + 0.5 * Vars.Save2 + 1)) * Vars.Save1
-        --return floorNumber((Vars.Save2 / 1.5 + 1)) * Vars.Save1
-    else
-        return 0
-    end
+function getAmountRandomUnitsDiff()
+	return floorNumber(0.4 * Vars.Save2 * getDifficultyMultiplier() ) * Vars.Save1
 end
 
-function getAdditionalRandomUnitsExtreme()
-    if Vars.Save4 >= difficultyChooser.extreme.difficulty then
-        return floorNumber(0.027 * Vars.Save2 * Vars.Save2 + 1.8) * Vars.Save1
-    else
-        return 0
-    end
+
+function getDifficultyMultiplier()
+	return (0.1 * Vars.Save4 + 0.9)
 end
 
 function getAmountLvl1()
-	return max(0,(5 - Vars.Save2) * Vars.Save1)
+	return max(0,(3 - Vars.Save2)) * getDifficultyMultiplier() * Vars.Save1
 end
 
 function getAmountLvl2()
-	return floorNumber((0.6 * Vars.Save2 + 0.0009 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 +3)*(0.08*Vars.Save4 + 0.5) * Vars.Save1 - getAmountRemoveForPlayers())
+	return floorNumber((0.5 * Vars.Save2 + 0.0004 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save4 + 0.2)* getDifficultyMultiplier() * Vars.Save1 - getAmountRemoveForPlayers())
 end
 
 function getAmountLvl3()
-	return max(0,floorNumber((0.014 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save2) *(0.08*Vars.Save4 + 0.5)) * Vars.Save1 - getAmountRemoveForPlayers())
+	return floorNumber((0.0095 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save2 + 0.3 * Vars.Save4) * getDifficultyMultiplier()) * Vars.Save1 - getAmountRemoveForPlayers()
+	--return max(0,floorNumber((0.014 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save2) *(0.08*Vars.Save4 + 0.5)) * Vars.Save1 - getAmountRemoveForPlayers())
 end
 
 function getAmountRemoveForPlayers()
-	return floorNumber(0.07 * Vars.Save2 * Vars.Save2 * 0.35 * (Vars.Save1 - 1) * (Vars.Save1 - 1) + (Vars.Save1 - 1) + 0.2 * Vars.Save2 * minNumber(1, Vars.Save1 - 1) )
+	return floorNumber(0.09 * Vars.Save2 * Vars.Save2 * 0.3 * (Vars.Save1 - 1) * (Vars.Save1 - 1) + max(0, 0.6 * Vars.Save1 -1) + 0.2 * Vars.Save2 * minNumber(1,  Vars.Save1-1))
+			---(Vars.Save1 - 1)) + 0.2 * Vars.Save2 * minNumber(1, Vars.Save1 - 1) )
 end
 tickCounter = 1
 function cheatProtection()

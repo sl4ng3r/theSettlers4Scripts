@@ -1,22 +1,13 @@
----- Dieses Template kannst du in deine neue map einfach kopieren. Es stellt dir viele "Standard" Funktionen bereits zur Verfügung.
----- Das eigentliche Script geht ab der Zeile 169 los --> "Ab hier beginnt das eigentliche Script".
----- Have fun -- sl4ng3r --
-
--------------------------------------------------------------
 ----SCRIPT zum erhöhen der Speichermöglichkeiten ------------
 ----(Da sonst begrenzt auf die 9 Vars.Save Variablen)--------
-----Es muss vor dem eigentlichen Script ausgeführt werden----
 ----Danke an MuffinMario für dieses göttliche Script!!-------
--------------------------------------------------------------
 
 VarsExt = {
     MAXSPACE = 9
 }
 VarsExt["Vars"] = {
     VarsExt.MAXSPACE, VarsExt.MAXSPACE, VarsExt.MAXSPACE,
-
     VarsExt.MAXSPACE, VarsExt.MAXSPACE, VarsExt.MAXSPACE,
-
     VarsExt.MAXSPACE, VarsExt.MAXSPACE, VarsExt.MAXSPACE
 }
 
@@ -45,13 +36,9 @@ VarsExt.saveVar = function(save, offset, size, value)
     Vars["Save" .. save] = tonumber(newstr);
 end
 VarsExt.getVar = function(save, offset, size)
-
     local currentSaveVal = Vars["Save" .. save];
-
     local saveValStr = str_fill_left(format("%.0f", currentSaveVal), "0", VarsExt.MAXSPACE)
-
     local myVal = tonumber(strsub(saveValStr, offset + 1, offset + size))
-
     return myVal;
 end
 VarsExt.save = function(this, value)
@@ -151,7 +138,6 @@ VarsExt.create = function(size)
     return myVar;
 end
 
--- in case you are using a Vars.Save on your own, you can state here that it will not be used. THIS ACTION CANNOT BE REVERSED (since scripts are hard coded.);
 VarsExt.occupy = function(save)
     if VarsExt.Vars[save] > 0 then
         -- 0 or -1 or -0 ?
@@ -160,12 +146,9 @@ VarsExt.occupy = function(save)
 end
 
 -----------------------------------------------
------------------------------------------------
------------------------------------------------
 ----Ab hier beginnt das eigentliche Script ----
 -----------------------------------------------
------------------------------------------------
------------------------------------------------
+
 function new_game()
     request_event(initGame, Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
     request_event(continuousCheck, Events.FIVE_TICKS)
@@ -212,7 +195,6 @@ finalIsland = {
     functionToStartIsland=startFinalIsland
 }
 
---- Vars.Save8 und Vars.Save9 werden reserviert, da sie in Funktionen genutzt werden. Möchtet ihr die Vars Variablen verwenden und nicht das VarsExt Framework, müsst ihr diese hier
 --- reservieren.
 VarsExt.occupy(8)
 VarsExt.occupy(9)
@@ -495,29 +477,14 @@ function updateActivePlayers()
 end
 
 -------------------------------------------------------------
--------------------------------------------------------------
 ------ generalUtility  --------------------------------------
 -------Diese könnt ihr für eure Scripts nutzen---------------
--------------------------------------------------------------
 
 TRUE = 1
 FALSE = 0
 
-
-function isValueInArray(theArray, value)
-    local counter = 1
-    while counter <= getn(theArray) do
-        if theArray[counter] == value then
-            return TRUE
-        end
-        counter = counter + 1
-    end
-    return FALSE
-end
-
 function getTextForPlayerRace(playerId)
     local raceId = Game.PlayerRace(playerId)
-
     if raceId == 0 then
         return "Römer"
     elseif raceId == 1 then
@@ -529,7 +496,6 @@ function getTextForPlayerRace(playerId)
     elseif raceId == 4 then
         return "Trojaner"
     end
-
 end
 
 -- gibt jede Minute einmal 1 zurueck
@@ -618,17 +584,15 @@ end
 function minNumber(number1, number2)
     if number1 > number2 then
         return number2
-    else
-        return number1
     end
+    return number1
 end
 
 function maxNumber(number1, number2)
     if number1 > number2 then
         return number1
-    else
-        return number2
     end
+    return number2
 end
 
 function floorNumber(floatNumber)
