@@ -629,7 +629,7 @@ function spawnAmbush()
 		dbg.stm("Ein Hinterhalt!!! Es wurden Truppen in euren Lagern gesichtet!")
 		Settlers.AddSettlers(388, 397, 7, randomUnits[unitIndex],getAmountRandomUnits() + Vars.Save2)
 		unitIndex = randomBetween(1,getn(randomUnits))
-		Settlers.AddSettlers(388, 397, 7, randomUnits[unitIndex], getAdditionalRandomUnitsHard())
+		Settlers.AddSettlers(388, 397, 7, randomUnits[unitIndex], getAmountRandomUnitsDiff())
 	end
 end
 
@@ -709,16 +709,21 @@ function doRandomSpawnOnEachSpawnpoint()
     spawnRandomUnitsOnSpawnPoint(spawnpoints.sp6, spawnpoints.sp6)
 end
 
+function getRandomUnitsForDifficulty()
+	local randomUnits = {Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03,Settlers.BOWMAN_01,Settlers.BOWMAN_02,Settlers.BOWMAN_03}
+	if Vars.Save4 >= difficultyChooser.hard.difficulty then
+		randomUnits = {Settlers.SWORDSMAN_03,Settlers.BOWMAN_02,Settlers.BOWMAN_03}
+	end
+	if Vars.Save4 >= difficultyChooser.extreme.difficulty then
+		randomUnits = {Settlers.SWORDSMAN_03,Settlers.BOWMAN_03}
+	end
+	return randomUnits
+end
+
 function spawnRandomUnitsOnSpawnPoint(spawnpointCheck, spawnPoint)
 	if spawnpointCheck.defeated == 0 then
 
-		local randomUnits = {Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03,Settlers.BOWMAN_01,Settlers.BOWMAN_02,Settlers.BOWMAN_03}
-		if Vars.Save4 >= difficultyChooser.hard.difficulty then
-			randomUnits = {Settlers.SWORDSMAN_03,Settlers.BOWMAN_02,Settlers.BOWMAN_03}
-		end
-		if Vars.Save4 >= difficultyChooser.extreme.difficulty then
-			randomUnits = {Settlers.SWORDSMAN_03,Settlers.BOWMAN_03}
-		end
+		local randomUnits = getRandomUnitsForDifficulty()
 
 		local amountOfSpawns = 1 + floorNumber(Vars.Save4 / 3)
 
