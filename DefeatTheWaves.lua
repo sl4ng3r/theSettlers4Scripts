@@ -19,7 +19,7 @@ function new_game()
 	Vars.Save5 = 0
 
 	-- Priests to sac
-	Vars.Save6 = 0
+	Vars.Save6 = -1
 
 	testfunction()
 
@@ -88,14 +88,14 @@ function testfunction()
 	if isDebug() == 1 then
 		dbg.stm("debug an")
 
-
+        dbg.stm((0.1 * 1 + 0.9)+ 0)
+        dbg.stm(floorNumber(0.4 * 5 * (0.1 * 1 + 0.9) ) * 2)
 
 		dbg.stm("aktuelles Mana7:" .. Magic.CurrentManaAmount(7) .. " fightStr:" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8) )
 		Buildings.AddBuilding(386, 397, 1, Buildings.STORAGEAREA)
 		Buildings.AddBuilding(475, 410, 3, Buildings.STORAGEAREA)
 	end
 end
-
 function startFinalWave()
 	Vars.Save2 = 11
 	--Vars.Save1 = 1
@@ -283,9 +283,7 @@ difficultyChooser= {
 
 function initGame()
 
-	if isDebug() == 1 then
-		Tutorial.RWM(1)
-	end
+
 
 
 	--Alle CPU deaktivieren
@@ -299,18 +297,25 @@ function initGame()
 	AI.SetPlayerVar(8, "AttackMode", 3,3,3)
 
 
-	startWaveAt(15)
-	startWaveAt(22)
-	startWaveAt(29)
-	startWaveAt(35)
-	startWaveAt(40)
-	startWaveAt(45)
-	startWaveAt(50)
-	startWaveAt(54)
-	startWaveAt(58)
-	startWaveAt(62)
-	startWaveAt(66)
-    startWaveAt(70)
+    local startTimeFirstWave = 15
+
+    if isDebug() == 1 then
+        Tutorial.RWM(1)
+        startTimeFirstWave = 8
+    end
+
+	startWaveAt(startTimeFirstWave)
+	startWaveAt(startTimeFirstWave + 7)
+	startWaveAt(startTimeFirstWave + 14)
+	startWaveAt(startTimeFirstWave + 20)
+	startWaveAt(startTimeFirstWave + 25)
+	startWaveAt(startTimeFirstWave + 30)
+	startWaveAt(startTimeFirstWave + 35)
+	startWaveAt(startTimeFirstWave + 39)
+	startWaveAt(startTimeFirstWave + 43)
+	startWaveAt(startTimeFirstWave + 47)
+	startWaveAt(startTimeFirstWave + 51)
+    startWaveAt(startTimeFirstWave + 55)
 
 	--requestMinuteEvent(startWave,71)
 
@@ -355,13 +360,13 @@ function startWaveAt(startTime)
 end
 
 function msgDifficulty()
-	dbg.stm("Spieler 1, wähle bitte auf der Karte unten links die gewünschte Schwierigkeit für diese Runde, indem du deinen Hauptmann in den entsprechenden Kreis schickst.")
+	dbg.stm("Spieler 1, wähle bitte auf der Karte unten links die gewünschte Schwierigkeit für diese Runde, indem du Hauptmänner in den Kreis schickst. Je mehr sich zu Minute 4 im Kreis befinden, desto schwieriger wird die Partie.")
 end
 
 function gameWon()
 	if Game.HasPlayerLost(1) == 0 then
 		Tutorial.Won()
-		dbg.stm("Herzlichen Glückwunsch!!! Das Spiel ist gewonnen. Ihr könnt dennoch weiterspielen und schauen, wie lange ihr durchhaltet.. :D")
+		dbg.stm("Herzlichen Glückwunsch!!! Das Spiel ist gewonnen! Ihr könnt dennoch weiterspielen und schauen, wie lange ihr durchhaltet.. :D")
 	end
 end
 
@@ -370,17 +375,20 @@ end
 
 function checkDifficulty()
 
-	local amountOfSoldiers = Settlers.AmountInArea(1, Settlers.SWORDSMAN_03, 906,1003, 8)
+	local amountOfSoldiers = Settlers.AmountInArea(1, Settlers.SQUADLEADER, 48,858, 8)
 	if amountOfSoldiers > 0 then
-		Settlers.KillSelectableSettlers(1, Settlers.SWORDSMAN_03, 906,1003, 5, 0)
+		Settlers.KillSelectableSettlers(1, Settlers.SQUADLEADER, 48,858, 8, 0)
 		Vars.Save4 = amountOfSoldiers
 	end
+
+    Settlers.KillSelectableSettlers(1, Settlers.SQUADLEADER, 85,858, 7, 0)
+
+    if Vars.Save4 == 0 then
+        Vars.Save4 = 1
+    end
+
 	dbg.stm("Ihr habt euch für eine Partie der Stufe " .. Vars.Save4 .. " entschieden!")
 
-
-	--checkChooser(difficultyChooser.normal)
-	--checkChooser(difficultyChooser.hard)
-	--checkChooser(difficultyChooser.extreme)
 
 	if Vars.Save4 < difficultyChooser.hard.difficulty then
 		dbg.stm("Es sollte eine leichte Partie werden.")
@@ -439,13 +447,11 @@ function checkAIs()
 	Vars.Save1 = counterOfPlayer
 
 	--Amount of Sac Points setzen
-	Vars.Save6 = counterOfPlayer * getAmountForOnePlayerForBonus()
 
 	dbg.stm("Ihr spielt eine Partie für " .. counterOfPlayer .. " Spieler")
 	setFinalWave()
 
 
-  --requestMinuteEvent(finalWave,getWinTime() - (5 + Vars.Save1))
 end
 
 function getAmountForOnePlayerForBonus()
@@ -520,18 +526,17 @@ end
 
 function reduceCreepsInSpawnPoint(spawnpoint,amountPlayers)
 
-	local radius
-	if Vars.Save4 <= difficultyChooser.normal.difficulty then
-		radius = 17 -  (( amountPlayers -1 ) * 3)
-	end
-
-	if Vars.Save4 <= difficultyChooser.extreme.difficulty then
-		radius = 15 - (( amountPlayers -1 ) * 3)
-	end
+	local radius = 15 - (( amountPlayers -1 ) * 3)
 
 	if amountPlayers == 5 then
 		radius = 0
 	end
+
+	if Vars.Save4 < difficultyChooser.hard.difficulty then
+		radius = 17 -  (( amountPlayers -1 ) * 2)
+	end
+
+
 
 	Settlers.KillSelectableSettlers(spawnpoint.player, spawnpoint.settlerType1, spawnpoint.settlersX, spawnpoint.settlersY, radius , 0)
 	Settlers.KillSelectableSettlers(spawnpoint.player, spawnpoint.settlerType2, spawnpoint.settlersX, spawnpoint.settlersY, radius , 0)
@@ -612,24 +617,26 @@ function startWave()
   AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
 
   if isDebug() == 1 then
-      dbg.stm("ChaosRound:" .. chaosRound .. " AttMin:" .. Game.Time() .. " wave:" .. Vars.Save2 .. " ---amLvl1:" .. getAmountLvl1() .. " amLvl2:" .. getAmountLvl2() .. " amLvl3:" .. getAmountLvl3() ..  " rndAm:" .. getAmountRandomUnits() .. " addRndmHard:" .. getAdditionalRandomUnitsHard().. " addRndmExt:" .. getAdditionalRandomUnitsExtreme() .. "--- aktueller Abzug:" .. getAmountRemoveForPlayers() .. " aktuelles Mana7:" .. Magic.CurrentManaAmount(7) .. " fightStr:" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8) )
+      dbg.stm("ChaosRound:" .. chaosRound .. " AttMin:" .. Game.Time() .. " wave:" .. Vars.Save2 .. " ---amLvl1:" .. getAmountLvl1() .. " amLvl2:" .. getAmountLvl2() .. " amLvl3:" .. getAmountLvl3() ..  " rndAm:" .. getAmountRandomUnits() .. " addRndm:" .. getAmountRandomUnitsDiff().. "--- aktueller Abzug:" .. getAmountRemoveForPlayers() .. " aktuelles Mana7:" .. Magic.CurrentManaAmount(7) .. " fightStr:" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8) )
   end
 
 
 end
 
 function spawnAmbush()
-	-- todo random spawn point
 	local randomValue = randomBetween(1,100)
 	if Vars.Save4 >= difficultyChooser.extreme.difficulty and randomValue <= 35 and Vars.Save2 > 1 then
+		dbg.stm("Ein Hinterhalt!!! Es wurden Truppen in euren Lagern gesichtet!")
+
+		local x = 339 + randomBetween(1,86)
+		local y = 340 + randomBetween(1,74)
 
 		local randomUnits = {Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03,Settlers.BOWMAN_02}
 		local unitIndex = randomBetween(1,getn(randomUnits))
-
-		dbg.stm("Ein Hinterhalt!!! Es wurden Truppen in euren Lagern gesichtet!")
-		Settlers.AddSettlers(388, 397, 7, randomUnits[unitIndex],getAmountRandomUnits() + Vars.Save2)
+		Settlers.AddSettlers(x, y, 7, randomUnits[unitIndex],getAmountRandomUnits() + Vars.Save2)
+		randomUnits = {Settlers.SWORDSMAN_01, Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03}
 		unitIndex = randomBetween(1,getn(randomUnits))
-		Settlers.AddSettlers(388, 397, 7, randomUnits[unitIndex], getAmountRandomUnitsDiff())
+		Settlers.AddSettlers(x, y, 7, randomUnits[unitIndex], getAmountRandomUnitsDiff())
 	end
 end
 
@@ -739,30 +746,32 @@ end
 
 
 
+
+
+function getAmountLvl1()
+	return floorNumber((3 - Vars.Save2) * getDifficultyMultiplier() + 0.00001) * Vars.Save1
+end
+
+function getAmountLvl2()
+	return floorNumber((0.5 * Vars.Save2 + 0.0004 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save4 + 0.2)* getDifficultyMultiplier() + 0.00001) * Vars.Save1 - getAmountRemoveForPlayers()
+end
+
+function getAmountLvl3()
+	return floorNumber((0.0095 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save2 + 0.3 * Vars.Save4) * getDifficultyMultiplier() + 0.00001) * Vars.Save1 - getAmountRemoveForPlayers()
+	--return max(0,floorNumber((0.014 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save2) *(0.08*Vars.Save4 + 0.5)) * Vars.Save1 - getAmountRemoveForPlayers())
+end
+
 function getAmountRandomUnits()
-    return floorNumber(0.02 * Vars.Save2 * Vars.Save2 + 0.02 * Vars.Save2 ) * Vars.Save1
+    return floorNumber(0.02 * Vars.Save2 * Vars.Save2 + 0.02 * Vars.Save2 + 0.00001 ) * Vars.Save1
 end
 
 function getAmountRandomUnitsDiff()
-	return floorNumber(0.4 * Vars.Save2 * getDifficultyMultiplier() ) * Vars.Save1
+    return floorNumber(0.4 * Vars.Save2 * getDifficultyMultiplier() + 0.00001 ) * Vars.Save1
 end
 
 
 function getDifficultyMultiplier()
-	return (0.1 * Vars.Save4 + 0.9)
-end
-
-function getAmountLvl1()
-	return max(0,(3 - Vars.Save2)) * getDifficultyMultiplier() * Vars.Save1
-end
-
-function getAmountLvl2()
-	return floorNumber((0.5 * Vars.Save2 + 0.0004 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save4 + 0.2)* getDifficultyMultiplier() * Vars.Save1 - getAmountRemoveForPlayers())
-end
-
-function getAmountLvl3()
-	return floorNumber((0.0095 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save2 + 0.3 * Vars.Save4) * getDifficultyMultiplier()) * Vars.Save1 - getAmountRemoveForPlayers()
-	--return max(0,floorNumber((0.014 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save2) *(0.08*Vars.Save4 + 0.5)) * Vars.Save1 - getAmountRemoveForPlayers())
+    return max(1, (0.1 * Vars.Save4 + 0.9))
 end
 
 function getAmountRemoveForPlayers()
@@ -842,7 +851,12 @@ end
 
 function checkSacs()
 	if Game.Time() > getTimeToCheckAIs() then
-		local sacPoints
+
+		if Vars.Save6 == -1 then
+			Vars.Save6 = counterOfPlayer * getAmountForOnePlayerForBonus() - reduceSacPointsForManyPlayers()
+		end
+
+			local sacPoints
 		local amountOfPriestOnSacPoints = getPointsFromSacPoint(394,233) + getPointsFromSacPoint(462,623)
 
 		if amountOfPriestOnSacPoints > 0 then
@@ -851,9 +865,9 @@ function checkSacs()
 
 			while amountOfPriestOnSacPoints >= Vars.Save6 do
 				amountOfPriestOnSacPoints = amountOfPriestOnSacPoints - Vars.Save6
-				Vars.Save6 = getAmountForOnePlayerForBonus() * getAmountOfLivingPlayers()
+				Vars.Save6 = getAmountForOnePlayerForBonus() * getAmountOfLivingPlayers() - reduceSacPointsForManyPlayers()
 				dbg.stm("Ihr hört eine durchdringende Stimme.... Euer Opfer soll belohnt werden. Diese Truppen sollen euch im Kampf unterstützen.. ")
-				spawnBonusForLivingPlayers(3 + Vars.Save1)
+				spawnBonusForLivingPlayers(4 + Vars.Save1)
 			end
 
 			Vars.Save6 = Vars.Save6 - amountOfPriestOnSacPoints
@@ -861,6 +875,10 @@ function checkSacs()
 		end
 	end
 
+end
+
+function reduceSacPointsForManyPlayers()
+	return floorNumber(1.2 * getAmountOfLivingPlayers() - 1)
 end
 
 function getAmountOfLivingPlayers()
@@ -908,7 +926,7 @@ function checkBonus()
 			counter = counter + 1
 		end
 		if allReady == 1 and getAmountOfLivingPlayers() > 0 then
-			spawnBonusForLivingPlayers(6)
+			spawnBonusForLivingPlayers(7)
 			dbg.stm("Ihr hört eine durchdringende Stimme.... Eure Tempel sind ein Beweiß eures Glaubens.. Dies soll belohnt werden. Diese Truppen sollen euch im Kampf unterstützen.. Opfert weitere Priester und ihr sollt entlohnt werden..  ")
 			Vars.Save5 = 1
 		end

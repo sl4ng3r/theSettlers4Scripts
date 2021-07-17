@@ -468,6 +468,8 @@ function destroyParty(theplayer)
         Goods.Delete(theplayer.x,theplayer.y,35,counter)
         counter = counter +  1
     end
+
+    Game.PlayerLost(theplayer.id)
 end
 
 
