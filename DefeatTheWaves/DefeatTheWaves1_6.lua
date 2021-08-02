@@ -314,6 +314,10 @@ function checkAIs()
     dbg.stm("Ihr spielt eine Partie für " .. counterOfPlayer .. " Spieler")
 
     requestMinuteEvent(finalWave,getWinTime() - (5 + Vars.Save1))
+
+    --muss wieder raus
+    startFinalWave()
+
 end
 
 function checkIfDestroyParty(theplayer)

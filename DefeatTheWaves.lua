@@ -53,10 +53,14 @@ gameDone = 0
 
 
 function isDebug()
-	return 0
+	return 1
 end
 
 function spawnDegubUnits()
+	return 1
+end
+
+function spawnPlayer3()
 	return 0
 end
 
@@ -77,29 +81,39 @@ function testfunction()
         Settlers.AddSettlers(420, 470, 1, Settlers.PRIEST, 20)
 
 		--player3
-		Settlers.AddSettlers(471, 386, 3, Settlers.BOWMAN_03, 1000)
-
+		if spawnPlayer3() == 1 then
+			Settlers.AddSettlers(471, 386, 3, Settlers.BOWMAN_03, 1000)
+		end
 
 		Game.SetFightingStrength(1, 120)
 
+		Buildings.AddBuilding(386, 397, 1, Buildings.STORAGEAREA)
+		if spawnPlayer3() == 1 then
+			Buildings.AddBuilding(475, 410, 3, Buildings.STORAGEAREA)
+		end
 	end
 
 
 	if isDebug() == 1 then
 		dbg.stm("debug an")
 
-        dbg.stm((0.1 * 1 + 0.9)+ 0)
-        dbg.stm(floorNumber(0.4 * 5 * (0.1 * 1 + 0.9) ) * 2)
+        --dbg.stm((0.1 * 1 + 0.9)+ 0)
+
+		dbg.stm(floorNumber((3-3) * (0.1 * 1 + 0.9001 )) * 1)
+
+		dbg.stm((3-3) * (0.1 * 1 + 0.9001)+ 0.00001)
+
+		dbg.stm(floorNumber(0.4 * 5 * (0.101 * 1 + 0.9) ) * 2)
 
 		dbg.stm("aktuelles Mana7:" .. Magic.CurrentManaAmount(7) .. " fightStr:" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8) )
-		Buildings.AddBuilding(386, 397, 1, Buildings.STORAGEAREA)
-		Buildings.AddBuilding(475, 410, 3, Buildings.STORAGEAREA)
+
+
 	end
 end
 function startFinalWave()
-	Vars.Save2 = 11
-	--Vars.Save1 = 1
-	--Vars.Save4 = difficultyChooser.extreme.difficulty
+	Vars.Save2 = 12
+	Vars.Save1 = 1
+	Vars.Save4 = 1
 	finalWave()
 
 end
@@ -192,6 +206,8 @@ spawnpoints={
 			defeated=0,
 			settlersX=150,
 			settlersY=460,
+			rmspecX=244,
+			rmspecY=460,
 			defeatMessage="Ihr habt die Sanitäter der Römer besiegt!"
 		},
 		--leftTop
@@ -205,6 +221,8 @@ spawnpoints={
 			defeated=0,
 			settlersX=97,
 			settlersY=89,
+			rmspecX=208,
+			rmspecY=182,
 			defeatMessage="Ihr habt die Bogenschützen der Mayas besiegt!"
 		},
 		--rigthTop
@@ -218,6 +236,8 @@ spawnpoints={
 			defeated=0,
 			settlersX=501,
 			settlersY=129,
+			rmspecX=429,
+			rmspecY=211,
 			defeatMessage="Ihr habt die Schwertkämpfer der Mayas besiegt!"
 		},
 		--right
@@ -231,6 +251,8 @@ spawnpoints={
 			defeated=0,
 			settlersX=702,
 			settlersY=447,
+			rmspecX=617,
+			rmspecY=440,
 			defeatMessage="Ihr habt die Blasrohr Kämpfer der Mayas besiegt!"
 		},
 		--rightbottom
@@ -244,6 +266,8 @@ spawnpoints={
 			defeated=0,
 			settlersX=687,
 			settlersY=774,
+			rmspecX=582,
+			rmspecY=710,
 			defeatMessage="Ihr habt die Bogenschützen der Wikinger besiegt!"
 		},
 		--leftbottom
@@ -257,6 +281,8 @@ spawnpoints={
 			defeated=0,
 			settlersX=304,
 			settlersY=706,
+			rmspecX=387,
+			rmspecY=623,
 			defeatMessage="Ihr habt die Axtkämpfer der Wikinger besiegt!"
 		}
 }
@@ -272,12 +298,12 @@ difficultyChooser= {
 	hard={
 		x=74,
 		y=873,
-		difficulty=3
+		difficulty=4
 	},
 	extreme={
 		x=89,
 		y=866,
-		difficulty=6
+		difficulty=7
 	}
 }
 
@@ -299,9 +325,12 @@ function initGame()
 
     local startTimeFirstWave = 15
 
-    if isDebug() == 1 then
+    if spawnDegubUnits() == 1 then
         Tutorial.RWM(1)
-        startTimeFirstWave = 8
+        --startTimeFirstWave = 8
+		-- muss wieder raus
+		--requestMinuteEvent(startFinalWave,13)
+
     end
 
 	startWaveAt(startTimeFirstWave)
@@ -324,6 +353,7 @@ function initGame()
 		setFinalWave()
 	end
 
+
 	local attackTime = getWinTime() + 2
 	while attackTime <= 200 do
 		requestMinuteEvent(startWave,attackTime)
@@ -334,7 +364,7 @@ function initGame()
     if Game.Time() <= 1 then
         removeBigTowerAtPossitionForPlayer(63,850,1)
         removeBigTowerAtPossitionForPlayer(647,607,2)
-        removeBigTowerAtPossitionForPlayer(180,211,5)
+        removeBigTowerAtPossitionForPlayer(191,220,5)
     end
 	--Message zum waehlen der Schwirigkeit
 	requestMinuteEvent(msgDifficulty,1)
@@ -558,14 +588,17 @@ function finalWave()
 	spawnSpawnPoint(spawnpoints.sp5,spawnpoints.sp5)
 	spawnSpawnPoint(spawnpoints.sp6,spawnpoints.sp6)
 
+	doRandomSpawnOnEachSpawnpoint()
+	doRandomSpawnOnEachSpawnpoint()
+
 	--Extra Schwert und Axt
 	if Vars.Save4 >= difficultyChooser.hard.difficulty then
 		spawnSpawnPointSpecific(spawnpoints.sp3,spawnpoints.sp3, spawnpoints.sp3.settlerType3, 3 * Vars.Save1)
 		spawnSpawnPointSpecific(spawnpoints.sp6,spawnpoints.sp6, spawnpoints.sp6.settlerType3, 3 * Vars.Save1)
+		doRandomSpawnOnEachSpawnpoint()
 	end
 
-	doRandomSpawnOnEachSpawnpoint()
-	doRandomSpawnOnEachSpawnpoint()
+
 
 
 
@@ -749,34 +782,35 @@ end
 
 
 function getAmountLvl1()
-	return floorNumber((3 - Vars.Save2) * getDifficultyMultiplier() + 0.00001) * Vars.Save1
+	return max(0 ,floorNumber((2 - Vars.Save2) * getDifficultyMultiplier()) * Vars.Save1)
 end
 
 function getAmountLvl2()
-	return floorNumber((0.5 * Vars.Save2 + 0.0004 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save4 + 0.2)* getDifficultyMultiplier() + 0.00001) * Vars.Save1 - getAmountRemoveForPlayers()
+	return floorNumber((0.3 * Vars.Save2 + 0.0003 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 + 0.3 * Vars.Save4 + 0.5)* getDifficultyMultiplier()) * Vars.Save1 - getAmountRemoveForPlayers()
 end
 
 function getAmountLvl3()
-	return floorNumber((0.0095 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save2 + 0.3 * Vars.Save4) * getDifficultyMultiplier() + 0.00001) * Vars.Save1 - getAmountRemoveForPlayers()
+	return floorNumber((0.007 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.2 * Vars.Save2 + 0.6) * getDifficultyMultiplier() ) * Vars.Save1 - getAmountRemoveForPlayers()
 	--return max(0,floorNumber((0.014 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save2) *(0.08*Vars.Save4 + 0.5)) * Vars.Save1 - getAmountRemoveForPlayers())
 end
 
 function getAmountRandomUnits()
-    return floorNumber(0.02 * Vars.Save2 * Vars.Save2 + 0.02 * Vars.Save2 + 0.00001 ) * Vars.Save1
+    return floorNumber(0.02 * Vars.Save2 * Vars.Save2 + 0.02 * Vars.Save2 ) * Vars.Save1
 end
 
 function getAmountRandomUnitsDiff()
-    return floorNumber(0.4 * Vars.Save2 * getDifficultyMultiplier() + 0.00001 ) * Vars.Save1
+    return floorNumber(0.3 * Vars.Save2 * getDifficultyMultiplier()  ) * Vars.Save1
 end
 
 
 function getDifficultyMultiplier()
-    return max(1, (0.1 * Vars.Save4 + 0.9))
+    return max(1, (0.21 * Vars.Save4 + 0.9))
 end
 
 function getAmountRemoveForPlayers()
-	return floorNumber(0.09 * Vars.Save2 * Vars.Save2 * 0.3 * (Vars.Save1 - 1) * (Vars.Save1 - 1) + max(0, 0.6 * Vars.Save1 -1) + 0.2 * Vars.Save2 * minNumber(1,  Vars.Save1-1))
-			---(Vars.Save1 - 1)) + 0.2 * Vars.Save2 * minNumber(1, Vars.Save1 - 1) )
+	return floorNumber((Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.0035 * Vars.Save2 * Vars.Save2 + (Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.005 * Vars.Save2 * Vars.Save2 * 0.65 * Vars.Save4 )
+	--return floorNumber(0.09 * Vars.Save2 * Vars.Save2 * 0.3 * (Vars.Save1 - 1) * (Vars.Save1 - 1) + max(0, 0.6 * Vars.Save1 -1) + 0.2 * Vars.Save2 * minNumber(1,  Vars.Save1-1))
+	---(Vars.Save1 - 1)) + 0.2 * Vars.Save2 * minNumber(1, Vars.Save1 - 1) )
 end
 tickCounter = 1
 function cheatProtection()
@@ -827,8 +861,8 @@ function removeSpecialistNearSpawnpoint(spawnPoint, playerId)
 
 	--IDs der Gebaeude gehen von 1 - 83
 	while index <= getn(specialists) do
-		if Settlers.AmountInArea(playerId, specialists[index], spawnPoint.x, spawnPoint.y, 65) > 0 then
-			Settlers.KillSelectableSettlers(playerId, specialists[index], spawnPoint.x, spawnPoint.y, 65, 0)
+		if Settlers.AmountInArea(playerId, specialists[index], spawnPoint.rmspecX, spawnPoint.rmspecY, 15) > 0 then
+			Settlers.KillSelectableSettlers(playerId, specialists[index], spawnPoint.rmspecX, spawnPoint.rmspecY, 15, 0)
 			dbg.stm("Ein greller Blitz, zzzzzschhhhh. Deine Einheiten sterben... Du hörst eine Stimme... Nur Soldaten können sich den Portalen nähern. ")
 		end
 		index = index +  1
@@ -938,7 +972,7 @@ function spawnBonusForLivingPlayers(amountUnits)
 	local counter = 1
 	while counter <= 5  do
 		if Game.HasPlayerLost(counter) == 0 then
-			Settlers.AddSettlers(396,390, counter, Settlers.BOWMAN_03, amountUnits)
+			Settlers.AddSettlers(418,356, counter, Settlers.BOWMAN_03, amountUnits)
 
 		end
 		counter = counter + 1
