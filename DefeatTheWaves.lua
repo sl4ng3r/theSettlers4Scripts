@@ -562,8 +562,12 @@ function reduceCreepsInSpawnPoint(spawnpoint,amountPlayers)
 		radius = 0
 	end
 
+	if Vars.Save4 < difficultyChooser.extreme.difficulty then
+		radius = radius + 1
+	end
+
 	if Vars.Save4 < difficultyChooser.hard.difficulty then
-		radius = 17 -  (( amountPlayers -1 ) * 2)
+		radius = 18 -  (( amountPlayers -1 ) * 2)
 	end
 
 
@@ -765,15 +769,12 @@ function spawnRandomUnitsOnSpawnPoint(spawnpointCheck, spawnPoint)
 
 		local randomUnits = getRandomUnitsForDifficulty()
 
-		local amountOfSpawns = 1 + floorNumber(Vars.Save4 / 3)
-
-		while amountOfSpawns > 0  do
-			local unitIndex = randomBetween(1,getn(randomUnits))
-			Settlers.AddSettlers(spawnPoint.x, spawnPoint.y, spawnpointCheck.player, randomUnits[unitIndex],getAmountRandomUnits())
-			amountOfSpawns = amountOfSpawns -  1
-		end
+		local unitIndex = randomBetween(1,getn(randomUnits))
+		Settlers.AddSettlers(spawnPoint.x, spawnPoint.y, spawnpointCheck.player, randomUnits[unitIndex],getAmountRandomUnits())
 		unitIndex = randomBetween(1,getn(randomUnits))
 		Settlers.AddSettlers(spawnPoint.x, spawnPoint.y, spawnpointCheck.player, randomUnits[unitIndex],getAmountRandomUnitsDiff())
+
+
 	end
 end
 
@@ -786,16 +787,16 @@ function getAmountLvl1()
 end
 
 function getAmountLvl2()
-	return floorNumber((0.3 * Vars.Save2 + 0.0003 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 + 0.3 * Vars.Save4 + 0.5)* getDifficultyMultiplier()) * Vars.Save1 - getAmountRemoveForPlayers()
+	return floorNumber((0.3 * Vars.Save2 + 0.00028 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 + 0.35 * Vars.Save4 + 0.5)* getDifficultyMultiplier()) * Vars.Save1 - getAmountRemoveForPlayers()
 end
 
 function getAmountLvl3()
-	return floorNumber((0.007 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.2 * Vars.Save2 + 0.6) * getDifficultyMultiplier() ) * Vars.Save1 - getAmountRemoveForPlayers()
+	return floorNumber((0.0065 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.2 * Vars.Save2 + 0.6) * getDifficultyMultiplier() ) * Vars.Save1 - getAmountRemoveForPlayers()
 	--return max(0,floorNumber((0.014 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save2) *(0.08*Vars.Save4 + 0.5)) * Vars.Save1 - getAmountRemoveForPlayers())
 end
 
 function getAmountRandomUnits()
-    return floorNumber(0.02 * Vars.Save2 * Vars.Save2 + 0.02 * Vars.Save2 ) * Vars.Save1
+    return floorNumber(0.01 * Vars.Save2 * Vars.Save2 + 0.015 * Vars.Save2  + 0.004 * Vars.Save4 * Vars.Save2 * Vars.Save2) * Vars.Save1
 end
 
 function getAmountRandomUnitsDiff()
@@ -804,11 +805,11 @@ end
 
 
 function getDifficultyMultiplier()
-    return max(1, (0.21 * Vars.Save4 + 0.9))
+    return max(1, (0.209 * Vars.Save4 + 0.9))
 end
 
 function getAmountRemoveForPlayers()
-	return floorNumber((Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.0035 * Vars.Save2 * Vars.Save2 + (Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.005 * Vars.Save2 * Vars.Save2 * 0.65 * Vars.Save4 )
+	return floorNumber((Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.0032 * Vars.Save2 * Vars.Save2 + (Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.0047 * Vars.Save2 * Vars.Save2 * 0.63 * Vars.Save4 )
 	--return floorNumber(0.09 * Vars.Save2 * Vars.Save2 * 0.3 * (Vars.Save1 - 1) * (Vars.Save1 - 1) + max(0, 0.6 * Vars.Save1 -1) + 0.2 * Vars.Save2 * minNumber(1,  Vars.Save1-1))
 	---(Vars.Save1 - 1)) + 0.2 * Vars.Save2 * minNumber(1, Vars.Save1 - 1) )
 end
