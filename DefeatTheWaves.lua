@@ -396,7 +396,7 @@ end
 function gameWon()
 	if Game.HasPlayerLost(1) == 0 then
 		Tutorial.Won()
-		dbg.stm("Herzlichen Glückwunsch!!! Das Spiel ist gewonnen! Ihr könnt dennoch weiterspielen und schauen, wie lange ihr durchhaltet.. :D")
+		dbg.stm("Herzlichen Glückwunsch!!! Ihr habt Defeat the waves auf Stufe " ..  Vars.Save4 .. " mit " .. Vars.Save1 .. " Spielern geschafft! Ihr könnt dennoch weiterspielen und schauen, wie lange ihr durchhaltet.. :D")
 	end
 end
 
@@ -599,9 +599,12 @@ function finalWave()
 	if Vars.Save4 >= difficultyChooser.hard.difficulty then
 		spawnSpawnPointSpecific(spawnpoints.sp3,spawnpoints.sp3, spawnpoints.sp3.settlerType3, 3 * Vars.Save1)
 		spawnSpawnPointSpecific(spawnpoints.sp6,spawnpoints.sp6, spawnpoints.sp6.settlerType3, 3 * Vars.Save1)
-		doRandomSpawnOnEachSpawnpoint()
+
 	end
 
+	if Vars.Save4 >= difficultyChooser.extreme.difficulty then
+		doRandomSpawnOnEachSpawnpoint()
+	end
 
 
 
@@ -619,14 +622,14 @@ function startWave()
 
 
 
-	if Vars.Save4 < difficultyChooser.hard.difficulty then
-		addFightingStrength(4)
-	elseif Vars.Save4 < difficultyChooser.extreme.difficulty then
-		addFightingStrength(6)
-	else
-		addFightingStrength(8)
-	end
-
+--	if Vars.Save4 < difficultyChooser.hard.difficulty then
+--		addFightingStrength(4)
+--	elseif Vars.Save4 < difficultyChooser.extreme.difficulty then
+--		addFightingStrength(6)
+--	else
+--		addFightingStrength(8)
+--	end
+	addFightingStrength(minNumber(Vars.Save4, 7))
 
 
   if Game.Time() > getWinTime() then
@@ -662,7 +665,7 @@ end
 
 function spawnAmbush()
 	local randomValue = randomBetween(1,100)
-	if Vars.Save4 >= difficultyChooser.extreme.difficulty and randomValue <= 35 and Vars.Save2 > 1 then
+	if Vars.Save4 >= difficultyChooser.extreme.difficulty and randomValue <= 37 and Vars.Save2 > 1 and Vars.Save2 < 11 then
 		dbg.stm("Ein Hinterhalt!!! Es wurden Truppen in euren Lagern gesichtet!")
 
 		local x = 339 + randomBetween(1,86)
@@ -670,18 +673,21 @@ function spawnAmbush()
 
 		local randomUnits = {Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03,Settlers.BOWMAN_02}
 		local unitIndex = randomBetween(1,getn(randomUnits))
-		Settlers.AddSettlers(x, y, 7, randomUnits[unitIndex],getAmountRandomUnits() + Vars.Save2)
+		if isDebug() == 1 then
+			dbg.stm("Random Spawn: " ..  (getAmountRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2)) .. " normal / " .. (getAmountRandomUnitsDiff() - floorNumber((Vars.Save1 - 1) * 0.045 * Vars.Save1 * Vars.Save2)) .. " additional")
+		end
+		Settlers.AddSettlers(x, y, 7, randomUnits[unitIndex],getAmountRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2))
 		randomUnits = {Settlers.SWORDSMAN_01, Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03}
 		unitIndex = randomBetween(1,getn(randomUnits))
-		Settlers.AddSettlers(x, y, 7, randomUnits[unitIndex], getAmountRandomUnitsDiff())
+		Settlers.AddSettlers(x, y, 7, randomUnits[unitIndex], getAmountRandomUnitsDiff() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2))
 	end
 end
 
 
 function addFightingStrength(strength)
-  Game.SetFightingStrength(6, Game.GetOffenceFightingStrength(6) + strength)
-  Game.SetFightingStrength(7, Game.GetOffenceFightingStrength(7) + strength)
-  Game.SetFightingStrength(8, Game.GetOffenceFightingStrength(8) + strength)
+  Game.SetFightingStrength(6, Game.GetOffenceFightingStrength(6) + strength + 1)
+  Game.SetFightingStrength(7, Game.GetOffenceFightingStrength(7) + strength + 1)
+  Game.SetFightingStrength(8, Game.GetOffenceFightingStrength(8) + strength + 1)
 end
 
 function spawnChaosRound()
@@ -787,7 +793,7 @@ function getAmountLvl1()
 end
 
 function getAmountLvl2()
-	return floorNumber((0.3 * Vars.Save2 + 0.00028 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 + 0.35 * Vars.Save4 + 0.5)* getDifficultyMultiplier()) * Vars.Save1 - getAmountRemoveForPlayers()
+	return floorNumber((0.3 * Vars.Save2 + 0.00028 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 + 0.3 * Vars.Save4 + 0.5)* getDifficultyMultiplier()) * Vars.Save1 - getAmountRemoveForPlayers()
 end
 
 function getAmountLvl3()
@@ -809,7 +815,7 @@ function getDifficultyMultiplier()
 end
 
 function getAmountRemoveForPlayers()
-	return floorNumber((Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.0032 * Vars.Save2 * Vars.Save2 + (Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.0047 * Vars.Save2 * Vars.Save2 * 0.63 * Vars.Save4 )
+	return floorNumber((Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.003 * Vars.Save2 * Vars.Save2 + (Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.0035 * Vars.Save2 * Vars.Save2 * 0.6 * Vars.Save4 )
 	--return floorNumber(0.09 * Vars.Save2 * Vars.Save2 * 0.3 * (Vars.Save1 - 1) * (Vars.Save1 - 1) + max(0, 0.6 * Vars.Save1 -1) + 0.2 * Vars.Save2 * minNumber(1,  Vars.Save1-1))
 	---(Vars.Save1 - 1)) + 0.2 * Vars.Save2 * minNumber(1, Vars.Save1 - 1) )
 end
@@ -961,7 +967,7 @@ function checkBonus()
 			counter = counter + 1
 		end
 		if allReady == 1 and getAmountOfLivingPlayers() > 0 then
-			spawnBonusForLivingPlayers(7)
+			spawnBonusForLivingPlayers(floorNumber(3 + (0.5 * Vars.Save4)))
 			dbg.stm("Ihr hört eine durchdringende Stimme.... Eure Tempel sind ein Beweiß eures Glaubens.. Dies soll belohnt werden. Diese Truppen sollen euch im Kampf unterstützen.. Opfert weitere Priester und ihr sollt entlohnt werden..  ")
 			Vars.Save5 = 1
 		end

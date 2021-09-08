@@ -599,9 +599,9 @@ end
 
 
 function addFightingStrength(strength)
-    Game.SetFightingStrength(6, Game.GetOffenceFightingStrength(6) + strength)
-    Game.SetFightingStrength(7, Game.GetOffenceFightingStrength(7) + strength)
-    Game.SetFightingStrength(8, Game.GetOffenceFightingStrength(8) + strength)
+    Game.SetFightingStrength(6, Game.GetOffenceFightingStrength(6) + strength + 1)
+    Game.SetFightingStrength(7, Game.GetOffenceFightingStrength(7) + strength + 1)
+    Game.SetFightingStrength(8, Game.GetOffenceFightingStrength(8) + strength + 1)
 end
 
 function spawnChaosRound()
