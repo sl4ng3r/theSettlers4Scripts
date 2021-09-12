@@ -303,7 +303,7 @@ difficultyChooser= {
 	extreme={
 		x=89,
 		y=866,
-		difficulty=7
+		difficulty=8
 	}
 }
 
