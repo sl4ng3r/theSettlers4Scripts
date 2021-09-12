@@ -53,11 +53,11 @@ gameDone = 0
 
 
 function isDebug()
-	return 1
+	return 0
 end
 
 function spawnDegubUnits()
-	return 1
+	return 0
 end
 
 function spawnPlayer3()
@@ -430,7 +430,12 @@ function checkDifficulty()
 		Buildings.AddBuilding(61, 851, 1, Buildings.EYECATCHER03)
 		players.p1.amountOfStartBuildings = players.p1.amountOfStartBuildings + 2
 	else
-		dbg.stm("Ihr spielt eine extrem harte Partie! Dann mal viel Glück!")
+		if Vars.Save4 == 10 then
+			dbg.stm("Ihr spielt die maximale Stufe!! Habt ihr euch das gut überlegt?")
+		else
+			dbg.stm("Ihr spielt eine extrem harte Partie! Dann mal viel Glück!")
+		end
+
 		Buildings.AddBuilding(61, 845, 1, Buildings.EYECATCHER03)
 		Buildings.AddBuilding(61, 851, 1, Buildings.EYECATCHER03)
 		Buildings.AddBuilding(67, 852, 1, Buildings.EYECATCHER03)
@@ -815,7 +820,7 @@ function getDifficultyMultiplier()
 end
 
 function getAmountRemoveForPlayers()
-	return floorNumber((Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.003 * Vars.Save2 * Vars.Save2 + (Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.0035 * Vars.Save2 * Vars.Save2 * 0.6 * Vars.Save4 )
+	return floorNumber((Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.003 * Vars.Save2 * Vars.Save2 + (Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.0035 * Vars.Save2 * Vars.Save2 * 0.51 * Vars.Save4 )
 	--return floorNumber(0.09 * Vars.Save2 * Vars.Save2 * 0.3 * (Vars.Save1 - 1) * (Vars.Save1 - 1) + max(0, 0.6 * Vars.Save1 -1) + 0.2 * Vars.Save2 * minNumber(1,  Vars.Save1-1))
 	---(Vars.Save1 - 1)) + 0.2 * Vars.Save2 * minNumber(1, Vars.Save1 - 1) )
 end
