@@ -97,6 +97,8 @@ function testfunction()
 	if isDebug() == 1 then
 		dbg.stm("debug an")
 
+
+
         --dbg.stm((0.1 * 1 + 0.9)+ 0)
 
 		dbg.stm(floorNumber((3-3) * (0.1 * 1 + 0.9001 )) * 1)
@@ -407,11 +409,11 @@ function checkDifficulty()
 
 	local amountOfSoldiers = Settlers.AmountInArea(1, Settlers.SQUADLEADER, 48,858, 8)
 	if amountOfSoldiers > 0 then
-		Settlers.KillSelectableSettlers(1, Settlers.SQUADLEADER, 48,858, 8, 0)
+		Settlers.KillSelectableSettlers(1, Settlers.SQUADLEADER, 48,858, 9, 0)
 		Vars.Save4 = amountOfSoldiers
 	end
 
-    Settlers.KillSelectableSettlers(1, Settlers.SQUADLEADER, 85,858, 7, 0)
+    Settlers.KillSelectableSettlers(1, Settlers.SQUADLEADER, 85,858, 10, 0)
 
     if Vars.Save4 == 0 then
         Vars.Save4 = 1
@@ -430,7 +432,7 @@ function checkDifficulty()
 		Buildings.AddBuilding(61, 851, 1, Buildings.EYECATCHER03)
 		players.p1.amountOfStartBuildings = players.p1.amountOfStartBuildings + 2
 	else
-		if Vars.Save4 == 10 then
+		if Vars.Save4 == 12 then
 			dbg.stm("Ihr spielt die maximale Stufe!! Habt ihr euch das gut überlegt?")
 		else
 			dbg.stm("Ihr spielt eine extrem harte Partie! Dann mal viel Glück!")
@@ -485,6 +487,13 @@ function checkAIs()
 
 	dbg.stm("Ihr spielt eine Partie für " .. counterOfPlayer .. " Spieler")
 	setFinalWave()
+
+	if Vars.Save4 >= 9 then
+		addFightingStrength(5)
+	end
+	if Vars.Save4 >= 11 then
+		addFightingStrength(3)
+	end
 
 
 end
@@ -662,7 +671,7 @@ function startWave()
   AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
 
   if isDebug() == 1 then
-      dbg.stm("ChaosRound:" .. chaosRound .. " AttMin:" .. Game.Time() .. " wave:" .. Vars.Save2 .. " ---amLvl1:" .. getAmountLvl1() .. " amLvl2:" .. getAmountLvl2() .. " amLvl3:" .. getAmountLvl3() ..  " rndAm:" .. getAmountRandomUnits() .. " addRndm:" .. getAmountRandomUnitsDiff().. "--- aktueller Abzug:" .. getAmountRemoveForPlayers() .. " aktuelles Mana7:" .. Magic.CurrentManaAmount(7) .. " fightStr:" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8) )
+      dbg.stm("ChaosRound:" .. chaosRound .. " AttMin:" .. Game.Time() .. " wave:" .. Vars.Save2 .. " ---amLvl1:" .. getAmountLvl1() .. " amLvl2:" .. getAmountLvl2() .. " amLvl3:" .. getAmountLvl3() ..  " rndAm:" .. getAmountRandomUnits() .. " addRndm:" .. getAmountAdditionalRandomUnits().. "--- aktueller Abzug:" .. getAmountRemoveForPlayers() .. " Gesamt:" .. getAmountLvl1() + getAmountLvl2()  + getAmountLvl3() +  getAmountRandomUnits() + getAmountAdditionalRandomUnits() ..  " aktuelles Mana7:" .. Magic.CurrentManaAmount(7) .. " fightStr:" .. Game.GetOffenceFightingStrength(6) .. "/" .. Game.GetOffenceFightingStrength(7) .. "/" .. Game.GetOffenceFightingStrength(8) )
   end
 
 
@@ -679,12 +688,12 @@ function spawnAmbush()
 		local randomUnits = {Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03,Settlers.BOWMAN_02}
 		local unitIndex = randomBetween(1,getn(randomUnits))
 		if isDebug() == 1 then
-			dbg.stm("Random Spawn: " ..  (getAmountRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2)) .. " normal / " .. (getAmountRandomUnitsDiff() - floorNumber((Vars.Save1 - 1) * 0.045 * Vars.Save1 * Vars.Save2)) .. " additional")
+			dbg.stm("Random Spawn: " ..  (getAmountRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2)) .. " normal / " .. (getAmountAdditionalRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.045 * Vars.Save1 * Vars.Save2)) .. " additional")
 		end
 		Settlers.AddSettlers(x, y, 7, randomUnits[unitIndex],getAmountRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2))
 		randomUnits = {Settlers.SWORDSMAN_01, Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03}
 		unitIndex = randomBetween(1,getn(randomUnits))
-		Settlers.AddSettlers(x, y, 7, randomUnits[unitIndex], getAmountRandomUnitsDiff() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2))
+		Settlers.AddSettlers(x, y, 7, randomUnits[unitIndex], getAmountAdditionalRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2))
 	end
 end
 
@@ -783,7 +792,7 @@ function spawnRandomUnitsOnSpawnPoint(spawnpointCheck, spawnPoint)
 		local unitIndex = randomBetween(1,getn(randomUnits))
 		Settlers.AddSettlers(spawnPoint.x, spawnPoint.y, spawnpointCheck.player, randomUnits[unitIndex],getAmountRandomUnits())
 		unitIndex = randomBetween(1,getn(randomUnits))
-		Settlers.AddSettlers(spawnPoint.x, spawnPoint.y, spawnpointCheck.player, randomUnits[unitIndex],getAmountRandomUnitsDiff())
+		Settlers.AddSettlers(spawnPoint.x, spawnPoint.y, spawnpointCheck.player, randomUnits[unitIndex], getAmountAdditionalRandomUnits())
 
 
 	end
@@ -798,19 +807,19 @@ function getAmountLvl1()
 end
 
 function getAmountLvl2()
-	return floorNumber((0.3 * Vars.Save2 + 0.00028 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2 + 0.3 * Vars.Save4 + 0.5)* getDifficultyMultiplier()) * Vars.Save1 - getAmountRemoveForPlayers()
+	return floorNumber((0.3 * Vars.Save2 + 0.0002 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2)* getDifficultyMultiplier() + 0.9 * Vars.Save4) * Vars.Save1 - getAmountRemoveForPlayers()
 end
 
 function getAmountLvl3()
-	return floorNumber((0.0065 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.2 * Vars.Save2 + 0.6) * getDifficultyMultiplier() ) * Vars.Save1 - getAmountRemoveForPlayers()
+	return floorNumber((0.0075 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.2 * Vars.Save2 + 0.6) * getDifficultyMultiplier() ) * Vars.Save1 - getAmountRemoveForPlayers()
 	--return max(0,floorNumber((0.014 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save2) *(0.08*Vars.Save4 + 0.5)) * Vars.Save1 - getAmountRemoveForPlayers())
 end
 
 function getAmountRandomUnits()
-    return floorNumber(0.01 * Vars.Save2 * Vars.Save2 + 0.015 * Vars.Save2  + 0.004 * Vars.Save4 * Vars.Save2 * Vars.Save2) * Vars.Save1
+    return floorNumber(0.01 * Vars.Save2 * Vars.Save2 + 0.015 * Vars.Save2  + 0.004 * Vars.Save4 * Vars.Save2 * Vars.Save2 +  0.2 * Vars.Save4) * Vars.Save1
 end
 
-function getAmountRandomUnitsDiff()
+function getAmountAdditionalRandomUnits()
     return floorNumber(0.3 * Vars.Save2 * getDifficultyMultiplier()  ) * Vars.Save1
 end
 
@@ -820,7 +829,7 @@ function getDifficultyMultiplier()
 end
 
 function getAmountRemoveForPlayers()
-	return floorNumber((Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.003 * Vars.Save2 * Vars.Save2 + (Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.0035 * Vars.Save2 * Vars.Save2 * 0.51 * Vars.Save4 )
+	return floorNumber((Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.002 * Vars.Save2 * Vars.Save2 + (Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.003 * Vars.Save2 * Vars.Save2 * 0.55 * Vars.Save4 )
 	--return floorNumber(0.09 * Vars.Save2 * Vars.Save2 * 0.3 * (Vars.Save1 - 1) * (Vars.Save1 - 1) + max(0, 0.6 * Vars.Save1 -1) + 0.2 * Vars.Save2 * minNumber(1,  Vars.Save1-1))
 	---(Vars.Save1 - 1)) + 0.2 * Vars.Save2 * minNumber(1, Vars.Save1 - 1) )
 end
