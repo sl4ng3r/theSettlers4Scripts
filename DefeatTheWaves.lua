@@ -53,15 +53,15 @@ gameDone = 0
 
 
 function isDebug()
-	return 0
+	return 1
 end
 
 function spawnDegubUnits()
-	return 0
+	return 1
 end
 
 function spawnPlayer3()
-	return 0
+	return 1
 end
 
 function getStartTime()
@@ -78,7 +78,8 @@ function testfunction()
 	if spawnDegubUnits() == 1 then
 		--player1
 		Settlers.AddSettlers(395, 480, 1, Settlers.BOWMAN_03, 1000)
-        Settlers.AddSettlers(420, 470, 1, Settlers.PRIEST, 20)
+		Settlers.AddSettlers(395, 480, 1, Settlers.BOWMAN_03, 300)
+		Settlers.AddSettlers(420, 470, 1, Settlers.PRIEST, 20)
 
 		--player3
 		if spawnPlayer3() == 1 then
@@ -115,7 +116,7 @@ end
 function startFinalWave()
 	Vars.Save2 = 12
 	Vars.Save1 = 1
-	Vars.Save4 = 1
+	--Vars.Save4 = 1
 	finalWave()
 
 end
@@ -306,6 +307,12 @@ difficultyChooser= {
 		x=89,
 		y=866,
 		difficulty=8
+	},
+	pro ={
+		difficulty=10
+	},
+	maxdiff={
+		difficulty=12
 	}
 }
 
@@ -331,7 +338,7 @@ function initGame()
         Tutorial.RWM(1)
         --startTimeFirstWave = 8
 		-- muss wieder raus
-		--requestMinuteEvent(startFinalWave,13)
+		requestMinuteEvent(startFinalWave,10)
 
     end
 
@@ -383,6 +390,18 @@ function initGame()
     checkSpawnPointDefeted()
 end
 
+function doActionsAfterMinutes()
+	--wird jede Minute ausgefuehrt
+	if newMinute() == 1 then
+		Magic.IncreaseMana(7,3)
+		--spawnSabos()
+	end
+
+	if minuteReached(1) == 1 then
+
+	end
+end
+
 function getTimeToCheckAIs()
 	return 7
 end
@@ -431,17 +450,19 @@ function checkDifficulty()
 		Buildings.AddBuilding(61, 845, 1, Buildings.EYECATCHER03)
 		Buildings.AddBuilding(61, 851, 1, Buildings.EYECATCHER03)
 		players.p1.amountOfStartBuildings = players.p1.amountOfStartBuildings + 2
-	else
-		if Vars.Save4 == 12 then
-			dbg.stm("Ihr spielt die maximale Stufe!! Habt ihr euch das gut überlegt?")
-		else
-			dbg.stm("Ihr spielt eine extrem harte Partie! Dann mal viel Glück!")
-		end
 
+	elseif Vars.Save4 < difficultyChooser.pro.difficulty then
 		Buildings.AddBuilding(61, 845, 1, Buildings.EYECATCHER03)
 		Buildings.AddBuilding(61, 851, 1, Buildings.EYECATCHER03)
 		Buildings.AddBuilding(67, 852, 1, Buildings.EYECATCHER03)
 		players.p1.amountOfStartBuildings = players.p1.amountOfStartBuildings + 3
+		dbg.stm("Ihr spielt eine extrem harte Partie! Dann mal viel Glück!")
+	else
+		if Vars.Save4 == difficultyChooser.maxdiff.difficulty then
+			dbg.stm("Ihr spielt die maximale Stufe!! Habt ihr euch das gut überlegt?")
+		else
+			dbg.stm("Ihr spielt eine Partie mit Mindeststufe 10.. Wow, dann mal viel Glück!")
+		end
 	end
 
 end
@@ -569,17 +590,19 @@ function reduceSpawnChamps(amountPlayers)
 end
 
 function reduceCreepsInSpawnPoint(spawnpoint,amountPlayers)
-
+	-- extreme
 	local radius = 15 - (( amountPlayers -1 ) * 3)
 
 	if amountPlayers == 5 then
 		radius = 0
 	end
 
+	-- Hard
 	if Vars.Save4 < difficultyChooser.extreme.difficulty then
 		radius = radius + 1
 	end
 
+	-- Easy
 	if Vars.Save4 < difficultyChooser.hard.difficulty then
 		radius = 18 -  (( amountPlayers -1 ) * 2)
 	end
@@ -596,7 +619,7 @@ end
 
 function finalWave()
 	Vars.Save2 = Vars.Save2 + 1
-	dbg.stm("########--Final wave is coming....--########")
+
 	spawnSpawnPoint(spawnpoints.sp1,spawnpoints.sp1)
 	spawnSpawnPoint(spawnpoints.sp1,spawnpoints.sp1)
 	spawnSpawnPoint(spawnpoints.sp2,spawnpoints.sp2)
@@ -611,16 +634,21 @@ function finalWave()
 
 	--Extra Schwert und Axt
 	if Vars.Save4 >= difficultyChooser.hard.difficulty then
-		spawnSpawnPointSpecific(spawnpoints.sp3,spawnpoints.sp3, spawnpoints.sp3.settlerType3, 3 * Vars.Save1)
-		spawnSpawnPointSpecific(spawnpoints.sp6,spawnpoints.sp6, spawnpoints.sp6.settlerType3, 3 * Vars.Save1)
-
+		spawnSpawnPointSpecific(spawnpoints.sp3,spawnpoints.sp6, spawnpoints.sp3.settlerType3, floorNumber(0.5 * Vars.Save4 * Vars.Save1 ))
+		spawnSpawnPointSpecific(spawnpoints.sp6,spawnpoints.sp3 , spawnpoints.sp6.settlerType3,floorNumber(0.5 * Vars.Save4 * Vars.Save1 ))
 	end
 
 	if Vars.Save4 >= difficultyChooser.extreme.difficulty then
 		doRandomSpawnOnEachSpawnpoint()
 	end
 
+	if Vars.Save4 >= difficultyChooser.pro.difficulty then
+		spawnAmbush()
+		spawnSabos()
+		spawnSabos()
+	end
 
+	dbg.stm("########--Final wave is coming....--########")
 
 
 	AI.NewSquad(6, AI.CMD_SUICIDE_MISSION )
@@ -664,7 +692,7 @@ function startWave()
   else
 	spawnNormalRound()
   end
-	spawnAmbush()
+	checkSpawnAmbushSabos()
 
   AI.NewSquad(6, AI.CMD_SUICIDE_MISSION )
   AI.NewSquad(7, AI.CMD_SUICIDE_MISSION )
@@ -677,26 +705,50 @@ function startWave()
 
 end
 
-function spawnAmbush()
+function checkSpawnAmbushSabos()
 	local randomValue = randomBetween(1,100)
-	if Vars.Save4 >= difficultyChooser.extreme.difficulty and randomValue <= 37 and Vars.Save2 > 1 and Vars.Save2 < 11 then
-		dbg.stm("Ein Hinterhalt!!! Es wurden Truppen in euren Lagern gesichtet!")
-
-		local x = 339 + randomBetween(1,86)
-		local y = 340 + randomBetween(1,74)
-
-		local randomUnits = {Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03,Settlers.BOWMAN_02}
-		local unitIndex = randomBetween(1,getn(randomUnits))
-		if isDebug() == 1 then
-			dbg.stm("Random Spawn: " ..  (getAmountRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2)) .. " normal / " .. (getAmountAdditionalRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.045 * Vars.Save1 * Vars.Save2)) .. " additional")
+	if Vars.Save4 >= difficultyChooser.extreme.difficulty then
+		if  randomValue <= 37 and Vars.Save2 > 1 and Vars.Save2 < 11 then
+			spawnAmbush()
 		end
-		Settlers.AddSettlers(x, y, 7, randomUnits[unitIndex],getAmountRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2))
-		randomUnits = {Settlers.SWORDSMAN_01, Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03}
-		unitIndex = randomBetween(1,getn(randomUnits))
-		Settlers.AddSettlers(x, y, 7, randomUnits[unitIndex], getAmountAdditionalRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2))
+		if Vars.Save2 == 12  and  randomValue <= 45 then
+			spawnAmbush()
+		end
+	end
+
+	randomValue = randomBetween(1,100)
+	if Vars.Save4 >= difficultyChooser.pro.difficulty and randomValue <= 45  then
+		spawnSabos()
 	end
 end
 
+function spawnSabos()
+	dbg.stm("Sabotage!! Es wurde Saboteure gesichtet!!")
+
+	local x = 237 + randomBetween(1,12 * Vars.Save2 + 180)
+	local y = 245 + randomBetween(1,12 * Vars.Save2 + 100)
+
+	Settlers.AddSettlers(x, y, 7, Settlers.SABOTEUR,4)
+
+
+end
+
+function spawnAmbush()
+	dbg.stm("Ein Hinterhalt!!! Es wurden Truppen in euren Lagern gesichtet!")
+
+	local x = 339 + randomBetween(1,86)
+	local y = 340 + randomBetween(1,74)
+
+	local randomUnits = {Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03,Settlers.BOWMAN_02}
+	local unitIndex = randomBetween(1,getn(randomUnits))
+	if isDebug() == 1 then
+		dbg.stm("Random Spawn: " ..  (getAmountRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2)) .. " normal / " .. (getAmountAdditionalRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.045 * Vars.Save1 * Vars.Save2)) .. " additional")
+	end
+	Settlers.AddSettlers(x, y, 6, randomUnits[unitIndex],getAmountRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2))
+	randomUnits = {Settlers.SWORDSMAN_02, Settlers.SWORDSMAN_03}
+	unitIndex = randomBetween(1,getn(randomUnits))
+	Settlers.AddSettlers(x, y, 6, randomUnits[unitIndex], getAmountAdditionalRandomUnits() - floorNumber((Vars.Save1 - 1) * 0.05 * Vars.Save1 * Vars.Save2))
+end
 
 function addFightingStrength(strength)
   Game.SetFightingStrength(6, Game.GetOffenceFightingStrength(6) + strength + 1)
@@ -807,7 +859,7 @@ function getAmountLvl1()
 end
 
 function getAmountLvl2()
-	return floorNumber((0.3 * Vars.Save2 + 0.0002 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2)* getDifficultyMultiplier() + 0.9 * Vars.Save4) * Vars.Save1 - getAmountRemoveForPlayers()
+	return floorNumber((0.25 * Vars.Save2 + 0.0002 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2)* getDifficultyMultiplier() + 0.9 * Vars.Save4) * Vars.Save1 - getAmountRemoveForPlayers()
 end
 
 function getAmountLvl3()
@@ -816,7 +868,7 @@ function getAmountLvl3()
 end
 
 function getAmountRandomUnits()
-    return floorNumber(0.01 * Vars.Save2 * Vars.Save2 + 0.015 * Vars.Save2  + 0.004 * Vars.Save4 * Vars.Save2 * Vars.Save2 +  0.2 * Vars.Save4) * Vars.Save1
+    return floorNumber(0.01 * Vars.Save2 * Vars.Save2 + 0.015 * Vars.Save2  + 0.008 * Vars.Save4 * Vars.Save2 * Vars.Save2 +  0.2 * Vars.Save4) * Vars.Save1
 end
 
 function getAmountAdditionalRandomUnits()
@@ -829,7 +881,7 @@ function getDifficultyMultiplier()
 end
 
 function getAmountRemoveForPlayers()
-	return floorNumber((Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.002 * Vars.Save2 * Vars.Save2 + (Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.003 * Vars.Save2 * Vars.Save2 * 0.55 * Vars.Save4 )
+	return floorNumber((Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.0025 * Vars.Save2 * Vars.Save2 + (Vars.Save1 - 1) * (Vars.Save1 - 1) * 0.0024 * Vars.Save2 * Vars.Save2 * 0.55 * Vars.Save4 )
 	--return floorNumber(0.09 * Vars.Save2 * Vars.Save2 * 0.3 * (Vars.Save1 - 1) * (Vars.Save1 - 1) + max(0, 0.6 * Vars.Save1 -1) + 0.2 * Vars.Save2 * minNumber(1,  Vars.Save1-1))
 	---(Vars.Save1 - 1)) + 0.2 * Vars.Save2 * minNumber(1, Vars.Save1 - 1) )
 end
@@ -1034,17 +1086,7 @@ function blaTest(index,spawnpoint)
 	dbg.stm("added")
 end
 
-function doActionsAfterMinutes()
-	--wird jede Minute ausgefuehrt
-	if newMinute() == 1 then
-		Magic.IncreaseMana(7,3)
-	end
 
-	if minuteReached(1) == 1 then
-
-	end
-
-end
 
 
 
