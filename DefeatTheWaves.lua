@@ -29,9 +29,8 @@ function new_game()
 	request_event(cheatProtection, Events.FIVE_TICKS)
 	request_event(initGame,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
 	request_event(Siegbedingung, Events.VICTORY_CONDITION_CHECK)
-
+	dbg.stm("Donations zur letzten Version. Special Thanks to Laable, Macronix. Danke für eure Donation! :)")
 	dbg.stm("Willkommen bei Defeat the Waves! Aus 6 Ecken werden euch Gegner Wellen angreifen, die mit der Zeit immer stärker werden. Ihr könnt die Wellen der entsprechenden Einheiten stoppen, indem ihr deren Lager in den einzelnen Ecken besiegt. (Zwei Lager befinden sich auf Inseln ;-)). Nach 15 Minuten gehts los, also gebt Gas!! Viel Spaß :-D")
-
 
 
 end
