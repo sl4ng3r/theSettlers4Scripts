@@ -401,9 +401,9 @@ function doEveryMinuteSpawn()
     if Game.Time() >= 13 then
         if Game.Time() > getEndgameTime() then
             if Game.Time() >= 100 then
-                spawnEnemySupportPackage(9, 6, 2, 5, 2)
+                spawnEnemySupportPackage(8, 6, 2, 5, 2)
             else
-                spawnEnemySupportPackage(8, 4, 2, 4, 1)
+                spawnEnemySupportPackage(7, 4, 2, 4, 1)
             end
         else
             spawnEnemySupportPackage(4, 2, 1, 1, 0)
@@ -460,7 +460,7 @@ function doEveryMinuteSpawn()
     if endGame == 1 then
         --leicht spawn
         spawnSupportForOpp(ops.o1, 4, 3, 1, 1, 0)
-        spawnSupportForOpp(ops.o5, 6, 3, 2, 3, 1)
+        spawnSupportForOpp(ops.o5, 5, 3, 2, 3, 1)
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
             spawnSupportForOpp(ops.o1, 5, 3, 2, 1, 0)
             spawnSupportForOpp(ops.o5, 7, 5, 2, 0, 1)
@@ -562,7 +562,7 @@ function doActionsAfterMinutes()
 
     end
 
-    if minuteReached(67) == 1 then
+    if minuteReached(65) == 1 then
         if Vars.Save4 == difficultyChooser.hard.difficulty then
             Game.SetFightingStrength(4, 121)
             Game.SetFightingStrength(5, 116)
@@ -661,13 +661,13 @@ end
 function setNewPauseUntilAttack()
     if Vars.Save4 == difficultyChooser.extreme.difficulty then
         if endGame == 1 then
-            pauseUntilAttack = randomBetween(8, 10)
+            pauseUntilAttack = randomBetween(7, 9)
         else
             pauseUntilAttack = randomBetween(10, 11)
         end
     else
         if endGame == 1 then
-            pauseUntilAttack = randomBetween(9, 11)
+            pauseUntilAttack = randomBetween(8, 11)
         else
             pauseUntilAttack = randomBetween(10, 12)
         end
@@ -843,7 +843,7 @@ end
 
 function checkAttack()
 
-    if Game.Time() >= (getEndgameTime() - 7) and Game.Time() < (getEndgameTime() + 4) then
+    if Game.Time() >= (getEndgameTime() - 6) and Game.Time() < (getEndgameTime() + 2) then
         if isDebug() == 1 then
             dbg.stm("no attack, waiting for endgame Attack")
         end
@@ -909,7 +909,11 @@ function startAttack(mainAttackPlayer, attackCondition, percentForceMain)
     local mainPlayer = mainAttackPlayer
     local attackType = ""
 
-    
+    AI.NewSquad(4, AI.CMD_SUICIDE_MISSION )
+    AI.NewSquad(5, AI.CMD_SUICIDE_MISSION )
+    AI.NewSquad(6, AI.CMD_SUICIDE_MISSION )
+    AI.NewSquad(7, AI.CMD_SUICIDE_MISSION )
+    AI.NewSquad(8, AI.CMD_SUICIDE_MISSION )
 
     if randomAttack <= 15 or percentForceMain == 100 then
         -- greife alle den main player an

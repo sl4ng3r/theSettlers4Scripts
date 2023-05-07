@@ -60,7 +60,7 @@ function spawnDegubUnits()
 end
 
 function spawnPlayer3()
-	return 1
+	return 0
 end
 
 function getStartTime()
@@ -337,7 +337,7 @@ function initGame()
         Tutorial.RWM(1)
         --startTimeFirstWave = 8
 		-- muss wieder raus
-		requestMinuteEvent(startFinalWave,10)
+		--requestMinuteEvent(startFinalWave,10)
 
     end
 
@@ -643,8 +643,6 @@ function finalWave()
 
 	if Vars.Save4 >= difficultyChooser.pro.difficulty then
 		spawnAmbush()
-		spawnSabos()
-		spawnSabos()
 	end
 
 	dbg.stm("########--Final wave is coming....--########")
@@ -691,7 +689,7 @@ function startWave()
   else
 	spawnNormalRound()
   end
-	checkSpawnAmbushSabos()
+	checkSpawnAmbush()
 
   AI.NewSquad(6, AI.CMD_SUICIDE_MISSION )
   AI.NewSquad(7, AI.CMD_SUICIDE_MISSION )
@@ -704,7 +702,7 @@ function startWave()
 
 end
 
-function checkSpawnAmbushSabos()
+function checkSpawnAmbush()
 	local randomValue = randomBetween(1,100)
 	if Vars.Save4 >= difficultyChooser.extreme.difficulty then
 		if  randomValue <= 37 and Vars.Save2 > 1 and Vars.Save2 < 11 then
@@ -716,9 +714,7 @@ function checkSpawnAmbushSabos()
 	end
 
 	randomValue = randomBetween(1,100)
-	if Vars.Save4 >= difficultyChooser.pro.difficulty and randomValue <= 45  then
-		spawnSabos()
-	end
+	
 end
 
 function spawnSabos()
@@ -943,6 +939,8 @@ end
 
 
 tickCounter2 = 1
+tickCounterMana = 1
+amountOfToBuildTowers = 0
 
 function doChecks()
 	tickCounter2 = tickCounter2 + 5
@@ -950,9 +948,72 @@ function doChecks()
 		checkSpawnPointDefeted()
 		checkBonus()
 		checkSacs()
+		tempAmountOfPreviousTowers = amountOfToBuildTowers
+		amountOfToBuildTowers = amountOfManaTowers()
+		if tempAmountOfPreviousTowers ~= amountOfToBuildTowers then 
+			dbg.stm("Ihr habt nun " .. amountOfToBuildTowers .. " aktive Mana Tower.")
+		end 
 		tickCounter2 = 1
 	end
+	
+	local manaSpeed = calculateManaSpeed()
+	
+	tickCounterMana = tickCounterMana + 3
+	if tickCounterMana >= manaSpeed then
 
+		if amountOfToBuildTowers > 0 then
+			addMana()
+		end
+		tickCounterMana = 1
+	end
+end
+
+function calculateManaSpeed()
+	
+	local removeManaSpeed = 0
+
+	local counter = 0
+	while counter < amountOfToBuildTowers  do
+		removeManaSpeed = removeManaSpeed + (30 - counter * 6)
+		counter = counter + 1
+	end
+
+	local manaSpeed = 200 - removeManaSpeed
+	if Game.Time() >= 30 then
+			manaSpeed = 120 - removeManaSpeed
+	end
+	return manaSpeed
+end
+
+function addMana()
+
+	Magic.IncreaseMana(1,1 )
+	Magic.IncreaseMana(2,1 )
+	Magic.IncreaseMana(3,1 )
+	Magic.IncreaseMana(4,1 )
+	Magic.IncreaseMana(5,1 )
+
+	
+end
+
+function amountOfManaTowers()
+	amountOfTower = 0
+	amountOfTower = amountOfTower + checkManaTower(1, 424,555)
+	amountOfTower = amountOfTower + checkManaTower(2, 544,610)
+	amountOfTower = amountOfTower + checkManaTower(3, 537,329)
+	amountOfTower = amountOfTower + checkManaTower(4, 398,270)
+	amountOfTower = amountOfTower + checkManaTower(5, 253,258)
+
+	return amountOfTower
+
+end
+
+function checkManaTower(player, x,y)
+	if Buildings.ExistsBuildingInArea(player,Buildings.GUARDTOWERSMALL,x,y,7, Buildings.READY) >= 1 then
+		return 1
+	end
+	
+	return 0
 end
 
 function checkSacs()
