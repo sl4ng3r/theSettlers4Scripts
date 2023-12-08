@@ -4,7 +4,7 @@ function new_game()
 	Vars.Save8 = 0
 
 	--Anzahl an Spielern
-	Vars.Save1 = 0
+	Vars.Save1 = 1
 
 	--WAVE Number
 	Vars.Save2 = 0
@@ -463,8 +463,12 @@ function checkDifficulty()
 			dbg.stm("Ihr spielt eine Partie mit Mindeststufe 10.. Wow, dann mal viel Glück!")
 		end
 	end
+	
+	
 
 end
+
+
 
 function removeBigTowerAtPossitionForPlayer(x, y, player)
 	Buildings.CrushBuilding(Buildings.GetFirstBuilding(player,Buildings.GUARDTOWERBIG))
@@ -500,6 +504,7 @@ function checkAIs()
 	checkIfDestroyParty(players.p5)
 
 	reduceSpawnChamps(counterOfPlayer)
+	addUnitsOnIslands(counterOfPlayer)
 
 	Vars.Save1 = counterOfPlayer
 
@@ -514,6 +519,32 @@ function checkAIs()
 	if Vars.Save4 >= 11 then
 		addFightingStrength(3)
 	end
+
+
+end
+
+function addUnitsOnIslands(counterOfPlayer)
+
+if Vars.Save4 >= difficultyChooser.hard.difficulty then
+	Settlers.AddSettlers(154,254, 6,Settlers.BOWMAN_03,10)
+	Settlers.AddSettlers(691,627, 8,Settlers.BOWMAN_03,10)
+end
+
+if Vars.Save4 >= difficultyChooser.pro.difficulty then
+	Settlers.AddSettlers(139,246, 6,Settlers.BOWMAN_03,10)
+	Settlers.AddSettlers(705,628, 8,Settlers.BOWMAN_03,10)
+end
+
+
+
+if counterOfPlayer >=3 then
+	Settlers.AddSettlers(128,250, 6,Settlers.BOWMAN_03,17)
+	Settlers.AddSettlers(715,646, 8,Settlers.BOWMAN_03,17)
+end
+
+
+
+
 
 
 end
@@ -941,6 +972,7 @@ end
 tickCounter2 = 1
 tickCounterMana = 1
 amountOfToBuildTowers = 0
+calcManaSpeed = 200
 
 function doChecks()
 	tickCounter2 = tickCounter2 + 5
@@ -952,37 +984,43 @@ function doChecks()
 		amountOfToBuildTowers = amountOfManaTowers()
 		if tempAmountOfPreviousTowers ~= amountOfToBuildTowers then 
 			dbg.stm("Ihr habt nun " .. amountOfToBuildTowers .. " aktive Mana Tower.")
+			calcManaSpeed = calculateManaSpeed()
 		end 
 		tickCounter2 = 1
 	end
-	
-	local manaSpeed = calculateManaSpeed()
-	
-	tickCounterMana = tickCounterMana + 3
-	if tickCounterMana >= manaSpeed then
-
+		
+	tickCounterMana = tickCounterMana + getManaTicker()
+	if tickCounterMana >= calcManaSpeed then
+		dbg.stm(calcManaSpeed .. "  " .. getManaTicker() .. " " .. amountOfToBuildTowers)
 		if amountOfToBuildTowers > 0 then
+			calcManaSpeed = calculateManaSpeed()
 			addMana()
 		end
 		tickCounterMana = 1
 	end
 end
+--gibt am ende 6 zurueck
+function getManaTicker()
+	return 1 + ( floorNumber(amountOfToBuildTowers / 1.6)) +  ( floorNumber(Vars.Save1 / 1.6)) -- bei 5 spieler kommt 3 raus
+end
 
 function calculateManaSpeed()
-	
+	local manaSpeed = 240
 	local removeManaSpeed = 0
 
-	local counter = 0
+	--amount of towers
+	local counter = 1
 	while counter < amountOfToBuildTowers  do
-		removeManaSpeed = removeManaSpeed + (30 - counter * 6)
+		removeManaSpeed = removeManaSpeed +  (12 - counter )
 		counter = counter + 1
 	end
 
-	local manaSpeed = 200 - removeManaSpeed
-	if Game.Time() >= 30 then
-			manaSpeed = 120 - removeManaSpeed
-	end
-	return manaSpeed
+	--amount of players
+	removeManaSpeed = removeManaSpeed + 3 * Vars.Save1
+	
+	manaSpeed = manaSpeed - removeManaSpeed - Game.Time() *2
+	-- 15 bedeutet am ende zwei mal 5er tick. 1 + 6 + 6
+	return maxNumber(15,manaSpeed)
 end
 
 function addMana()
@@ -1001,7 +1039,7 @@ function amountOfManaTowers()
 	amountOfTower = amountOfTower + checkManaTower(1, 424,555)
 	amountOfTower = amountOfTower + checkManaTower(2, 544,610)
 	amountOfTower = amountOfTower + checkManaTower(3, 537,329)
-	amountOfTower = amountOfTower + checkManaTower(4, 398,270)
+	amountOfTower = amountOfTower + checkManaTower(4, 285,174)
 	amountOfTower = amountOfTower + checkManaTower(5, 253,258)
 
 	return amountOfTower
@@ -1009,7 +1047,7 @@ function amountOfManaTowers()
 end
 
 function checkManaTower(player, x,y)
-	if Buildings.ExistsBuildingInArea(player,Buildings.GUARDTOWERSMALL,x,y,7, Buildings.READY) >= 1 then
+	if Buildings.ExistsBuildingInArea(player,Buildings.GUARDTOWERSMALL,x,y,8, Buildings.READY) >= 1 then
 		return 1
 	end
 	

@@ -41,11 +41,11 @@ function register_functions()
 end
 
 function isDebug()
-    return 1
+    return 0
 end
 
 function isAIDebug()
-    return 1
+    return 0
 end
 
 ops = {
@@ -412,7 +412,7 @@ function doEveryMinuteSpawn()
 
     --Extra Spawn für Schwer
     if Game.Time() >= 23 and Vars.Save4 >= difficultyChooser.hard.difficulty then
-            spawnEnemySupportPackage(6, 3, 1, 8, 2)
+            spawnEnemySupportPackage(6, 2, 1, 7, 2)
         --       if isAIDebug() == 1 then
         --          dbg.stm("extra spawn hard")
         --      end
@@ -459,11 +459,11 @@ function doEveryMinuteSpawn()
     --Extra spawn für Endgame beim König
     if endGame == 1 then
         --leicht spawn
-        spawnSupportForOpp(ops.o1, 4, 3, 1, 1, 0)
+        spawnSupportForOpp(ops.o1, 5, 3, 1, 1, 0)
         spawnSupportForOpp(ops.o5, 6, 3, 2, 3, 1)
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
-            spawnSupportForOpp(ops.o1, 5, 3, 2, 1, 0)
-            spawnSupportForOpp(ops.o5, 7, 5, 2, 0, 1)
+            spawnSupportForOpp(ops.o1, 5, 2, 2, 1, 0)
+            spawnSupportForOpp(ops.o5, 7, 3, 1, 0, 1)
         end
         if Vars.Save4 == difficultyChooser.extreme.difficulty then
             spawnEnemySupportUnits(ops.o1,1,2)
@@ -477,9 +477,9 @@ function doEveryMinuteSpawn()
 
     end
     --extra spawn
-    if Game.Time() > 100 then
-        spawnSupportForOpp(ops.o1, 5, 3, 1, 1, 0)
-        spawnSupportForOpp(ops.o5, 4, 2, 1, 0, 1)
+    if Game.Time() > 90 then
+        spawnSupportForOpp(ops.o1, 3, 3, 1, 1, 0)
+        spawnSupportForOpp(ops.o5, 3, 2, 1, 0, 1)
         if Vars.Save4 >= difficultyChooser.hard.difficulty then
             if Game.HasPlayerLost(7) == 0 then
                 spawnSupportForOpp(ops.o1, 4, 2, 1, 1, 0)
@@ -578,9 +578,9 @@ function doActionsAfterMinutes()
         end
     end
 
-    if minuteReached(getEndgameTime()) == 1 then
+    if minuteReached(getEndgameTime() - 2 ) == 1 then
         endGame = 1
-        spawnEnemySupportPackage(5, 2, 2, 2, 2)
+        spawnEnemySupportPackage(12, 7, 3, 6, 3)
         setNewAttackAmount()
         setNewPauseUntilAttack()
         if Vars.Save4 == difficultyChooser.hard.difficulty then
