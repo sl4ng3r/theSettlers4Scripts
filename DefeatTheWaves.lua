@@ -52,11 +52,11 @@ gameDone = 0
 
 
 function isDebug()
-	return 1
+	return 0
 end
 
 function spawnDegubUnits()
-	return 1
+	return 0
 end
 
 function spawnPlayer3()
@@ -311,7 +311,7 @@ difficultyChooser= {
 		difficulty=10
 	},
 	maxdiff={
-		difficulty=12
+		difficulty=15
 	}
 }
 
@@ -504,7 +504,7 @@ function checkAIs()
 	checkIfDestroyParty(players.p5)
 
 	reduceSpawnChamps(counterOfPlayer)
-	addUnitsOnIslands(counterOfPlayer)
+	removeUnitsOnIslands(counterOfPlayer)
 
 	Vars.Save1 = counterOfPlayer
 
@@ -512,34 +512,44 @@ function checkAIs()
 
 	dbg.stm("Ihr spielt eine Partie für " .. counterOfPlayer .. " Spieler")
 	setFinalWave()
+	
+
 
 	if Vars.Save4 >= 9 then
 		addFightingStrength(5)
 	end
 	if Vars.Save4 >= 11 then
+		addFightingStrength(10)
+	end
+	
+	if Vars.Save4 >= 13 then
 		addFightingStrength(3)
 	end
+	  Game.SetFightingStrength(1, Game.GetOffenceFightingStrength(1) + 5 + 1)
+
 
 
 end
 
-function addUnitsOnIslands(counterOfPlayer)
+function removeUnitsOnIslands(counterOfPlayer)
 
-if Vars.Save4 >= difficultyChooser.hard.difficulty then
-	Settlers.AddSettlers(154,254, 6,Settlers.BOWMAN_03,10)
-	Settlers.AddSettlers(691,627, 8,Settlers.BOWMAN_03,10)
+if Vars.Save4 < difficultyChooser.hard.difficulty then
+	Settlers.KillSelectableSettlers(6, Settlers.BOWMAN_03, 154,254, 10 , 0)
+	Settlers.KillSelectableSettlers(8, Settlers.BOWMAN_03, 691,627, 10 , 0)
+
 end
 
-if Vars.Save4 >= difficultyChooser.pro.difficulty then
-	Settlers.AddSettlers(139,246, 6,Settlers.BOWMAN_03,10)
-	Settlers.AddSettlers(705,628, 8,Settlers.BOWMAN_03,10)
+if Vars.Save4 < difficultyChooser.pro.difficulty then
+	Settlers.KillSelectableSettlers(6, Settlers.BOWMAN_03, 139,246, 10 , 0)
+	Settlers.KillSelectableSettlers(8, Settlers.BOWMAN_03, 705,628, 10 , 0)
 end
 
 
 
-if counterOfPlayer >=3 then
-	Settlers.AddSettlers(128,250, 6,Settlers.BOWMAN_03,17)
-	Settlers.AddSettlers(715,646, 8,Settlers.BOWMAN_03,17)
+if counterOfPlayer <3 then
+	Settlers.KillSelectableSettlers(6, Settlers.BOWMAN_03, 129,250, 10 , 0)
+	Settlers.KillSelectableSettlers(8, Settlers.BOWMAN_03, 714,644, 10 , 0)
+	
 end
 
 
@@ -885,20 +895,20 @@ function getAmountLvl1()
 end
 
 function getAmountLvl2()
-	return floorNumber((0.25 * Vars.Save2 + 0.0002 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2)* getDifficultyMultiplier() + 0.9 * Vars.Save4) * Vars.Save1 - getAmountRemoveForPlayers()
+	return floorNumber((0.2 * Vars.Save2 + 0.00015 * Vars.Save2 * Vars.Save2* Vars.Save2 * Vars.Save2)* getDifficultyMultiplier() + 0.56 * Vars.Save4) * Vars.Save1 - getAmountRemoveForPlayers()
 end
 
 function getAmountLvl3()
-	return floorNumber((0.0075 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.2 * Vars.Save2 + 0.6) * getDifficultyMultiplier() ) * Vars.Save1 - getAmountRemoveForPlayers()
+	return floorNumber((0.0055 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.15 * Vars.Save2 + 0.4) * getDifficultyMultiplier() ) * Vars.Save1 - getAmountRemoveForPlayers()
 	--return max(0,floorNumber((0.014 * Vars.Save2 * Vars.Save2 * Vars.Save2 + 0.4 * Vars.Save2) *(0.08*Vars.Save4 + 0.5)) * Vars.Save1 - getAmountRemoveForPlayers())
 end
 
 function getAmountRandomUnits()
-    return floorNumber(0.01 * Vars.Save2 * Vars.Save2 + 0.015 * Vars.Save2  + 0.008 * Vars.Save4 * Vars.Save2 * Vars.Save2 +  0.2 * Vars.Save4) * Vars.Save1
+    return floorNumber(0.01 * Vars.Save2 * Vars.Save2 + 0.015 * Vars.Save2  + 0.005 * Vars.Save4 * Vars.Save2 * Vars.Save2 +  0.2 * Vars.Save4) * Vars.Save1
 end
 
 function getAmountAdditionalRandomUnits()
-    return floorNumber(0.3 * Vars.Save2 * getDifficultyMultiplier()  ) * Vars.Save1
+    return floorNumber(0.25 * Vars.Save2 * getDifficultyMultiplier()  ) * Vars.Save1
 end
 
 
@@ -991,7 +1001,7 @@ function doChecks()
 		
 	tickCounterMana = tickCounterMana + getManaTicker()
 	if tickCounterMana >= calcManaSpeed then
-		dbg.stm(calcManaSpeed .. "  " .. getManaTicker() .. " " .. amountOfToBuildTowers)
+		--dbg.stm(calcManaSpeed .. "  " .. getManaTicker() .. " " .. amountOfToBuildTowers)
 		if amountOfToBuildTowers > 0 then
 			calcManaSpeed = calculateManaSpeed()
 			addMana()
@@ -1005,7 +1015,7 @@ function getManaTicker()
 end
 
 function calculateManaSpeed()
-	local manaSpeed = 240
+	local manaSpeed = 220
 	local removeManaSpeed = 0
 
 	--amount of towers
@@ -1131,7 +1141,7 @@ function checkBonus()
 			counter = counter + 1
 		end
 		if allReady == 1 and getAmountOfLivingPlayers() > 0 then
-			spawnBonusForLivingPlayers(floorNumber(3 + (0.5 * Vars.Save4)))
+			spawnBonusForLivingPlayers(floorNumber( 2 + Vars.Save4))
 			dbg.stm("Ihr hört eine durchdringende Stimme.... Eure Tempel sind ein Beweiß eures Glaubens.. Dies soll belohnt werden. Diese Truppen sollen euch im Kampf unterstützen.. Opfert weitere Priester und ihr sollt entlohnt werden..  ")
 			Vars.Save5 = 1
 		end
